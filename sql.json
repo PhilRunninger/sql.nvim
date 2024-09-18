@@ -1,0 +1,36 @@
+{
+    "sqlserver": {
+        "cmdline": "sqlcmd -S <svr> -d <db> -s \";\" -W -I -i <file>",
+        "actions":{
+            "cmdlineArgs": "-h-1 -v object=\"<object>\"",
+            "Catalog": {
+                "Show": "Catalog.sql"
+            },
+            "Tables": {
+                "Select TOP 100":   "Select.sql",
+                "Select TOP 100 *": "SelectStar.sql",
+                "Update":           "Update.sql",
+                "Insert":           "Insert.sql",
+                "Script":           "CreateTable.sql"
+            },
+            "Views": {
+                "Select TOP 100":   "Select.sql",
+                "Select TOP 100 *": "SelectStar.sql",
+                "Script":           "TSqlText.sql"
+            },
+            "Stored Procedures": {
+                "Script": "TSqlText.sql"
+            },
+            "Scalar Functions": {
+                "Script": "TSqlText.sql"
+            },
+            "Table-valued Functions": {
+                "Script": "TSqlText.sql"
+            }
+        }
+    },
+    "postgresql": {
+        "cmdline": "psql -h <svr> -p <port> -d <db> -F\";\" -f <file>",
+        "doAlign": 0
+    }
+}
