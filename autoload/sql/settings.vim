@@ -1,7 +1,36 @@
-
 function! sql#settings#init(root)
     let s:root = a:root
     let s:tempFile = tempname()
+    let s:userConfigPath = stdpath('data') . '\sql.nvim\userconfig.json'
+    if !filereadable(s:userConfigPath)
+        call s:InitializeUserConfig()
+    endif
+endfunction
+
+function s:InitializeUserConfig()
+    " Using a list of strings for pretty formatting.
+    let emptyConfig = [
+    \   '{',
+    \   '    "sqlserver": {',
+    \   '        "cmdlineArgs": "",',
+    \   '        "servers": {',
+    \   '            "server1": {"databases": ["db1"]},',
+    \   '        }',
+    \   '    },',
+    \   '    "postgresql": {',
+    \   '        "cmdlineArgs": "",',
+    \   '        "servers": {',
+    \   '            "server2": {"port": 5432, "databases": ["db2"]}',
+    \   '        }',
+    \   '    }',
+    \   '}'
+    \ ]
+    if !isdirectory(fnamemodify(s:userConfigPath, ':p:h'))
+        call mkdir(fnamemodify(s:userConfigPath, ':p:h'), 'p')
+    endif
+    call writefile(emptyConfig, s:userConfigPath)
+    execute 'split '.s:userConfigPath
+    call confirm('Complete the user settings file. Take note of its location for future reference.')
 endfunction
 
 function! sql#settings#root()
@@ -13,11 +42,11 @@ function! sql#settings#tempFile()
 endfunction
 
 function! sql#settings#app()
-    return json_decode(readfile(s:root.'\sql.json'))
+    return json_decode(readfile(s:root.'\config.json'))
 endfunction
 
 function! sql#settings#user()
-    return json_decode(readfile(s:root.'\.sql.json'))
+    return json_decode(readfile(s:userConfigPath))
 endfunction
 
 function! sql#settings#serverInfo()

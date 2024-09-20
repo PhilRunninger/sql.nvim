@@ -1,6 +1,6 @@
 {
     "sqlserver": {
-        "cmdline": "sqlcmd -S <svr> -d <db> -s \";\" -W -I -i <file>",
+        "cmdline": "sqlcmd -S <svr> -d <db> -s \";\" -W -I -f 65001 -i <file>",
         "actions":{
             "cmdlineArgs": "-h-1 -v object=\"<object>\"",
             "Catalog": {
