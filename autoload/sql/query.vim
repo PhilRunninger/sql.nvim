@@ -4,7 +4,7 @@ function! sql#query#run(callback, type='', action='', actionValues={})
 endfunction
 
 function! s:StdErr(job_id, data, event)
-    call foreach(filter(a:data, {_,v -> v != ''}), 'echo v:val')
+    call foreach(filter(a:data, {_,v -> v != ''}), 'echoerr v:val')
 endfunction
 
 function! s:CommandLine(type, action, actionValues) " {{{1
