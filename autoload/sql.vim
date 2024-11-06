@@ -10,7 +10,9 @@ let sql#server = ''
 let sql#database = ''
 
 function! sql#new()
-    tabnew
+    if bufname('%')!='' || &modified
+        tabnew
+    endif
     set filetype=sql
     call sql#showCatalog()
 endfunction
