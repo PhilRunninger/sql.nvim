@@ -39,6 +39,8 @@ function s:Collapse()
     endif
 endfunction
 
+    " call sql#query#run(function('s:OpenCatalogCallback',[bufnr(), b:platform, b:server, b:database]), 'Catalog', 'Show')
+
 function s:ExpandOrOpenMenu()   " {{{1
     if foldclosed('.') != -1 && foldlevel('.') == 1
         normal! zo0

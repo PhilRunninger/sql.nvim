@@ -204,45 +204,6 @@ function! s:AlignColumns() " {{{1
     endif
 endfunction
 
-function! s:ShowCatalog() " {{{1
-    if !sql#connection#isSet() && !sql#connection#set()
-        return
-    endif
-    let sqlCatalogBufNr = s:OpenSQLCatalogWindow(0)
-    if  getbufvar(sqlCatalogBufNr, 'sqlBuffer') != bufnr() ||
-    \   getbufvar(sqlCatalogBufNr, 'platform') != b:platform ||
-    \   getbufvar(sqlCatalogBufNr, 'server') != b:server ||
-    \   getbufvar(sqlCatalogBufNr, 'database') != b:database
-        call sql#query#run(function('s:OpenCatalogCallback',[bufnr(), b:platform, b:server, b:database]), 'Catalog', 'Show')
-    else
-        call s:OpenSQLCatalogWindow(1)
-    endif
-endfunction
-
-function! s:OpenSQLCatalogWindow(enter) " {{{1
-    let bufnr = bufnr(s:SQLCatalogBuffer,1)
-    let winnr = bufwinnr(bufnr)
-    if winnr == -1
-        call nvim_open_win(bufnr,a:enter,{'width':30, 'noautocmd':1, 'style':'minimal', 'split':'right', 'win':-1})
-        call nvim_set_option_value('filetype', 'sqlcatalog',    {'buf':bufnr})
-    elseif a:enter
-        execute winnr . 'wincmd w'
-    endif
-    return bufnr
-endfunction
-
-function! s:OpenCatalogCallback(sqlBuffer, platform, server, database, job_id, data, event) " {{{1
-    stopinsert
-    let catalogBufNr = s:OpenSQLCatalogWindow(1)
-    let b:sqlBuffer = a:sqlBuffer
-    let [b:platform, b:server, b:database] = [a:platform, a:server, a:database]
-    call nvim_set_option_value('modifiable', v:true, {'buf':catalogBufNr})
-    call nvim_buf_set_lines(catalogBufNr,0,-1,0,map(a:data, {_,v -> substitute(v, nr2char(13).'$', '', '')}))
-    g/^$/d
-    normal! zMgg
-    call nvim_set_option_value('modifiable', v:false, {'buf':catalogBufNr})
-endfunction
-
 " Start Here {{{1
 call sql#settings#init(expand('<sfile>:p:h:h'))
 
@@ -260,6 +221,6 @@ nnoremap <silent> <buffer> <leader><F5> :call sql#connection#set()<CR>
 nnoremap <silent> <buffer> <F5> :call <SID>RunQuery('file')<CR>
 nnoremap <silent> <buffer> <S-F5> :call <SID>RunQuery('paragraph')<CR>
 vnoremap <silent> <buffer> <F5> :<C-U>call <SID>RunQuery('selection')<CR>
-nnoremap <silent> <buffer> <F8> :call <SID>ShowCatalog()<CR>
+nnoremap <silent> <buffer> <F8> :call sql#showCatalog()<CR>
 
 "  vim: foldmethod=marker
