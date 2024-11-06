@@ -2,8 +2,8 @@
 "
 " Vim settings and a custom folding level function for the SQLCatalog buffer.
 
-nnoremap <silent> <buffer> <Esc> :quit<CR>
-nnoremap <silent> <buffer> q :quit<CR>
+nnoremap <silent> <buffer> <Esc> :call <SID>CloseMe()<CR>
+nnoremap <silent> <buffer> q :call <SID>CloseMe()<CR>
 nnoremap <silent> <buffer> h :call <SID>Collapse()<CR>
 nnoremap <silent> <buffer> l :call <SID>ExpandOrOpenMenu()<CR>
 nnoremap <silent> <buffer> <leader>l zo0
@@ -92,3 +92,8 @@ function! s:CloseActionsWindow()   "{{{1
     unlet! s:actionsWindow
 endfunction
 
+function! s:CloseMe()   "{{{1
+    let winnr = winnr()
+    wincmd p
+    execute winnr.'wincmd c'
+endfunction
