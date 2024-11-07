@@ -32,32 +32,66 @@ function! SQLCatalogFoldLevel(lnum)   " {{{1
     endif
 endfunction
 
-function s:Collapse()
+function s:Collapse()   " {{{1
     normal zc0
     if foldclosed('.') != -1
         call cursor(foldclosed('.'), 1)
     endif
 endfunction
 
-    " call sql#query#run(function('s:OpenCatalogCallback',[bufnr(), b:platform, b:server, b:database]), 'Catalog', 'Show')
-
 function s:ExpandOrOpenMenu()   " {{{1
-    if foldclosed('.') != -1 && foldlevel('.') == 1
+    if foldclosed('.') != -1 && foldlevel('.') <= 3
         normal! zo0
         return
     endif
 
-    let type = search('^\S','bcnW')
-    let object = search('^  \S','bcnW')
-    if object < type
-        return
-    endif
+    let server   = search('^\S', 'bcnW')
+    let database = search('^  \S', 'bcnW')
+    let type     = search('^    \S','bcnW')
+    let object   = search('^      \S','bcnW')
 
-    let type = getline(type)
-    let actions = sql#settings#actions(type)
+    let currentLine = getline('.')
+    if currentLine =~# '^○'
+        call s:GetDatabases(matchlist(currentLine, '^..\(.*\) (\(.*\))$')[1:2])
+    elseif currentLine =~# '^  ○'
+        call s:GetDatabaseObjects(
+        \   matchlist(getline(server), '^..\(.*\) (\(.*\))$')[1:2],
+        \   matchlist(currentLine, '^  ..\(.*\)$')[1])
+    elseif currentLine =~# '^    \(  \)\?'
+        call s:ShowActionsWindow(
+        \   matchlist(getline(server), '^..\(.*\) (\(.*\))$')[1:2],
+        \   matchlist(getline(database), '^  ..\(.*\)$')[1],
+        \   trim(getline(type)),
+        \   trim(getline(object)))
+    endif
+endfunction
+
+function! s:GetDatabases(server) " {{{1
+    let [server, platform] = a:server
+    call sql#query#run(function('s:GetDatabasesCallback', [line('.')]), platform, server, 'master', 'Catalog', 'GetDatabases')
+endfunction
+
+function! s:GetDatabasesCallback(line, job_id, data, event)
+    stopinsert
+    call sql#showCatalog()
+    setlocal modifiable
+    echomsg string(a:data)
+    echomsg string(map(copy(a:data),{_,v -> empty(v)}))
+    echomsg string(filter(copy(a:data),{_,v -> !empty(v)}))
+    echomsg string(map(filter(copy(a:data),{_,v -> !empty(v)}), {_,v -> '  ○ '.substitute(v, nr2char(13).'$','','')}))
+    call nvim_buf_set_lines(0,a:line,a:line,0,map(filter(a:data,{_,v -> !empty(v)}), {_,v -> '  ○ '.substitute(v, nr2char(13).'$','','')}))
+    setlocal nomodifiable
+endfunction
+
+function! s:GetDatabaseObjects(server, database) " {{{1
+    let [server, platform] = a:server
+endfunction
+
+function! s:ShowActionsWindow(server, database, type, object) " {{{1
+    let [server, platform] = a:server
+    let actions = sql#settings#actions(platform, a:type)
     let sqlBuffer = b:sqlBuffer
-    let [platform, server, database] = [b:platform, b:server, b:database]
-    let object = getline(object)[2:]->substitute('  {.*}$', '','')
+    let object = object->substitute('  {.*}$', '','')
     let config = {
         \ 'relative': 'cursor',
         \ 'anchor': 'NW',
@@ -78,8 +112,8 @@ function s:ExpandOrOpenMenu()   " {{{1
 
     setlocal modifiable filetype=sqlactions
     let b:sqlBuffer = sqlBuffer
-    let [b:platform, b:server, b:database] = [platform, server, database]
-    let [b:type, b:object] = [type, object]
+    let [b:platform, b:server, b:database] = [platform, server, a:database]
+    let [b:type, b:object] = [a:type, object]
     silent %delete _
     call setline(1, actions)
     setlocal nomodifiable

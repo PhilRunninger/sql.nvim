@@ -8,7 +8,7 @@ function! s:RunAction()
 
     let action = getline('.')
     let winnr = bufwinnr(b:sqlBuffer)
-    call sql#query#run(function('s:RunActionCallback', [winnr]), b:type, action, {'object':b:object})
+    call sql#query#run(function('s:RunActionCallback', [winnr]), b:platform, b:server, b:database, b:type, action, {'object':b:object})
 endfunction
 
 function! s:RunActionCallback(winnr, job_id, data, event)

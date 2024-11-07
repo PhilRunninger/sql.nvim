@@ -4,7 +4,8 @@
         "actions":{
             "cmdlineArgs": "-h-1 -v object=\"<object>\"",
             "Catalog": {
-                "Show": "Catalog.sql"
+                "GetDatabases": "GetDatabases.sql",
+                "GetDatabaseObjects": "GetDBObjects.sql"
             },
             "Tables": {
                 "Select TOP 100":   "Select.sql",
