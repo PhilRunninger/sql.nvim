@@ -21,7 +21,9 @@ function! sql#showCatalog() " {{{1
     let sql#catalogBufNr = bufnr(s:catalogBuffer)
     if sql#catalogBufNr == -1
         let sql#catalogBufNr = bufnr(s:catalogBuffer, 1)
-        let serverlist = map(sort(flatten(map(keys(sql#settings#user()),{_,p -> sql#settings#user()[p].servers}))), {_,s -> '○ '.s})
+        let serverlist = sort(flatten(
+        \   map(keys(sql#settings#user()),{_,p -> 
+        \       map(sql#settings#user()[p].servers, {_,s -> '○ '.s.' ('.p.')'})})))
         call nvim_buf_set_lines(sql#catalogBufNr,0,-1,0,serverlist)
         g/^$/d
         call nvim_set_option_value('filetype', 'sqlcatalog',    {'buf':sql#catalogBufNr})
