@@ -118,7 +118,7 @@ function! s:RunQueryCallback(timer, job_id, data, event) " {{{1
 endfunction
 
 function! s:OpenSQLOutWindow(enter) " {{{1
-    let bufnr = bufnr(s:SQLOutBuffer, 1)
+    let bufnr = bufnr('^'.s:SQLOutBuffer.'$', 1)
     let winnr = bufwinnr(s:SQLOutBuffer)
     if winnr == -1
         let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})

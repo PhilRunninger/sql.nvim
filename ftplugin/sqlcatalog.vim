@@ -52,44 +52,43 @@ function s:ExpandOrOpenMenu()   " {{{1
 
     let currentLine = getline('.')
     if currentLine =~# '^○'
-        call s:GetDatabases(matchlist(currentLine, '^..\(.*\) (\(.*\))$')[1:2])
+        call s:GetDatabases(
+        \   matchstr(currentLine, '(\zs.*\ze)$'),
+        \   matchstr(currentLine, '^..\zs.*\ze (.*)$'))
     elseif currentLine =~# '^  ○'
         call s:GetDatabaseObjects(
-        \   matchlist(getline(server), '^..\(.*\) (\(.*\))$')[1:2],
-        \   matchlist(currentLine, '^  ..\(.*\)$')[1])
+        \   matchstr(getline(server), '(\zs.*\ze)$'),
+        \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
+        \   matchstr(currentLine, '^  ..\zs.*\ze$'))
     elseif currentLine =~# '^    \(  \)\?'
         call s:ShowActionsWindow(
-        \   matchlist(getline(server), '^..\(.*\) (\(.*\))$')[1:2],
-        \   matchlist(getline(database), '^  ..\(.*\)$')[1],
+        \   matchstr(getline(server), '(\zs.*\ze)$'),
+        \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
+        \   matchstr(getline(database), '^  ..\zs.*\ze$'),
         \   trim(getline(type)),
         \   trim(getline(object)))
     endif
 endfunction
 
-function! s:GetDatabases(server) " {{{1
-    let [server, platform] = a:server
-    call sql#query#run(function('s:GetDatabasesCallback', [line('.')]), platform, server, 'master', 'Catalog', 'GetDatabases')
+function! s:GetDatabases(platform, server) " {{{1
+    call sql#query#run(function('s:GetDatabasesCallback', [line('.')]), a:platform, a:server, 'master', 'Catalog', 'GetDatabases')
 endfunction
 
 function! s:GetDatabasesCallback(line, job_id, data, event)
     stopinsert
     call sql#showCatalog()
     setlocal modifiable
-    echomsg string(a:data)
-    echomsg string(map(copy(a:data),{_,v -> empty(v)}))
-    echomsg string(filter(copy(a:data),{_,v -> !empty(v)}))
-    echomsg string(map(filter(copy(a:data),{_,v -> !empty(v)}), {_,v -> '  ○ '.substitute(v, nr2char(13).'$','','')}))
+    call nvim_buf_set_lines(0,a:line-1,a:line,0,[substitute(getline(a:line), '○', '●', '')])
     call nvim_buf_set_lines(0,a:line,a:line,0,map(filter(a:data,{_,v -> !empty(v)}), {_,v -> '  ○ '.substitute(v, nr2char(13).'$','','')}))
     setlocal nomodifiable
+    normal! zo0
 endfunction
 
-function! s:GetDatabaseObjects(server, database) " {{{1
-    let [server, platform] = a:server
+function! s:GetDatabaseObjects(platform, server, database) " {{{1
 endfunction
 
-function! s:ShowActionsWindow(server, database, type, object) " {{{1
-    let [server, platform] = a:server
-    let actions = sql#settings#actions(platform, a:type)
+function! s:ShowActionsWindow(platform, server, database, type, object) " {{{1
+    let actions = sql#settings#actions(a:platform, a:type)
     let sqlBuffer = b:sqlBuffer
     let object = object->substitute('  {.*}$', '','')
     let config = {
@@ -112,7 +111,7 @@ function! s:ShowActionsWindow(server, database, type, object) " {{{1
 
     setlocal modifiable filetype=sqlactions
     let b:sqlBuffer = sqlBuffer
-    let [b:platform, b:server, b:database] = [platform, server, a:database]
+    let [b:platform, b:server, b:database] = [a:platform, a:server, a:database]
     let [b:type, b:object] = [a:type, object]
     silent %delete _
     call setline(1, actions)
