@@ -7,6 +7,7 @@ nnoremap <silent> <buffer> q :call <SID>CloseMe()<CR>
 nnoremap <silent> <buffer> h :call <SID>Collapse()<CR>
 nnoremap <silent> <buffer> l :call <SID>ExpandOrOpenMenu()<CR>
 nnoremap <silent> <buffer> <leader>l zo0
+nnoremap <silent> <buffer> <Space> :call <SID>SetConnection()<CR>
 
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile
@@ -51,19 +52,19 @@ function s:ExpandOrOpenMenu()   " {{{1
     let object   = search('^      \S','bcnW')
 
     let currentLine = getline('.')
-    if currentLine =~# '^○'
+    if currentLine =~ '^○'
         call sql#query#run(
         \   function('s:GetDBInfoCallback', [line('.'), '  ○ ']),
         \   matchstr(currentLine, '(\zs.*\ze)$'),
         \   matchstr(currentLine, '^..\zs.*\ze (.*)$'),
         \   'master', 'Catalog', 'GetDatabases')
-    elseif currentLine =~# '^  ○'
+    elseif currentLine =~ '^  ○'
         call sql#query#run(function('s:GetDBInfoCallback', [line('.'), '    ']),
         \   matchstr(getline(server), '(\zs.*\ze)$'),
         \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
         \   matchstr(currentLine, '^  ..\zs.*\ze$'),
         \   'Catalog', 'GetDatabaseObjects')
-    elseif currentLine =~# '^    \(  \)\?'
+    elseif currentLine =~ '^    \(  \)\?'
         call s:ShowActionsWindow(
         \   matchstr(getline(server), '(\zs.*\ze)$'),
         \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
@@ -73,7 +74,7 @@ function s:ExpandOrOpenMenu()   " {{{1
     endif
 endfunction
 
-function! s:GetDBInfoCallback(line, prefix, job_id, data, event)
+function! s:GetDBInfoCallback(line, prefix, job_id, data, event) " {{{1
     stopinsert
     call sql#showCatalog()
     setlocal modifiable
@@ -123,4 +124,18 @@ function! s:CloseMe()   "{{{1
     let winnr = winnr()
     wincmd p
     execute winnr.'wincmd c'
+endfunction
+
+function! s:SetConnection() " {{{1
+    if getline('.') !~ '^  [○●]'
+        echo 'Your cursor must be on a database name to choose a connection.'
+        return
+    endif
+
+    let server   = search('^\S', 'bcnW')
+    let database = search('^  \S', 'bcnW')
+    call sql#connection#set(
+        \   matchstr(getline(server),   '(\zs.*\ze)$'),
+        \   matchstr(getline(server),   '^..\zs.*\ze (.*)$'),
+        \   matchstr(getline(database), '^  ..\zs.*\ze$'))
 endfunction

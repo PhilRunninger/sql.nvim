@@ -14,12 +14,11 @@ function! sql#new()
         tabnew
     endif
     set filetype=sql
+    call sql#bufNr(bufnr())
     call sql#showCatalog()
 endfunction
 
 function! sql#showCatalog() " {{{1
-    call sql#bufNr(bufnr())
-    echomsg 's:sqlBufNr was set to '. s:sqlBufNr
     let catalogBufNr = bufnr('^'.s:catalogBuffer.'$')
     if catalogBufNr == -1
         let catalogBufNr = bufnr('^'.s:catalogBuffer.'$', 1)

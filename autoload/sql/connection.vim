@@ -1,39 +1,23 @@
 let s:connectionSeparator = ' ▶ '
 let s:connectionStringPattern = '-- Connection: %s'.s:connectionSeparator.'%s'.s:connectionSeparator.'%s'
 
-function sql#connection#regex()
+function! sql#connection#regex()
     return '^' . substitute(s:connectionStringPattern, '%s', '\\(.\\+\\)', 'g') . '$'
 endfunction
-
 
 function! sql#connection#isSet() " {{{1
     return get(b:, 'platform', '') != '' && get(b:, 'server', '') != '' && get(b:, 'database', '') != ''
 endfunction
 
-function! sql#connection#set() " {{{1
-    try
-        let serverlist = sort(flatten(map(
-        \   keys(sql#settings#user()),
-        \   {_,platform -> map(
-        \       keys(sql#settings#user()[platform].servers),
-        \       {_,server -> map(
-        \           copy(sql#settings#user()[platform].servers[server].databases),
-        \           {_,database -> platform . s:connectionSeparator . server . s:connectionSeparator . database })
-        \       })
-        \   })))
+function! sql#connection#set(platform, server, database) " {{{1
+    let bufnr = sql#bufNr()
+    call nvim_buf_set_var(bufnr, 'platform', a:platform)
+    call nvim_buf_set_var(bufnr, 'server',   a:server)
+    call nvim_buf_set_var(bufnr, 'database', a:database)
 
-        let connection = sql#chooser#choose('Connecting to:', serverlist)
-        let [b:platform, b:server,b:database] = split(connection, s:connectionSeparator)
-
-        if !empty(matchlist(getline(1), sql#connection#regex()))
-            silent normal! ggdd _
-        endif
-        silent call append(0, printf(s:connectionStringPattern, b:platform, b:server, b:database))
-        redraw!
-        return sql#connection#isSet()
-    catch /.*/
-        echo v:exception
-        return 0
-    endtry
+    let connection = nvim_buf_get_lines(bufnr,0,1,0)[0]
+    if !empty(matchlist(connection, sql#connection#regex()))
+        call nvim_buf_set_lines(bufnr,0,1,0,[])
+    endif
+    call nvim_buf_set_lines(bufnr,0,1,0,[printf(s:connectionStringPattern, a:platform, a:server, a:database)])
 endfunction
-

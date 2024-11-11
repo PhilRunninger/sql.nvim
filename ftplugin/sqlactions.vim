@@ -2,10 +2,6 @@ nnoremap <silent> <buffer> h :call nvim_win_hide(0)<CR>
 nnoremap <silent> <buffer> l :call <SID>RunAction()<CR>
 
 function! s:RunAction()
-    if !sql#connection#isSet() && !sql#connection#set()
-        return
-    endif
-
     let action = getline('.')
     call sql#query#run(function('s:RunActionCallback'), b:platform, b:server, b:database, b:type, action, {'object':b:object})
 endfunction

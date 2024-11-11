@@ -72,10 +72,12 @@
 "   - csv.vim (https://github.com/chrisbra/csv.vim) highlights the columns.
 
 function! s:RunQuery(queryType) " {{{1
-    if !sql#connection#isSet() && !sql#connection#set()
+    call sql#bufNr(bufnr())
+    if !sql#connection#isSet()
+        call sql#showCatalog()
+        echo 'Choose a connection from the catalog.'
         return
     endif
-    call sql#bufNr(bufnr())
     call s:WriteTempFile(a:queryType)
     let sqlOutBufNr = s:OpenSQLOutWindow(0)
     call s:UpdateStatus(reltime(), sqlOutBufNr, v:null)
@@ -218,10 +220,9 @@ if !empty(connectionParts)
     let [b:platform, b:server, b:database] = [connectionParts[1], connectionParts[2], connectionParts[3]]
 endif
 
-nnoremap <silent> <buffer> <leader><F5> :call sql#connection#set()<CR>
 nnoremap <silent> <buffer> <F5> :call <SID>RunQuery('file')<CR>
 nnoremap <silent> <buffer> <S-F5> :call <SID>RunQuery('paragraph')<CR>
 vnoremap <silent> <buffer> <F5> :<C-U>call <SID>RunQuery('selection')<CR>
-nnoremap <silent> <buffer> <F8> :call sql#showCatalog()<CR>
+nnoremap <silent> <buffer> <F8> :call sql#bufNr(bufnr())<CR>:call sql#showCatalog()<CR>
 
 "  vim: foldmethod=marker
