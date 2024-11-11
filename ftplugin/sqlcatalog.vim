@@ -52,14 +52,17 @@ function s:ExpandOrOpenMenu()   " {{{1
 
     let currentLine = getline('.')
     if currentLine =~# '^○'
-        call s:GetDatabases(
+        call sql#query#run(
+        \   function('s:GetDBInfoCallback', [line('.'), '  ○ ']),
         \   matchstr(currentLine, '(\zs.*\ze)$'),
-        \   matchstr(currentLine, '^..\zs.*\ze (.*)$'))
+        \   matchstr(currentLine, '^..\zs.*\ze (.*)$'),
+        \   'master', 'Catalog', 'GetDatabases')
     elseif currentLine =~# '^  ○'
-        call s:GetDatabaseObjects(
+        call sql#query#run(function('s:GetDBInfoCallback', [line('.'), '    ']),
         \   matchstr(getline(server), '(\zs.*\ze)$'),
         \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
-        \   matchstr(currentLine, '^  ..\zs.*\ze$'))
+        \   matchstr(currentLine, '^  ..\zs.*\ze$'),
+        \   'Catalog', 'GetDatabaseObjects')
     elseif currentLine =~# '^    \(  \)\?'
         call s:ShowActionsWindow(
         \   matchstr(getline(server), '(\zs.*\ze)$'),
@@ -70,27 +73,19 @@ function s:ExpandOrOpenMenu()   " {{{1
     endif
 endfunction
 
-function! s:GetDatabases(platform, server) " {{{1
-    call sql#query#run(function('s:GetDatabasesCallback', [line('.')]), a:platform, a:server, 'master', 'Catalog', 'GetDatabases')
-endfunction
-
-function! s:GetDatabasesCallback(line, job_id, data, event)
+function! s:GetDBInfoCallback(line, prefix, job_id, data, event)
     stopinsert
     call sql#showCatalog()
     setlocal modifiable
     call nvim_buf_set_lines(0,a:line-1,a:line,0,[substitute(getline(a:line), '○', '●', '')])
-    call nvim_buf_set_lines(0,a:line,a:line,0,map(filter(a:data,{_,v -> !empty(v)}), {_,v -> '  ○ '.substitute(v, nr2char(13).'$','','')}))
+    call nvim_buf_set_lines(0,a:line,a:line,0,map(filter(a:data,{_,v -> !empty(v)}), {_,v -> a:prefix.substitute(v, nr2char(13).'$','','')}))
     setlocal nomodifiable
-    normal! zo0
-endfunction
-
-function! s:GetDatabaseObjects(platform, server, database) " {{{1
+    normal! zmzv0
 endfunction
 
 function! s:ShowActionsWindow(platform, server, database, type, object) " {{{1
     let actions = sql#settings#actions(a:platform, a:type)
-    let sqlBuffer = b:sqlBuffer
-    let object = object->substitute('  {.*}$', '','')
+    let object = a:object->substitute('  {.*}$', '','')
     let config = {
         \ 'relative': 'cursor',
         \ 'anchor': 'NW',
@@ -110,7 +105,6 @@ function! s:ShowActionsWindow(platform, server, database, type, object) " {{{1
     augroup END
 
     setlocal modifiable filetype=sqlactions
-    let b:sqlBuffer = sqlBuffer
     let [b:platform, b:server, b:database] = [a:platform, a:server, a:database]
     let [b:type, b:object] = [a:type, object]
     silent %delete _

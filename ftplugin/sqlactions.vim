@@ -7,15 +7,15 @@ function! s:RunAction()
     endif
 
     let action = getline('.')
-    let winnr = bufwinnr(b:sqlBuffer)
-    call sql#query#run(function('s:RunActionCallback', [winnr]), b:platform, b:server, b:database, b:type, action, {'object':b:object})
+    call sql#query#run(function('s:RunActionCallback'), b:platform, b:server, b:database, b:type, action, {'object':b:object})
 endfunction
 
-function! s:RunActionCallback(winnr, job_id, data, event)
+function! s:RunActionCallback(job_id, data, event)
     stopinsert
     let data = map(a:data, {_,v -> substitute(v, nr2char(13).'$', '', '')})
-    execute a:winnr.'wincmd w'
+    echomsg 'going to window '. bufwinnr(sql#bufNr())
+    execute bufwinnr(sql#bufNr()).'wincmd w'
     let @"=join(data, nr2char(10))
-    echo 'Result is in the unnamed register.'
+    echo 'Result is ready to paste.'
 endfunction
 
