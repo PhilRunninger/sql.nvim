@@ -1,3 +1,5 @@
+"  vim: foldmethod=marker
+
 function! sql#chooser#choose(prompt, choices)   " {{{1
     let s:choices = a:choices
     let response = input(a:prompt.' ', '', 'customlist,SQLCompletion')

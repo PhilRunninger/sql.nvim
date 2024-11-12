@@ -1,3 +1,5 @@
+"  vim: foldmethod=marker
+
 function! sql#query#run(callback, platform, server, database, type='', action='', actionValues={})
     let cmdline = s:CommandLine(a:platform, a:server, a:database, a:type, a:action, a:actionValues)
     return jobstart(cmdline, {'stdout_buffered': v:true, 'on_stdout': a:callback, 'on_stderr': function('s:StdErr')})

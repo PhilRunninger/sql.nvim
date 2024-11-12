@@ -1,3 +1,6 @@
+"  vim: foldmethod=marker
+
+" These are essentially the global variables for this plugin. " {{{1
 let s:bufnr = 0
 function! sql#bufnr(bufnr = 0)
     let s:bufnr = a:bufnr == 0 ? s:bufnr : a:bufnr
@@ -22,7 +25,7 @@ function! sql#database(database = '')
     return s:database
 endfunction
 
-function! sql#new()
+function! sql#new() " {{{1
     if bufname('%')!='' || &modified
         tabnew
     endif
@@ -49,3 +52,5 @@ function! sql#showCatalog() " {{{1
         execute winnr . 'wincmd w'
     endif
 endfunction
+
+"  vim: foldmethod=marker

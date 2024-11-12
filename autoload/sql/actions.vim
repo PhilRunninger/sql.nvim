@@ -1,3 +1,5 @@
+"  vim: foldmethod=marker
+
 function! sql#actions#openWindow(platform, server, database, type, object)
     let s:platform = a:platform
     let s:server = a:server

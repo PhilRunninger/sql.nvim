@@ -1,3 +1,5 @@
+"  vim: foldmethod=marker
+
 function! sql#settings#init(root)
     let s:root = a:root
     let s:tempFile = tempname()

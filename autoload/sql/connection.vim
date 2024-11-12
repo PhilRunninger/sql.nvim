@@ -1,3 +1,5 @@
+"  vim: foldmethod=marker
+
 let s:connectionSeparator = ' ▶ '
 let s:connectionStringPattern = '-- Connection: %s'.s:connectionSeparator.'%s'.s:connectionSeparator.'%s'
 

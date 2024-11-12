@@ -1,3 +1,5 @@
+"  vim: foldmethod=marker
+
 syntax match SQLCatalogServer     /^\S.*/
 syntax match SQLCatalogDatabase   /^  \S.*/
 syntax match SQLCatalogObjectType /^    \S.*/

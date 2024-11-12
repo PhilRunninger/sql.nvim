@@ -1,3 +1,5 @@
+"  vim: foldmethod=marker
+
 " Documentation {{{1
 "                                                        File: ftplugin/sql.vim
 "                                                      Author: Phil Runninger
@@ -222,5 +224,3 @@ nnoremap <silent> <buffer> <F5> :call <SID>RunQuery('file')<CR>
 nnoremap <silent> <buffer> <S-F5> :call <SID>RunQuery('paragraph')<CR>
 vnoremap <silent> <buffer> <F5> :<C-U>call <SID>RunQuery('selection')<CR>
 nnoremap <silent> <buffer> <F8> :call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>
-
-"  vim: foldmethod=marker
