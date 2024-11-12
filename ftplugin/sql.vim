@@ -72,7 +72,7 @@
 "   - csv.vim (https://github.com/chrisbra/csv.vim) highlights the columns.
 
 function! s:RunQuery(queryType) " {{{1
-    call sql#bufNr(bufnr())
+    call sql#bufnr(bufnr())
     if !sql#connection#isSet()
         call sql#showCatalog()
         echo 'Choose a connection from the catalog.'
@@ -83,7 +83,7 @@ function! s:RunQuery(queryType) " {{{1
     call s:UpdateStatus(reltime(), sqlOutBufNr, v:null)
     let timer = timer_start(1000, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
-    let id = sql#query#run(function('s:RunQueryCallback', [timer]), b:platform, b:server, b:database)
+    let id = sql#query#run(function('s:RunQueryCallback', [timer]), sql#platform(), sql#server(), sql#database())
     call s:MapCancelKey(id)
 endfunction
 
@@ -121,8 +121,8 @@ function! s:RunQueryCallback(timer, job_id, data, event) " {{{1
 endfunction
 
 function! s:OpenSQLOutWindow(enter) " {{{1
-    let bufnr = bufnr('^'.s:SQLOutBuffer.'$', 1)
-    let winnr = bufwinnr(s:SQLOutBuffer)
+    let bufnr = bufnr('^SQLOut$', 1)
+    let winnr = bufwinnr('SQLOut')
     if winnr == -1
         let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})
         call nvim_set_option_value('buftype',  'nofile', {'buf':bufnr})
@@ -180,8 +180,7 @@ function! s:JoinLines() " {{{1
 endfunction
 
 function! s:AlignColumns() " {{{1
-    let platform = getbufvar(sql#bufNr(), 'platform')
-    if exists(':EasyAlign') && sql#settings#doAlign(platform)
+    if exists(':EasyAlign') && sql#settings#doAlign(sql#platform())
         normal! gg
         let startRow = search('^.\+$','cW')
         while startRow > 0
@@ -192,7 +191,7 @@ function! s:AlignColumns() " {{{1
             " tables as long as 10000 rows (2 columns), as wide as 2048
             " columns (10 rows), and various sizes in between.
             let timeEstimate = 0.000299808*rows*columns + 0.014503037*columns
-            if timeEstimate <= sql#settings#alignTimeLimit(platform)
+            if timeEstimate <= sql#settings#alignTimeLimit(sql#platform())
                 silent execute startRow . ',' . endRow . 'EasyAlign */'.s:colSeparator.'/'
             endif
             normal! }
@@ -210,19 +209,18 @@ endfunction
 " Start Here {{{1
 call sql#settings#init(expand('<sfile>:p:h:h'))
 
-let s:SQLCatalogBuffer = 'SQLCatalog'
-let s:SQLOutBuffer = 'SQLOut'
-
 let s:colSeparator = ';'  " Make sure SQL output separator matches this.
 
 let connectionParts = matchlist(getline(1), sql#connection#regex())
 if !empty(connectionParts)
-    let [b:platform, b:server, b:database] = [connectionParts[1], connectionParts[2], connectionParts[3]]
+    call sql#platform(connectionParts[1])
+    call sql#server(connectionParts[2])
+    call sql#database(connectionParts[3])
 endif
 
 nnoremap <silent> <buffer> <F5> :call <SID>RunQuery('file')<CR>
 nnoremap <silent> <buffer> <S-F5> :call <SID>RunQuery('paragraph')<CR>
 vnoremap <silent> <buffer> <F5> :<C-U>call <SID>RunQuery('selection')<CR>
-nnoremap <silent> <buffer> <F8> :call sql#bufNr(bufnr())<CR>:call sql#showCatalog()<CR>
+nnoremap <silent> <buffer> <F8> :call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>
 
 "  vim: foldmethod=marker

@@ -52,20 +52,20 @@ function s:ExpandOrOpenMenu()   " {{{1
     let object   = search('^      \S','bcnW')
 
     let currentLine = getline('.')
-    if currentLine =~ '^○'
+    if currentLine =~ '^○'    " Unexplored server
         call sql#query#run(
         \   function('s:GetDBInfoCallback', [line('.'), '  ○ ']),
         \   matchstr(currentLine, '(\zs.*\ze)$'),
         \   matchstr(currentLine, '^..\zs.*\ze (.*)$'),
         \   'master', 'Catalog', 'GetDatabases')
-    elseif currentLine =~ '^  ○'
+    elseif currentLine =~ '^  ○'    " Unexplored database
         call sql#query#run(function('s:GetDBInfoCallback', [line('.'), '    ']),
         \   matchstr(getline(server), '(\zs.*\ze)$'),
         \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
         \   matchstr(currentLine, '^  ..\zs.*\ze$'),
         \   'Catalog', 'GetDatabaseObjects')
-    elseif currentLine =~ '^    \(  \)\?'
-        call s:ShowActionsWindow(
+    elseif currentLine =~ '^    \(  \)\?'   " DB Object or Type
+        call sql#actions#openWindow(
         \   matchstr(getline(server), '(\zs.*\ze)$'),
         \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
         \   matchstr(getline(database), '^  ..\zs.*\ze$'),
@@ -82,42 +82,6 @@ function! s:GetDBInfoCallback(line, prefix, job_id, data, event) " {{{1
     call nvim_buf_set_lines(0,a:line,a:line,0,map(filter(a:data,{_,v -> !empty(v)}), {_,v -> a:prefix.substitute(v, nr2char(13).'$','','')}))
     setlocal nomodifiable
     normal! zmzv0
-endfunction
-
-function! s:ShowActionsWindow(platform, server, database, type, object) " {{{1
-    let actions = sql#settings#actions(a:platform, a:type)
-    let object = a:object->substitute('  {.*}$', '','')
-    let config = {
-        \ 'relative': 'cursor',
-        \ 'anchor': 'NW',
-        \ 'row': 0,
-        \ 'col': 2+len(object),
-        \ 'height': len(actions),
-        \ 'width': max(map(copy(actions), {_,v -> len(v)})),
-        \ 'noautocmd': 1,
-        \ 'style': 'minimal',
-        \ 'border': 'double',
-        \ 'title': 'Actions'
-    \ }
-    let s:actionsWindow = nvim_open_win(nvim_create_buf(0,1),1,config)
-    augroup SqlAuGroup
-        autocmd!
-        autocmd BufLeave <buffer> call s:CloseActionsWindow()
-    augroup END
-
-    setlocal modifiable filetype=sqlactions
-    let [b:platform, b:server, b:database] = [a:platform, a:server, a:database]
-    let [b:type, b:object] = [a:type, object]
-    silent %delete _
-    call setline(1, actions)
-    setlocal nomodifiable
-endfunction
-
-function! s:CloseActionsWindow()   "{{{1
-    if exists('s:actionsWindow')
-        call nvim_win_hide(s:actionsWindow)
-    endif
-    unlet! s:actionsWindow
 endfunction
 
 function! s:CloseMe()   "{{{1

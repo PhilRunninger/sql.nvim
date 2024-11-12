@@ -1,12 +1,25 @@
-const s:catalogBuffer = 'SQLCatalog'
-const s:outBuffer = 'SQLOut'
+let s:bufnr = 0
+function! sql#bufnr(bufnr = 0)
+    let s:bufnr = a:bufnr == 0 ? s:bufnr : a:bufnr
+    return s:bufnr
+endfunction
 
-let s:sqlBufNr = 0
-function! sql#bufNr(bufnr = 0)
-    if a:bufnr != 0
-        let s:sqlBufNr = a:bufnr
-    endif
-    return s:sqlBufNr
+let s:platform = ''
+function! sql#platform(platform = '')
+    let s:platform = empty(a:platform) ? s:platform : a:platform
+    return s:platform
+endfunction
+
+let s:server = ''
+function! sql#server(server = '')
+    let s:server = empty(a:server) ? s:server : a:server
+    return s:server
+endfunction
+
+let s:database = ''
+function! sql#database(database = '')
+    let s:database = empty(a:database) ? s:database : a:database
+    return s:database
 endfunction
 
 function! sql#new()
@@ -14,14 +27,14 @@ function! sql#new()
         tabnew
     endif
     set filetype=sql
-    call sql#bufNr(bufnr())
+    call sql#bufnr(bufnr())
     call sql#showCatalog()
 endfunction
 
 function! sql#showCatalog() " {{{1
-    let catalogBufNr = bufnr('^'.s:catalogBuffer.'$')
+    let catalogBufNr = bufnr('^SQLCatalog$')
     if catalogBufNr == -1
-        let catalogBufNr = bufnr('^'.s:catalogBuffer.'$', 1)
+        let catalogBufNr = bufnr('^SQLCatalog$', 1)
         let serverlist = sort(flatten(
         \   map(keys(sql#settings#user()),{_,p ->
         \       map(keys(sql#settings#user()[p].servers), {_,s -> '○ '.s.' ('.p.')'})})))
