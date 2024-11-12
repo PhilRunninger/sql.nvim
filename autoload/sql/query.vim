@@ -4,7 +4,11 @@ function! sql#query#run(callback, platform, server, database, type='', action=''
 endfunction
 
 function! s:StdErr(job_id, data, event)
-    call foreach(filter(a:data, {_,v -> v != ''}), 'echoerr v:val')
+    if empty(filter(copy(a:data),{_,v -> !empty(v)}))
+        return
+    endif
+
+    echoerr join(a:data, nr2char(10))
 endfunction
 
 function! s:CommandLine(platform, server, database, type, action, actionValues) " {{{1
