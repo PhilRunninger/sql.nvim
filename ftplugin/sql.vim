@@ -73,7 +73,7 @@
 "       into columns, if output isn't too large.
 "   - csv.vim (https://github.com/chrisbra/csv.vim) highlights the columns.
 
-function! s:RunQuery(queryType) " {{{1
+function! s:PrepAndRunQuery(queryType) " {{{1
     call sql#bufnr(bufnr())
     if !sql#connection#isSet()
         call sql#showCatalog()
@@ -81,6 +81,10 @@ function! s:RunQuery(queryType) " {{{1
         return
     endif
     call s:WriteTempFile(a:queryType)
+    call s:RunQuery()
+endfunction
+
+function! s:RunQuery() " {{{1
     let sqlOutBufNr = s:OpenSQLOutWindow(0)
     call s:UpdateStatus(reltime(), sqlOutBufNr, v:null)
     let timer = timer_start(1000, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
@@ -131,6 +135,7 @@ function! s:OpenSQLOutWindow(enter) " {{{1
         call nvim_set_option_value('filetype', 'csv',    {'buf':bufnr})
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
         call nvim_set_option_value('wrap',     v:false,  {'win':handle})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery()<CR>', {'noremap':1})
     elseif a:enter
         execute winnr . ' wincmd w'
     endif
@@ -220,7 +225,7 @@ if !empty(connectionParts)
     call sql#database(connectionParts[3])
 endif
 
-nnoremap <silent> <buffer> <F5> :call <SID>RunQuery('file')<CR>
-nnoremap <silent> <buffer> <S-F5> :call <SID>RunQuery('paragraph')<CR>
-vnoremap <silent> <buffer> <F5> :<C-U>call <SID>RunQuery('selection')<CR>
-nnoremap <silent> <buffer> <F8> :call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>
+call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
+call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
