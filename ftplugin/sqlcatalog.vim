@@ -34,7 +34,9 @@ function! SQLCatalogFoldLevel(lnum)   " {{{1
 endfunction
 
 function s:Collapse()   " {{{1
-    normal zc0
+    if foldlevel('.') > 0
+        normal zc0
+    endif
     if foldclosed('.') != -1
         call cursor(foldclosed('.'), 1)
     endif
@@ -46,31 +48,21 @@ function s:ExpandOrOpenMenu()   " {{{1
         return
     endif
 
-    let server   = search('^\S', 'bcnW')
-    let database = search('^  \S', 'bcnW')
-    let type     = search('^    \S','bcnW')
-    let object   = search('^      \S','bcnW')
+    let s_p      = getline(search('^\S', 'bcnW'))
+    let platform = matchstr(s_p, '(\zs.*\ze)$')
+    let server   = matchstr(s_p, '^..\zs.*\ze (.*)$')
+    let database = matchstr(getline(search('^  \S', 'bcnW')), '^  ..\zs.*\ze$')
+    let type     = trim(getline(search('^    \S','bcnW')))
+    let object   = trim(getline(search('^      \S','bcnW')))
 
     let currentLine = getline('.')
     if currentLine =~ '^○'    " Unexplored server
-        call sql#query#run(
-        \   function('s:GetDBInfoCallback', [line('.'), '  ○ ']),
-        \   matchstr(currentLine, '(\zs.*\ze)$'),
-        \   matchstr(currentLine, '^..\zs.*\ze (.*)$'),
-        \   'master', 'Catalog', 'GetDatabases')
+        let masterDB = sql#settings#app()[platform].actions.Catalog.masterDB
+        call sql#query#run(function('s:GetDBInfoCallback', [line('.'), '  ○ ']), platform, server, masterDB, 'Catalog', 'GetDatabases')
     elseif currentLine =~ '^  ○'    " Unexplored database
-        call sql#query#run(function('s:GetDBInfoCallback', [line('.'), '    ']),
-        \   matchstr(getline(server), '(\zs.*\ze)$'),
-        \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
-        \   matchstr(currentLine, '^  ..\zs.*\ze$'),
-        \   'Catalog', 'GetDatabaseObjects')
+        call sql#query#run(function('s:GetDBInfoCallback', [line('.'), '    ']), platform, server, database, 'Catalog', 'GetDatabaseObjects')
     elseif currentLine =~ '^    \(  \)\?'   " DB Object or Type
-        call sql#actions#openWindow(
-        \   matchstr(getline(server), '(\zs.*\ze)$'),
-        \   matchstr(getline(server), '^..\zs.*\ze (.*)$'),
-        \   matchstr(getline(database), '^  ..\zs.*\ze$'),
-        \   trim(getline(type)),
-        \   trim(getline(object)))
+        call sql#actions#openWindow(platform, server, database, type, object)
     endif
 endfunction
 

@@ -4,6 +4,7 @@
         "actions":{
             "cmdlineArgs": "-h-1 -v object=\"<object>\"",
             "Catalog": {
+                "masterDB": "master",
                 "GetDatabases": "GetDatabases.sql",
                 "GetDatabaseObjects": "GetDBObjects.sql"
             },
@@ -30,8 +31,16 @@
             }
         }
     },
-    "postgresql": {
+    "postgres": {
         "cmdline": "psql -h <svr> -p <port> -d <db> -F\";\" -f <file>",
-        "doAlign": 0
+        "doAlign": 0,
+        "actions":{
+            "cmdlineArgs": "-A -t",
+            "Catalog": {
+                "masterDB": "postgres",
+                "GetDatabases": "GetDatabases.sql",
+                "GetDatabaseObjects": "GetDBObjects.sql"
+            }
+        }
     }
 }
