@@ -3,8 +3,7 @@
 function! sql#settings#init(root)
     let s:root = a:root
     let s:tempFile = tempname()
-    " let s:userConfigPath = stdpath('data') . '\sql.nvim\userconfig.json'
-    let s:userConfigPath = s:root . '\.sql.json'
+    let s:userConfigPath = stdpath('data') . '\sql.nvim\userconfig.json'
     if !filereadable(s:userConfigPath)
         call s:InitializeUserConfig()
     endif
