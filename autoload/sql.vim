@@ -35,19 +35,19 @@ function! sql#new() " {{{1
 endfunction
 
 function! sql#showCatalog() " {{{1
-    let catalogBufNr = bufnr('^SQLCatalog$')
-    if catalogBufNr == -1
-        let catalogBufNr = bufnr('^SQLCatalog$', 1)
+    let bufnr = bufnr('⟪SQLCatalog⟫')
+    if bufnr == -1
+        let bufnr = bufnr('⟪SQLCatalog⟫', 1)
         let serverlist = sort(flatten(
         \   map(keys(sql#settings#user()),{_,p ->
         \       map(keys(sql#settings#user()[p].servers), {_,s -> '○ '.s.' ('.p.')'})})))
-        call nvim_buf_set_lines(catalogBufNr,0,-1,0,serverlist)
+        call nvim_buf_set_lines(bufnr,0,-1,0,serverlist)
         keeppatterns silent g/^$/d
     endif
-    let winnr = bufwinnr(catalogBufNr)
+    let winnr = bufwinnr(bufnr)
     if winnr == -1
-        call nvim_open_win(catalogBufNr,1,{'width':40, 'noautocmd':1, 'style':'minimal', 'split':'right', 'win':-1})
-        call nvim_set_option_value('filetype', 'sqlcatalog',    {'buf':catalogBufNr})
+        call nvim_open_win(bufnr,1,{'width':40, 'noautocmd':1, 'style':'minimal', 'split':'right', 'win':-1})
+        call nvim_set_option_value('filetype', 'sqlcatalog',    {'buf':bufnr})
     else
         execute winnr . 'wincmd w'
     endif

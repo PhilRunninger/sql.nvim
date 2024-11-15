@@ -127,8 +127,8 @@ function! s:RunQueryCallback(timer, job_id, data, event) " {{{1
 endfunction
 
 function! s:OpenSQLOutWindow(enter) " {{{1
-    let bufnr = bufnr('^SQLOut$', 1)
-    let winnr = bufwinnr('SQLOut')
+    let bufnr = bufnr('⟪SQLOut⟫', 1)
+    let winnr = bufwinnr('⟪SQLOut⟫')
     if winnr == -1
         let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})
         call nvim_set_option_value('buftype',  'nofile', {'buf':bufnr})
