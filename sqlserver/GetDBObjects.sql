@@ -12,8 +12,8 @@ objects as
                  WHEN tp.name IN ('datetime2', 'time2', 'datetimeoffset')           THEN '(' + CAST(p.scale AS VARCHAR(5)) + ')'
                  WHEN tp.name IN ('decimal', 'numeric')                             THEN '(' + CAST(p.[precision] AS VARCHAR(5)) + ',' + CAST(p.scale AS VARCHAR(5)) + ')'
                  ELSE ''
-            END +
-            CASE WHEN p.is_nullable = 1 THEN '}' ELSE ' not null}' END, '') as objectName
+            END + '}',
+            '') as objectName
     FROM sys.schemas s
     JOIN sys.objects o ON o.[schema_id] = s.[schema_id]
     left outer join sys.parameters p on o.object_id = p.object_id and p.parameter_id = 0
@@ -88,8 +88,7 @@ objects as
              WHEN tp.name IN ('datetime2', 'time2', 'datetimeoffset')           THEN '(' + CAST(p.scale AS VARCHAR(5)) + ')'
              WHEN tp.name IN ('decimal', 'numeric')                             THEN '(' + CAST(p.[precision] AS VARCHAR(5)) + ',' + CAST(p.scale AS VARCHAR(5)) + ')'
              ELSE ''
-        END +
-        CASE WHEN p.is_nullable = 1 THEN '}' ELSE ' not null}' END as parameterInfo
+        END + '}' as parameterInfo
     from objects o
     inner join sys.parameters p on o.object_id = p.object_id and p.parameter_id <> 0
     inner join sys.types tp ON p.user_type_id = tp.user_type_id
