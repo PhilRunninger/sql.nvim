@@ -6,8 +6,7 @@ nnoremap <silent> <buffer> <Esc> :call <SID>CloseMe()<CR>
 nnoremap <silent> <buffer> q :call <SID>CloseMe()<CR>
 nnoremap <silent> <buffer> h :call <SID>Collapse()<CR>
 nnoremap <silent> <buffer> l :call <SID>ExpandOrOpenMenu()<CR>
-nnoremap <silent> <buffer> <leader>l zo0
-nnoremap <silent> <buffer> <Space> :call <SID>SetConnection()<CR>
+nnoremap <silent> <buffer> <Enter> :call <SID>SetConnection()<CR>
 
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile
@@ -43,17 +42,14 @@ function s:Collapse()   " {{{1
 endfunction
 
 function s:ExpandOrOpenMenu()   " {{{1
-    if foldclosed('.') != -1 && foldlevel('.') <= 3
+    if foldclosed('.') != -1
         normal! zo0
-        return
     endif
 
-    let s_p      = getline(search('^\S', 'bcnW'))
-    let platform = matchstr(s_p, '(\zs.*\ze)$')
-    let server   = matchstr(s_p, '^..\zs.*\ze (.*)$')
-    let database = matchstr(getline(search('^  \S', 'bcnW')), '^  ..\zs.*\ze$')
-    let type     = trim(getline(search('^    \S','bcnW')))
-    let object   = trim(getline(search('^      \S','bcnW')))
+    let [server,platform] = matchlist(getline(search('^\S','bcnW')),    '^..\(.*\) (\(.*\))$')[1:2]
+    let database          =  matchstr(getline(search('^  \S', 'bcnW')), '^  ..\zs.*\ze$')
+    let type              =      trim(getline(search('^    \S','bcnW')))
+    let object            =      trim(getline(search('^      \S','bcnW')))
 
     let currentLine = getline('.')
     if currentLine =~ '^○'    " Unexplored server
@@ -61,7 +57,7 @@ function s:ExpandOrOpenMenu()   " {{{1
         call sql#query#run(function('s:GetDBInfoCallback', [line('.'), '  ○ ']), platform, server, masterDB, 'Catalog', 'GetDatabases')
     elseif currentLine =~ '^  ○'    " Unexplored database
         call sql#query#run(function('s:GetDBInfoCallback', [line('.'), '    ']), platform, server, database, 'Catalog', 'GetDatabaseObjects')
-    elseif currentLine =~ '^    \(  \)\?'   " DB Object or Type
+    elseif currentLine =~ '^      \(  \)\?'   " DB Object or Type
         call sql#actions#openWindow(platform, server, database, type, object)
     endif
 endfunction
@@ -88,10 +84,7 @@ function! s:SetConnection() " {{{1
         return
     endif
 
-    let server   = search('^\S', 'bcnW')
-    let database = search('^  \S', 'bcnW')
-    call sql#connection#set(
-        \   matchstr(getline(server),   '(\zs.*\ze)$'),
-        \   matchstr(getline(server),   '^..\zs.*\ze (.*)$'),
-        \   matchstr(getline(database), '^  ..\zs.*\ze$'))
+    let [server,platform] = matchlist(getline(search('^\S','bcnW')),    '^..\(.*\) (\(.*\))$')[1:2]
+    let database          =  matchstr(getline(search('^  \S', 'bcnW')), '^  ..\zs.*\ze$')
+    call sql#connection#set(platform, server, database)
 endfunction
