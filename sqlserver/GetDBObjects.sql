@@ -3,7 +3,7 @@ set nocount on
 ;with
 objects as
 (
-    select charindex(type,'U V P FN FS IF TF') as sortOrder1, type, o.object_id,
+    select charindex(type,'U V P FN FS IF TF') as S1, type, o.object_id,
         '[' + s.name + '].[' + o.name + ']' +
         isnull('  {' +
             lower(tp.name) +
@@ -21,11 +21,9 @@ objects as
     where is_ms_shipped = 0
     and type in ('U','V','P','FN','FS','IF','TF')
 )
--- select * from objects
---
 ,categories as
 (
-    select min(sortOrder1) sortOrder1,
+    select min(S1) S1,
         case type
         when 'U' then 'Tables'
         when 'V' then 'Views'
@@ -49,12 +47,10 @@ objects as
         else 'Unknown'
         end
 )
--- select * from categories
---
 ,columns as
 (
     select
-        o.sortOrder1, o.objectName,
+        o.S1, o.objectName,
         c.column_id,
         c.name + '  {' +
         case when ic.column_id is null then '' else 'PK ' end +
@@ -74,12 +70,10 @@ objects as
     left outer join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id and ic.column_id = c.column_id
     left outer join sys.foreign_key_columns fkc on c.object_id = fkc.parent_object_id and c.column_id = fkc.parent_column_id
 )
--- select * from columns
---
 ,parameters as
 (
     select
-        o.sortOrder1, o.objectName,
+        o.S1, o.objectName,
         p.parameter_id,
         p.name + '  {' +
         lower(tp.name) +
@@ -93,24 +87,20 @@ objects as
     inner join sys.parameters p on o.object_id = p.object_id and p.parameter_id <> 0
     inner join sys.types tp ON p.user_type_id = tp.user_type_id
 )
--- select * from parameters
---
 ,combined as
 (
-    select sortOrder1, '' objectName, 0 sortOrder2,           -1 sortOrder3,         objectCategory outputText
+    select S1, ''         S2, 0 S3,           -1 S4,         objectCategory outputText
     from categories
     UNION
-    select sortOrder1,    objectName, 0 sortOrder2,            0 sortOrder3,      '  ' + objectName outputText
+    select S1, objectName S2, 0 S3,            0 S4,      '  ' + objectName outputText
     from objects
     UNION
-    select sortOrder1,    objectName, 0 sortOrder2, parameter_id sortOrder3, '    ' + parameterInfo outputText
+    select S1, objectName S2, 0 S3, parameter_id S4, '    ' + parameterInfo outputText
     from parameters
     UNION
-    select sortOrder1,    objectName, 1 sortOrder2,    column_id sortOrder3,    '    ' + columnInfo outputText
+    select S1, objectName S2, 1 S3,    column_id S4,    '    ' + columnInfo outputText
     from columns
 )
--- select * from combined
---
 select outputText
 from combined
-order by sortOrder1, objectName, sortOrder2, sortOrder3
+order by S1, S2, S3, S4
