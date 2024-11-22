@@ -8,6 +8,10 @@ function! sql#actions#openWindow(platform, server, database, type, object)
     let s:object = a:object
 
     let actions = sql#settings#actions(a:platform, a:type)
+    if empty(actions)
+        return
+    endif
+
     let object = a:object->substitute('  {.*}$', '','')
     let config = {
         \ 'relative': 'cursor',

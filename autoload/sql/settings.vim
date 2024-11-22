@@ -66,6 +66,6 @@ function! sql#settings#doAlign(platform)
 endfunction
 
 function! sql#settings#actions(platform, type)
-    return sort(keys(sql#settings#app()[a:platform].actions[a:type]))
+    return sort(keys(get(sql#settings#app()[a:platform].actions, a:type, {})))
 endfunction
 
