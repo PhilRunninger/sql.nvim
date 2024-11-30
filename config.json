@@ -31,7 +31,8 @@
                 "Script":           "TSqlText.sql"
             },
             "Stored Procedures": {
-                "Script": "TSqlText.sql"
+                "Script": "TSqlText.sql",
+                "Execute": "ExecuteProc.sql"
             },
             "Scalar Functions": {
                 "Script": "TSqlText.sql"
