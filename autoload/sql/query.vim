@@ -1,11 +1,11 @@
 "  vim: foldmethod=marker
 
-function! sql#query#run(callback, platform, server, database, type='', action='', actionValues={})
-    let cmdline = s:CommandLine(a:platform, a:server, a:database, a:type, a:action, a:actionValues)
-    return jobstart(cmdline, {'stdout_buffered': v:true, 'on_stdout': a:callback, 'on_stderr': function('s:StdErr')})
+function! sql#query#run(callback, platform, server, database, type='', action='', actionValues={}) " {{{1
+    let cmdline = s:commandLine(a:platform, a:server, a:database, a:type, a:action, a:actionValues)
+    return jobstart(cmdline, {'stdout_buffered': v:true, 'on_stdout': a:callback, 'on_stderr': function('s:stdErr')})
 endfunction
 
-function! s:StdErr(job_id, data, event)
+function! s:stdErr(job_id, data, event) " {{{1
     if empty(filter(copy(a:data),{_,v -> !empty(v)}))
         return
     endif
@@ -13,17 +13,18 @@ function! s:StdErr(job_id, data, event)
     echoerr join(a:data, nr2char(10))
 endfunction
 
-function! s:CommandLine(platform, server, database, type, action, actionValues) " {{{1
-    let cmdline = sql#settings#app()[a:platform].cmdline
-    let cmdline .= ' '.sql#settings#user()[a:platform].cmdlineArgs
-    if a:action != ''
-        let cmdline .= ' '.sql#settings#app()[a:platform].actions.cmdlineArgs
-        let file = sql#settings#root().'\'.a:platform.'\'.sql#settings#app()[a:platform].actions[a:type][a:action]
-        let cmdline = substitute(cmdline, '<file>', escape(file, '\'), '')
-    endif
-    let cmdline = substitute(cmdline, '<svr>', escape(a:server, '\'), '')
-    let cmdline = substitute(cmdline, '<db>', a:database, '')
-    let cmdline = substitute(cmdline, '<file>', escape(sql#settings#tempFile(), '\'), '')
+function! s:commandLine(platform, server, database, type, action, actionValues) " {{{1
+    let cmdline = sql#settings#app()[a:platform].executable
+    let cmdline .= ' '.s:formatArgString(sql#settings#app()[a:platform].args)
+    let cmdline .= ' '.s:formatArgString(sql#settings#serverInfo(a:platform,a:server))
+    let cmdline .= empty(a:action) ? '' : ' '.s:formatArgString(sql#settings#app()[a:platform].actions.args)
+
+    let cmdline = substitute(cmdline, '<server>', escape(a:server, '\'), '')
+    let cmdline = substitute(cmdline, '<database>', a:database, '')
+    let file = empty(a:action) ?
+          \ sql#settings#tempFile() :
+          \ sql#settings#root().'\'.a:platform.'\'.sql#settings#app()[a:platform].actions[a:type][a:action]
+    let cmdline = substitute(cmdline, '<file>', escape(file, '\'), '')
 
     let paramValues = extend(copy(sql#settings#serverInfo(a:platform, a:server)), a:actionValues, 'force')
     let parm = matchstr(cmdline, '<\w\{-}>')
@@ -33,4 +34,8 @@ function! s:CommandLine(platform, server, database, type, action, actionValues) 
     endwhile
 
     return cmdline
+endfunction
+
+function! s:formatArgString(args) " {{{1
+    return join(map(keys(a:args), {_,v -> v.' '.(a:args[v]==v:null ? '' : a:args[v])}), ' ')
 endfunction

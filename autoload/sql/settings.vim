@@ -1,6 +1,6 @@
 "  vim: foldmethod=marker
 
-function! sql#settings#init(root)
+function! sql#settings#init(root) " {{{1
     let s:root = a:root
     let s:tempFile = tempname()
     let s:userConfigPath = stdpath('data') . '\sql.nvim\userconfig.json'
@@ -9,28 +9,35 @@ function! sql#settings#init(root)
     endif
 endfunction
 
-function s:InitializeUserConfig()
+function! s:InitializeUserConfig() " {{{1
     " Using a list of strings for pretty formatting.
-    let emptyConfig = [
+    let sampleConfig = [
     \   '{',
     \   '    "sqlserver": {',
-    \   '        "cmdlineArgs": "",',
-    \   '        "servers": [',
-    \   '            "server1"',
-    \   '        ]',
-    \   '    },',
-    \   '    "postgresql": {',
-    \   '        "cmdlineArgs": "",',
+    \   '        "alignThreshold": 5.0,',
     \   '        "servers": {',
-    \   '            "server2": {"port": 5432, "databases": ["db2"]}',
+    \   '            "server1": {',
+    \   '                "-U": "user",',
+    \   '                "-P": "password"',
+    \   '            },',
+    \   '            "server2": {}',
+    \   '        }',
+    \   '    },',
+    \   '    "postgres": {',
+    \   '        "alignThreshold": 0.0,',
+    \   '        "servers": {',
+    \   '            "server3": {',
+    \   '                "-p": 5432',
+    \   '            }',
     \   '        }',
     \   '    }',
     \   '}'
     \ ]
+
     if !isdirectory(fnamemodify(s:userConfigPath, ':p:h'))
         call mkdir(fnamemodify(s:userConfigPath, ':p:h'), 'p')
     endif
-    call writefile(emptyConfig, s:userConfigPath)
+    call writefile(sampleConfig, s:userConfigPath)
     call sql#settings#edit()
     call confirm('Complete the user settings file. Use the :SQLUserConfig command for future edits.')
 endfunction
@@ -39,37 +46,31 @@ function! sql#settings#edit() " {{{1
     execute 'split '.s:userConfigPath
 endfunction
 
-function! sql#settings#root()
+function! sql#settings#root() " {{{1
     return s:root
 endfunction
 
-function! sql#settings#tempFile()
+function! sql#settings#tempFile() " {{{1
     return s:tempFile
 endfunction
 
-function! sql#settings#app()
+function! sql#settings#app() " {{{1
     return json_decode(readfile(s:root.'\config.json'))
 endfunction
 
-function! sql#settings#user()
+function! sql#settings#user() " {{{1
     return json_decode(readfile(s:userConfigPath))
 endfunction
 
-function! sql#settings#serverInfo(platform, server)
+function! sql#settings#serverInfo(platform, server) " {{{1
     return sql#settings#user()[a:platform].servers[a:server]
 endfunction
 
-function! sql#settings#alignTimeLimit(platform)
-    return get(sql#settings#user()[a:platform], 'alignTimeLimit',
-    \          get(sql#settings#app()[a:platform], 'alignTimeLimit', 5.0))
+function! sql#settings#alignThreshold(platform) " {{{1
+    return get(sql#settings#user()[a:platform], 'alignThreshold',
+    \          get(sql#settings#app()[a:platform], 'alignThreshold', 5.0))
 endfunction
 
-function! sql#settings#doAlign(platform)
-    return get(sql#settings#user()[a:platform], 'doAlign',
-    \          get(sql#settings#app()[a:platform], 'doAlign', 1))
-endfunction
-
-function! sql#settings#actions(platform, type)
+function! sql#settings#actions(platform, type) " {{{1
     return sort(keys(get(sql#settings#app()[a:platform].actions, a:type, {})))
 endfunction
-

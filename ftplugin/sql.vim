@@ -187,7 +187,7 @@ function! s:JoinLines() " {{{1
 endfunction
 
 function! s:AlignColumns() " {{{1
-    if exists(':EasyAlign') && sql#settings#doAlign(sql#platform())
+    if exists(':EasyAlign') && sql#settings#alignThreshold(sql#platform()) > 0
         normal! gg
         let startRow = search('^.\+$','cW')
         while startRow > 0
@@ -198,7 +198,7 @@ function! s:AlignColumns() " {{{1
             " tables as long as 10000 rows (2 columns), as wide as 2048
             " columns (10 rows), and various sizes in between.
             let timeEstimate = 0.000299808*rows*columns + 0.014503037*columns
-            if timeEstimate <= sql#settings#alignTimeLimit(sql#platform())
+            if timeEstimate <= sql#settings#alignThreshold(sql#platform())
                 silent execute startRow . ',' . endRow . 'EasyAlign */'.s:colSeparator.'/'
             endif
             normal! }
