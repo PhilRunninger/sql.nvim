@@ -31,8 +31,12 @@ function s:InitializeUserConfig()
         call mkdir(fnamemodify(s:userConfigPath, ':p:h'), 'p')
     endif
     call writefile(emptyConfig, s:userConfigPath)
+    call sql#settings#edit()
+    call confirm('Complete the user settings file. Use the :SQLUserConfig command for future edits.')
+endfunction
+
+function! sql#settings#edit() " {{{1
     execute 'split '.s:userConfigPath
-    call confirm('Complete the user settings file. Take note of its location for future reference.')
 endfunction
 
 function! sql#settings#root()
