@@ -87,4 +87,5 @@ function! s:SetConnection() " {{{1
     let [server,platform] = matchlist(getline(search('^\S','bcnW')),    '^..\(.*\) (\(.*\))$')[1:2]
     let database          =  matchstr(getline(search('^  \S', 'bcnW')), '^  ..\zs.*\ze$')
     call sql#connection#set(platform, server, database)
+    wincmd p
 endfunction
