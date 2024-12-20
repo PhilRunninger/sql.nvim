@@ -1,23 +1,19 @@
 "  vim: foldmethod=marker
 
 function! sql#actions#openWindow(platform, server, database, type, object)
-    let s:platform = a:platform
-    let s:server = a:server
-    let s:database = a:database
-    let s:type = a:type
-    let s:object = a:object
+    let [s:platform, s:server, s:database] = [a:platform, a:server, a:database]
+    let [s:type, s:object] = [a:type, a:object->substitute('  {.*}$', '','')]
 
     let actions = sql#settings#actions(a:platform, a:type)
     if empty(actions)
         return
     endif
 
-    let object = a:object->substitute('  {.*}$', '','')
     let config = {
         \ 'relative': 'cursor',
         \ 'anchor': 'NW',
         \ 'row': 0,
-        \ 'col': 2+len(object),
+        \ 'col': 2+len(s:object),
         \ 'height': len(actions),
         \ 'width': max(map(copy(actions), {_,v -> len(v)})),
         \ 'noautocmd': 1,
@@ -32,8 +28,6 @@ function! sql#actions#openWindow(platform, server, database, type, object)
     augroup END
 
     setlocal modifiable filetype=sqlactions
-    let [b:platform, b:server, b:database] = [a:platform, a:server, a:database]
-    let [b:type, b:object] = [a:type, object]
     silent %delete _
     call setline(1, actions)
     setlocal nomodifiable
