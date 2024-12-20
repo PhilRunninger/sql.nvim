@@ -79,7 +79,7 @@ function! s:CloseMe()   "{{{1
 endfunction
 
 function! s:SetConnection() " {{{1
-    if getline('.') !~ '^  [○●]'
+    if getline('.') !~ '^  '
         echo 'Your cursor must be on a database name to choose a connection.'
         return
     endif
