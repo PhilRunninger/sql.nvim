@@ -25,12 +25,19 @@ function! sql#database(database = '')
     return s:database
 endfunction
 
-function! sql#new() " {{{1
-    if bufname('%')!='' || &modified
-        tabnew
+function! sql#showSQL() " {{{1
+    if !bufexists(sql#bufnr())
+        if bufname('%') != '' || &modified
+            aboveleft new
+        endif
+        set filetype=sql
+        call sql#bufnr(bufnr())
     endif
-    set filetype=sql
-    call sql#bufnr(bufnr())
+
+    if bufwinnr(sql#bufnr()) == -1
+        execute 'aboveleft sbuffer ' . sql#bufnr()
+    endif
+
     call sql#showCatalog()
 endfunction
 

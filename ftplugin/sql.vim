@@ -61,6 +61,7 @@ function! s:OpenSQLOutWindow(enter) " {{{1
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
         call nvim_set_option_value('wrap',     v:false,  {'win':handle})
         call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery()<CR>', {'noremap':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1})
     elseif a:enter
         execute winnr . ' wincmd w'
     endif
