@@ -19,7 +19,7 @@ function! s:commandLine(platform, server, database, type, action, actionValues) 
     let cmdline .= ' '.s:formatArgString(sql#settings#serverInfo(a:platform,a:server))
     let cmdline .= empty(a:action) ? '' : ' '.s:formatArgString(sql#settings#app()[a:platform].actions.args)
 
-    let cmdline = substitute(cmdline, '<server>', escape(a:server, '\'), '')
+    let cmdline = substitute(cmdline, '<server>', escape(substitute(a:server,'^! ','',''), '\'), '')
     let cmdline = substitute(cmdline, '<database>', a:database, '')
     let file = empty(a:action) ?
           \ sql#settings#tempFile() :

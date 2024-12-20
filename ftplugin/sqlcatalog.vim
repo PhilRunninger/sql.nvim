@@ -8,6 +8,9 @@ nnoremap <silent> <buffer> h :call <SID>Collapse()<CR>
 nnoremap <silent> <buffer> l :call <SID>ExpandOrOpenMenu()<CR>
 nnoremap <silent> <buffer> <Enter> :call <SID>SetConnection()<CR>
 
+" TODO: In here <F5> will refresh the current database objects. Will need to
+" delete lines from [z+1 to ]z. then repopulate them.
+
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile
 setlocal cursorline
