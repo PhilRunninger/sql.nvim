@@ -74,7 +74,7 @@ endfunction
 
 function! s:CloseMe()   "{{{1
     let winnr = winnr()
-    wincmd p
+    execute bufwinnr(sql#bufnr()).'wincmd w'
     execute winnr.'wincmd c'
 endfunction
 
