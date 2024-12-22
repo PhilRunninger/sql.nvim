@@ -1,4 +1,10 @@
+"  vim: foldmethod=marker
+
 function! s:PrepAndRunQuery(queryType) " {{{1
+    if sql#query#isRunning()
+        return
+    endif
+
     call sql#bufnr(bufnr())
     if !sql#connection#isSet()
         call sql#showCatalog()

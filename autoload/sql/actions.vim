@@ -45,7 +45,7 @@ function! s:RunActionCallback(job_id, data, event)
     echo 'Result is ready to paste.'
 endfunction
 
-function! sql#actions#closeWindow()   "{{{1
+function! sql#actions#closeWindow() " {{{1
     if exists('s:actionsWindow')
         call nvim_win_hide(s:actionsWindow)
     endif
