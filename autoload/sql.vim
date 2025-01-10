@@ -26,19 +26,21 @@ function! sql#database(database = '')
 endfunction
 
 function! sql#showSQL() " {{{1
-    if !bufexists(sql#bufnr())
+    let bufnr = sql#bufnr()
+    if !bufexists(bufnr)
         if bufname('%') != '' || &modified
             aboveleft new
         endif
         set filetype=sql
-        call sql#bufnr(bufnr())
+        let bufnr = sql#bufnr(bufnr())
     endif
 
-    if bufwinnr(sql#bufnr()) == -1
-        execute 'aboveleft sbuffer ' . sql#bufnr()
+    let winnr = bufwinnr(bufnr)
+    if winnr == -1
+        execute 'aboveleft sbuffer ' . bufnr
+    else
+        execute winnr . 'wincmd w'
     endif
-
-    call sql#showCatalog()
 endfunction
 
 function! sql#showCatalog() " {{{1

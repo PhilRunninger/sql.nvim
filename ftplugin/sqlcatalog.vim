@@ -8,6 +8,7 @@ nnoremap <silent> <buffer> h :call <SID>Collapse()<CR>
 nnoremap <silent> <buffer> l :call <SID>ExpandOrOpenMenu()<CR>
 nnoremap <silent> <buffer> <Enter> :call <SID>SetConnection()<CR>
 nnoremap <silent> <buffer> <F5> :call <SID>Refresh()<CR>
+nnoremap <silent> <buffer> <F8> :call sql#showSQL()<CR>
 nnoremap <silent> <buffer> J ]z
 nnoremap <silent> <buffer> K [z
 
