@@ -7,24 +7,6 @@ function! sql#bufnr(bufnr = 0)
     return s:bufnr
 endfunction
 
-let s:platform = ''
-function! sql#platform(platform = '')
-    let s:platform = empty(a:platform) ? s:platform : a:platform
-    return s:platform
-endfunction
-
-let s:server = ''
-function! sql#server(server = '')
-    let s:server = empty(a:server) ? s:server : a:server
-    return s:server
-endfunction
-
-let s:database = ''
-function! sql#database(database = '')
-    let s:database = empty(a:database) ? s:database : a:database
-    return s:database
-endfunction
-
 function! sql#showSQL() " {{{1
     let bufnr = sql#bufnr()
     if !bufexists(bufnr)

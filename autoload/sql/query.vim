@@ -34,17 +34,16 @@ function! s:commandLine(platform, server, database, type, action, actionValues) 
     let cmdline .= ' '.s:formatArgString(sql#settings#serverInfo(a:platform,a:server))
     let cmdline .= empty(a:action) ? '' : ' '.s:formatArgString(sql#settings#app()[a:platform].actions.args)
 
-    let cmdline = substitute(cmdline, '<server>', escape(substitute(a:server,'^! ','',''), '\'), '')
-    let cmdline = substitute(cmdline, '<database>', a:database, '')
     let file = empty(a:action) ?
           \ sql#settings#tempFile() :
           \ sql#settings#root().'\'.a:platform.'\'.sql#settings#app()[a:platform].actions[a:type][a:action]
     let cmdline = substitute(cmdline, '<file>', escape(file, '\'), '')
+    let cmdline = substitute(cmdline, '<server>', escape(substitute(a:server,'^! ','',''), '\'), '')
+    let cmdline = substitute(cmdline, '<database>', a:database, '')
 
-    let paramValues = extend(copy(sql#settings#serverInfo(a:platform, a:server)), a:actionValues, 'force')
     let parm = matchstr(cmdline, '<\w\{-}>')
     while parm != ''
-        let cmdline = substitute(cmdline, parm, get(paramValues, parm[1:-2], ''), '')
+        let cmdline = substitute(cmdline, parm, get(a:actionValues, parm[1:-2], ''), '')
         let parm = matchstr(cmdline, '<\w\{-}>')
     endwhile
 

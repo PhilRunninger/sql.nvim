@@ -108,7 +108,7 @@ endfunction
 
 function! s:SetConnection() " {{{1
     if getline('.') !~ '^  '
-        echo 'Your cursor must be on a database name to choose a connection.'
+        echo 'Your cursor must be within a database to choose a connection.'
         return
     endif
 
