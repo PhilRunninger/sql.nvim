@@ -7,14 +7,18 @@ function! sql#bufnr(bufnr = 0)
     return s:bufnr
 endfunction
 
+function! sql#new() "{{{1
+    if bufname('%') != '' || &modified
+        enew
+    endif
+    set filetype=sql
+    return sql#bufnr(bufnr())
+endfunction
+
 function! sql#showSQL() " {{{1
     let bufnr = sql#bufnr()
     if !bufexists(bufnr)
-        if bufname('%') != '' || &modified
-            aboveleft new
-        endif
-        set filetype=sql
-        let bufnr = sql#bufnr(bufnr())
+        let bufnr = sql#new()
     endif
 
     let winnr = bufwinnr(bufnr)

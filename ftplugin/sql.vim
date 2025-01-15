@@ -1,5 +1,14 @@
 "  vim: foldmethod=marker
 
+call sql#settings#init(expand('<sfile>:p:h:h'))
+
+let s:colSeparator = ';'  " Make sure SQL output separator matches this.
+
+call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
+call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
+
 function! s:PrepAndRunQuery(queryType) " {{{1
     if sql#query#isRunning()
         return
@@ -145,13 +154,3 @@ function! s:AlignColumns() " {{{1
         CSVInit!
     endif
 endfunction
-
-" Start Here {{{1
-call sql#settings#init(expand('<sfile>:p:h:h'))
-
-let s:colSeparator = ';'  " Make sure SQL output separator matches this.
-
-call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
-call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
