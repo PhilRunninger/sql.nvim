@@ -37,7 +37,6 @@ function! sql#showCatalog() " {{{1
         \   map(keys(sql#settings#user()),{_,p ->
         \       map(keys(sql#settings#user()[p].servers), {_,s -> '○ '.s.' ('.p.')'})})))
         call nvim_buf_set_lines(bufnr,0,-1,0,serverlist)
-        keeppatterns silent g/^$/d
     endif
     let winnr = bufwinnr(bufnr)
     if winnr == -1
