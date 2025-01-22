@@ -12,9 +12,9 @@ endfunction
 function! s:InitializeUserConfig() " {{{1
     " Using a list of strings for pretty formatting.
     let sampleConfig = [
+    \   '// Complete the user configuration below, and then remove this line.',
     \   '{',
     \   '    "sqlserver": {',
-    \   '        "alignThreshold": 5.0,',
     \   '        "servers": {',
     \   '            "server1": {',
     \   '                "-U": "user",',
@@ -38,8 +38,6 @@ function! s:InitializeUserConfig() " {{{1
         call mkdir(fnamemodify(s:userConfigPath, ':p:h'), 'p')
     endif
     call writefile(sampleConfig, s:userConfigPath)
-    call sql#settings#edit()
-    call confirm('Complete the user settings file. Use the :SQLUserConfig command for future edits.')
 endfunction
 
 function! sql#settings#edit() " {{{1
@@ -59,18 +57,23 @@ function! sql#settings#app() " {{{1
 endfunction
 
 function! sql#settings#user() " {{{1
-    return json_decode(readfile(s:userConfigPath))
+    try
+        return json_decode(readfile(s:userConfigPath))
+    catch
+        call sql#settings#edit()
+        throw 'sql.nvim: Invalid User Config'
+    endtry
 endfunction
 
-function! sql#settings#serverInfo(platform, server) " {{{1
+function! sql#settings#serverInfo(platform, server) abort " {{{1
     return sql#settings#user()[a:platform].servers[a:server]
 endfunction
 
-function! sql#settings#alignThreshold(platform) " {{{1
+function! sql#settings#alignThreshold(platform) abort " {{{1
     return get(sql#settings#user()[a:platform], 'alignThreshold',
     \          get(sql#settings#app()[a:platform], 'alignThreshold', 5.0))
 endfunction
 
-function! sql#settings#actions(platform, type) " {{{1
+function! sql#settings#actions(platform, type) abort " {{{1
     return sort(keys(get(sql#settings#app()[a:platform].actions, a:type, {})))
 endfunction

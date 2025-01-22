@@ -1,7 +1,5 @@
 "  vim: foldmethod=marker
 
-call sql#settings#init(expand('<sfile>:p:h:h'))
-
 let s:colSeparator = ';'  " Make sure SQL output separator matches this.
 
 call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})

@@ -29,7 +29,7 @@ function! sql#showSQL() " {{{1
     endif
 endfunction
 
-function! sql#showCatalog() " {{{1
+function! sql#showCatalog() abort " {{{1
     let bufnr = bufnr('⟪SQLCatalog⟫')
     if bufnr == -1
         let bufnr = bufnr('⟪SQLCatalog⟫', 1)
