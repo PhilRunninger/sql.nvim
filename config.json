@@ -43,16 +43,17 @@
         }
     },
     "postgres": {
+        "alignThreshold": 5.0,
         "executable": "psql",
         "args": {
             "-h": "<server>",
             "-d": "<database>",
             "-f": "<file>",
-            "-F": "\";\""
+            "-F": "\";\"",
+            "-A": null
         },
-        "alignThreshold": 0.0,
         "actions":{
-            "args": {"-A": null, "-t": null},
+            "args": {"-t": null},
             "Catalog": {
                 "masterDB": "postgres",
                 "GetDatabases": "GetDatabases.sql",
