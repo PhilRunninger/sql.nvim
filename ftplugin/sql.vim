@@ -126,7 +126,7 @@ function! s:JoinLines() " {{{1
 endfunction
 
 function! s:AlignColumns() " {{{1
-    let threshold = sql#settings#alignThreshold(sql#connection#get()[0])
+    let threshold = sql#settings#alignLimit(sql#connection#get()[0])
     if exists(':EasyAlign') && threshold > 0
         normal! gg
         let startRow = search('^.\+$','cW')

@@ -42,11 +42,12 @@ This buffer shows the output from running the SQL script.
 * <kbd>F5</kbd> - Re-runs the last query.
 * <kbd>F8</kbd> - Returns to the SQL buffer where the query is defined.
 
-## Settings File
-All the information about the servers and the platforms they're running is stored a JSON file that you can edit with this command: `:SQLUserConfig`. If the file is not found, the plugin will create it with the following sample contents. It is intended to show you the proper structure, but you must fill it out to match your environment.
+## User Configuration
+All the information about the servers and the platforms they're running is stored in a JSON file that you can edit with the `:SQLUserConfig` command. If the file is not found, the plugin will create it with the following sample contents. It is intended to show you the proper structure, but you must fill it out to match your environment.
 
 ```json
-// Complete the user configuration below, and then remove this line.
+// Complete the user configuration below, and then remove these comments.
+// See https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#user-configuration for details.
 {
     "sqlserver": {
         "servers": {
@@ -58,7 +59,7 @@ All the information about the servers and the platforms they're running is store
         }
     },
     "postgres": {
-        "alignThreshold": 0.0,
+        "alignLimit": 0,
         "servers": {
             "server3": {
                 "-p": 5432
@@ -67,14 +68,14 @@ All the information about the servers and the platforms they're running is store
     }
 }
 ```
-* The root object contains an object for each supported platform, currently just `"sqlserver": {...}` and `"postgres": {...}`. If one is not required, it can be removed.
-* Each `<platform>` object contains:
-    * a `"servers": {...}` object, and
-    * optionally an `"alignThreshold"` numeric value. If alignment time is estimated to exceed this threshold, it is skipped. The default is `5` seconds. A value of `0` turns alignment off.
-* The `"servers"` object contains an object for each server of interest that hosts one or more databases.
-* The `<server>` objects hold additional command-line arguments as needed: user ID, password, port, etc. To specify a switch that has no value, enter it like so: `{"-j": null}`. The additional arguments are applied to the default command lines, shown here (`<server>`, `<database>`, and `<file>` are placeholders):
+* The root object contains an object for each supported platform, currently just `"sqlserver": {...}` and `"postgres": {...}`. If one is not required, it can be removed. The default command lines are shown here (`<server>`, `<database>`, and `<file>` are placeholders):
     * **sqlserver**: `sqlcmd -S <server> -d <database> -i <file> -s \";\" -W -I -f 65001`
     * **postgres**: `psql -h <server> -d <database> -f <file> -F\";\" -A`
+* Each `<platform>` object contains:
+    * a `"servers": {...}` object, and
+    * an optional `"alignLimit"` numeric value. If time to do the alignment is estimated to exceed this threshold, it is skipped. The default is `5` seconds. A value of `0` turns alignment off.
+* The `"servers"` object contains an object for each server of interest that hosts one or more databases.
+* The `<server>` objects hold additional command-line arguments as needed: user ID, password, port, etc. To specify a switch that has no value, enter it like so: `{"-j": null}`. The additional arguments are appended to the appropriate default command line.
 
 
 ## Dependencies

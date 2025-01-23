@@ -1,6 +1,6 @@
 {
     "sqlserver": {
-        "alignThreshold": 5.0,
+        "alignLimit": 5.0,
         "executable": "sqlcmd",
         "args": {
             "-S": "<server>",
@@ -43,7 +43,7 @@
         }
     },
     "postgres": {
-        "alignThreshold": 5.0,
+        "alignLimit": 5.0,
         "executable": "psql",
         "args": {
             "-h": "<server>",
