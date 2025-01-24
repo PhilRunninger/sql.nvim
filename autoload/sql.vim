@@ -1,6 +1,9 @@
 "  vim: foldmethod=marker
 
 " These are essentially the global variables for this plugin. " {{{1
+let sql#explored = '▶'
+let sql#unexplored = '▷'
+
 let s:bufnr = 0
 function! sql#bufnr(bufnr = 0)
     let s:bufnr = a:bufnr == 0 ? s:bufnr : a:bufnr
@@ -44,7 +47,7 @@ function! sql#showCatalog() abort " {{{1
         endfor
         call sort(serverList, {a,b -> a[1]==b[1] ? 0 : a[1]>b[1] ? 1 : -1})
         call sort(serverList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
-        call map(serverList, {_,v -> '○ '.v[1]})
+        call map(serverList, {_,v -> printf('%s %s', g:sql#unexplored, v[1])})
 
         call nvim_buf_set_lines(bufnr,0,-1,0,serverList)
     endif

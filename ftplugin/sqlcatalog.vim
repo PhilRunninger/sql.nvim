@@ -51,10 +51,10 @@ function! s:ExpandOrOpenMenu() " {{{1
     endif
 
     let current = s:ObjectUnderCursor()
-    if current.cursor.text =~ '^○'    " Unexplored server
+    if current.cursor.text =~ printf('^%s', g:sql#unexplored)    " Unexplored server
         let masterDB = sql#settings#app()[current.platform.text].actions.Catalog.masterDB
-        call sql#query#run(function('s:GetDBInfoCallback', [current.cursor.line, '  ○ ']), current.platform.text, current.server.text, masterDB, 'Catalog', 'GetDatabases')
-    elseif current.cursor.text =~ '^  ○'    " Unexplored database
+        call sql#query#run(function('s:GetDBInfoCallback', [current.cursor.line, printf('  %s ', g:sql#unexplored)]), current.platform.text, current.server.text, masterDB, 'Catalog', 'GetDatabases')
+    elseif current.cursor.text =~ printf('^  %s', g:sql#unexplored)    " Unexplored database
         call sql#query#run(function('s:GetDBInfoCallback', [current.cursor.line, '    ']), current.platform.text, current.server.text, current.database.text, 'Catalog', 'GetDatabaseObjects')
     elseif current.cursor.text =~ '^      \(  \)\?'   " DB Object or Type
         call sql#actions#openWindow(current.platform.text, current.server.text, current.database.text, current.type.text, current.object.text)
@@ -64,17 +64,17 @@ endfunction
 function! s:Refresh() " {{{1
     setlocal modifiable
     let current = s:ObjectUnderCursor()
-    if current.cursor.text =~ '^[○●]'    " Refresh databases on server
+    if current.cursor.text =~ printf('^[%s%s]', g:sql#unexplored, g:sql#explored)    " Cursor is on a server. Remove all databases, and set server to be unexplored.
         call cursor(current.server.line, 1)
         normal! ]z
         let lastLine = line('.')
-        call nvim_buf_set_lines(0,current.server.line-1,lastLine,0,[printf('○ %s (%s)', current.server.text, current.platform.text)])
+        call nvim_buf_set_lines(0,current.server.line-1,lastLine,0,[printf('%s %s (%s)', g:sql#unexplored, current.server.text, current.platform.text)])
         call cursor(current.server.line, 1)
-    else    " Refresh database objects
+    else    " Cursor is on a database. Remove all of its objects, and set database to unexplored.
         call cursor(current.database.line, 1)
         normal! ]z
         let lastLine = line('.')
-        call nvim_buf_set_lines(0,current.database.line-1,lastLine,0,[printf('  ○ %s', current.database.text)])
+        call nvim_buf_set_lines(0,current.database.line-1,lastLine,0,[printf('  %s %s', g:sql#unexplored, current.database.text)])
         call cursor(current.database.line, 1)
     endif
     setlocal nomodifiable
@@ -89,7 +89,7 @@ function! s:GetDBInfoCallback(line, prefix, job_id, data, event) " {{{1
     endif
 
     setlocal modifiable
-    call nvim_buf_set_lines(0,a:line-1,a:line,0,[substitute(getline(a:line), '○', '●', '')])
+    call nvim_buf_set_lines(0,a:line-1,a:line,0,[substitute(getline(a:line), g:sql#unexplored, g:sql#explored, '')])
     call nvim_buf_set_lines(0,a:line,a:line,0,map(filter(a:data,{_,v -> !empty(v)}), {_,v -> a:prefix.substitute(v, nr2char(13).'$','','')}))
     setlocal nomodifiable
     call cursor(a:line,1)
