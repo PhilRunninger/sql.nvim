@@ -33,10 +33,20 @@ function! sql#showCatalog() abort " {{{1
     let bufnr = bufnr('⟪SQLCatalog⟫')
     if bufnr == -1
         let bufnr = bufnr('⟪SQLCatalog⟫', 1)
-        let serverlist = sort(flatten(
-        \   map(keys(sql#settings#user()),{_,p ->
-        \       map(keys(sql#settings#user()[p].servers), {_,s -> '○ '.s.' ('.p.')'})})))
-        call nvim_buf_set_lines(bufnr,0,-1,0,serverlist)
+
+        let config = sql#settings#user()
+        let serverList = []
+        for p in keys(config)
+            for s in keys(config[p].servers)
+                let order = get(config[p].servers[s], 'order', v:numbermax)
+                call add(serverList, [order, s.' ('.p.')'])
+            endfor
+        endfor
+        call sort(serverList, {a,b -> a[1]==b[1] ? 0 : a[1]>b[1] ? 1 : -1})
+        call sort(serverList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
+        call map(serverList, {_,v -> '○ '.v[1]})
+
+        call nvim_buf_set_lines(bufnr,0,-1,0,serverList)
     endif
     let winnr = bufwinnr(bufnr)
     if winnr == -1

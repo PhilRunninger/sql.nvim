@@ -46,8 +46,8 @@ This buffer shows the output from running the SQL script.
 All the information about the servers and the platforms they're running is stored in a JSON file that you can edit with the `:SQLUserConfig` command. If the file is not found, the plugin will create it with the following sample contents. It is intended to show you the proper structure, but you must fill it out to match your environment.
 
 ```json
-// Complete the user configuration below, and then remove these comments.
-// See https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#user-configuration for details.
+// Complete the user configuration below, and then remove these comments. For details,
+// see https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#user-configuration.
 {
     "sqlserver": {
         "servers": {
@@ -55,7 +55,7 @@ All the information about the servers and the platforms they're running is store
                 "-U": "user",
                 "-P": "password"
             },
-            "server2": {}
+            "server2": {"order":1}
         }
     },
     "postgres": {
@@ -73,10 +73,10 @@ All the information about the servers and the platforms they're running is store
     * **postgres**: `psql -h <server> -d <database> -f <file> -F\";\" -A`
 * Each `<platform>` object contains:
     * a `"servers": {...}` object, and
-    * an optional `"alignLimit"` numeric value. If time to do the alignment is estimated to exceed this threshold, it is skipped. The default is `5` seconds. A value of `0` turns alignment off.
-* The `"servers"` object contains an object for each server of interest that hosts one or more databases.
-* The `<server>` objects hold additional command-line arguments as needed: user ID, password, port, etc. To specify a switch that has no value, enter it like so: `{"-j": null}`. The additional arguments are appended to the appropriate default command line.
-
+    * an optional `"alignLimit"` numeric value. If the time estimate for doing the alignment exceeds this threshold, it is skipped. The default is `5` seconds. A value of `0` turns alignment off.
+* The `"servers"` object contains an object for each server of interest.
+* The `<server>` objects hold additional command-line arguments as needed: user ID, password, port, etc. To specify a switch that has no value, enter it like so: `{"-j": null}`. The additional arguments are appended to the platform's default command line.
+* The `<server>` objects also can have a special integer value named `"order"`. Use this to move favorites to the top. Servers are sorted primarily by `"order"` (ones without `"order"` are placed below the rest), and secondarily by name.
 
 ## Dependencies
 - For running **sqlserver** queries, [sqlcmd.exe](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16&tabs=go%2Cwindows&pivots=cs1-cmd) must be installed and in the path.

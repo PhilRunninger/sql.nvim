@@ -38,7 +38,7 @@ function! s:commandLine(platform, server, database, type, action, actionValues) 
           \ sql#settings#tempFile() :
           \ sql#settings#root().'\'.a:platform.'\'.sql#settings#app()[a:platform].actions[a:type][a:action]
     let cmdline = substitute(cmdline, '<file>', escape(file, '\'), '')
-    let cmdline = substitute(cmdline, '<server>', escape(substitute(a:server,'^! ','',''), '\'), '')
+    let cmdline = substitute(cmdline, '<server>', escape(a:server, '\'), '')
     let cmdline = substitute(cmdline, '<database>', a:database, '')
 
     let parm = matchstr(cmdline, '<\w\{-}>')
@@ -51,5 +51,5 @@ function! s:commandLine(platform, server, database, type, action, actionValues) 
 endfunction
 
 function! s:formatArgString(args) abort " {{{1
-    return join(map(keys(a:args), {_,v -> v.' '.(a:args[v]==v:null ? '' : a:args[v])}), ' ')
+    return join(map(filter(keys(a:args),{_,v -> v != 'order'}), {_,v -> v.' '.(a:args[v]==v:null ? '' : a:args[v])}), ' ')
 endfunction

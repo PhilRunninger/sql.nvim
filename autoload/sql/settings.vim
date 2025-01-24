@@ -12,8 +12,8 @@ endfunction
 function! s:InitializeUserConfig() " {{{1
     " Using a list of strings for pretty formatting.
     let sampleConfig = [
-    \   '// Complete the user configuration below, and then remove these comments.',
-    \   '// See https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#settings-file for details.',
+    \   '// Complete the user configuration below, and then remove these comments. For details,',
+    \   '// see https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#user-configuration.',
     \   '{',
     \   '    "sqlserver": {',
     \   '        "servers": {',
@@ -21,7 +21,7 @@ function! s:InitializeUserConfig() " {{{1
     \   '                "-U": "user",',
     \   '                "-P": "password"',
     \   '            },',
-    \   '            "server2": {}',
+    \   '            "server2": {"order":1}',
     \   '        }',
     \   '    },',
     \   '    "postgres": {',
