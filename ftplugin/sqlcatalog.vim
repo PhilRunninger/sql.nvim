@@ -62,27 +62,23 @@ function! s:ExpandOrOpenMenu() " {{{1
 endfunction
 
 function! s:Refresh() " {{{1
+    setlocal modifiable
     let current = s:ObjectUnderCursor()
     if current.cursor.text =~ '^[○●]'    " Refresh databases on server
-        setlocal modifiable
         call cursor(current.server.line, 1)
         normal! ]z
         let lastLine = line('.')
         call nvim_buf_set_lines(0,current.server.line-1,lastLine,0,[printf('○ %s (%s)', current.server.text, current.platform.text)])
-        setlocal nomodifiable
         call cursor(current.server.line, 1)
-        let masterDB = sql#settings#app()[current.platform.text].actions.Catalog.masterDB
-        call s:ExpandOrOpenMenu()
     else    " Refresh database objects
-        setlocal modifiable
         call cursor(current.database.line, 1)
         normal! ]z
         let lastLine = line('.')
         call nvim_buf_set_lines(0,current.database.line-1,lastLine,0,[printf('  ○ %s', current.database.text)])
-        setlocal nomodifiable
         call cursor(current.database.line, 1)
-        call s:ExpandOrOpenMenu()
     endif
+    setlocal nomodifiable
+    call s:ExpandOrOpenMenu()   " Allow the Expand functionality to repopulate the removed items.
 endfunction
 
 function! s:GetDBInfoCallback(line, prefix, job_id, data, event) " {{{1
