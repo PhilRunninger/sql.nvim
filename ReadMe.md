@@ -6,11 +6,10 @@ This package is a Neovim implementation of a very small portion of what SSMS doe
 
 1. Connect to multiple database types, currently SQL Server and PostgreSQL.
 1. Display a catalog window showing objects defined in the database(s).
-1. Link a SQL script file to a selected database.
-1. Run an entire SQL script.
-1. Run a paragraph within a SQL script.
-1. Run a visual selection of text within a SQL script.
+1. Run an entire SQL script, or a paragraph or visual selection in it.
 1. Craft SQL statements related to the object under the cursor, such as SELECT, INSERT, UPDATE, etc. Statements are placed in the unnamed register, ready for pasting.
+
+![image](Screenshot.png)
 
 ## Installation
 
