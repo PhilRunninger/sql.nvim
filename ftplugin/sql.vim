@@ -1,6 +1,19 @@
+"  vim: foldmethod=marker
+
+let s:colSeparator = ';'  " Make sure SQL output separator matches this.
+
+call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
+call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
+
 function! s:PrepAndRunQuery(queryType) " {{{1
+    if sql#query#isRunning()
+        return
+    endif
+
     call sql#bufnr(bufnr())
-    if !sql#connection#isSet()
+    if empty(sql#connection#get())
         call sql#showCatalog()
         echo 'Choose a connection from the catalog.'
         return
@@ -14,7 +27,8 @@ function! s:RunQuery() " {{{1
     call s:UpdateStatus(reltime(), sqlOutBufNr, v:null)
     let timer = timer_start(1000, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
-    let id = sql#query#run(function('s:RunQueryCallback', [timer]), sql#platform(), sql#server(), sql#database())
+    let [platform, server, database] = sql#connection#get()
+    let id = sql#query#run(function('s:RunQueryCallback', [timer]), platform, server, database)
     call s:MapCancelKey(id)
 endfunction
 
@@ -33,8 +47,7 @@ endfunction
 
 function! s:WriteTempFile(queryType) " {{{1
     if a:queryType == 'file'
-        let start = empty(matchlist(getline(1), sql#connection#regex())) ? 1 : 2
-        call writefile(getline(start,line('$')), sql#settings#tempFile())
+        call writefile(getline(2,line('$')), sql#settings#tempFile())
     elseif a:queryType == 'paragraph'
         call writefile(getline(line("'{"),line("'}")), sql#settings#tempFile())
     elseif a:queryType == 'selection'
@@ -61,6 +74,7 @@ function! s:OpenSQLOutWindow(enter) " {{{1
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
         call nvim_set_option_value('wrap',     v:false,  {'win':handle})
         call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery()<CR>', {'noremap':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1})
     elseif a:enter
         execute winnr . ' wincmd w'
     endif
@@ -112,7 +126,8 @@ function! s:JoinLines() " {{{1
 endfunction
 
 function! s:AlignColumns() " {{{1
-    if exists(':EasyAlign') && sql#settings#alignThreshold(sql#platform()) > 0
+    let threshold = sql#settings#alignLimit(sql#connection#get()[0])
+    if exists(':EasyAlign') && threshold > 0
         normal! gg
         let startRow = search('^.\+$','cW')
         while startRow > 0
@@ -123,7 +138,7 @@ function! s:AlignColumns() " {{{1
             " tables as long as 10000 rows (2 columns), as wide as 2048
             " columns (10 rows), and various sizes in between.
             let timeEstimate = 0.000299808*rows*columns + 0.014503037*columns
-            if timeEstimate <= sql#settings#alignThreshold(sql#platform())
+            if timeEstimate <= threshold
                 silent execute startRow . ',' . endRow . 'EasyAlign */'.s:colSeparator.'/'
             endif
             normal! }
@@ -137,20 +152,3 @@ function! s:AlignColumns() " {{{1
         CSVInit!
     endif
 endfunction
-
-" Start Here {{{1
-call sql#settings#init(expand('<sfile>:p:h:h'))
-
-let s:colSeparator = ';'  " Make sure SQL output separator matches this.
-
-let connectionParts = matchlist(getline(1), sql#connection#regex())
-if !empty(connectionParts)
-    call sql#platform(connectionParts[1])
-    call sql#server(connectionParts[2])
-    call sql#database(connectionParts[3])
-endif
-
-call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
-call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
