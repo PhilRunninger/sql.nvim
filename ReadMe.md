@@ -81,6 +81,6 @@ All the information about the servers and the platforms they're running is store
 - For running **sqlserver** queries, [sqlcmd.exe](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16&tabs=go%2Cwindows&pivots=cs1-cmd) must be installed and in the path.
 - For running **postgres** queries, [psql.exe](https://www.postgresql.org/docs/current/app-psql.html) must be installed and in the path.
 
-If the following optional plugins are installed, they will be used to improve to format the results.
+If the following optional plugins are installed, they will be used to format the results.
 - [EasyAlign](https://github.com/junegunn/vim-easy-align) aligns the text into columns, if the output isn't too large.
 - [csv.vim](https://github.com/chrisbra/csv.vim) highlights the columns in alternating colors.
