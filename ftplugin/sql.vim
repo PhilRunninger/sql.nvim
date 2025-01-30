@@ -27,8 +27,13 @@ function! s:RunQuery() " {{{1
 
     let [platform, server, database] = sql#connection#get()
     call nvim_buf_set_var(sqlOutBufNr, 'delimiter', sql#settings#delimiter(platform))
-    let id = sql#query#run(function('s:RunQueryCallback', [timer]), platform, server, database)
-    call s:MapCancelKey(id)
+    try
+        let id = sql#query#run(function('s:RunQueryCallback', [timer]), platform, server, database)
+        call s:MapCancelKey(id)
+    catch
+        call timer_stop(timer)
+        echoerr "Your query couldn't be run. Check this file's connection string in line 1 for errors."
+    endtry
 endfunction
 
 function! s:MapCancelKey(id) " {{{1
