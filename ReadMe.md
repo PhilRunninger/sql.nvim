@@ -49,6 +49,7 @@ All the information about the servers and the platforms they're running is store
 // see https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#user-configuration.
 {
     "sqlserver": {
+        "delimiter": ";",
         "servers": {
             "server1": {
                 "-U": "user",
@@ -67,12 +68,13 @@ All the information about the servers and the platforms they're running is store
     }
 }
 ```
-* The root object contains an object for each supported platform, currently just `"sqlserver": {...}` and `"postgres": {...}`. If one is not required, it can be removed. The default command lines are shown here (`<server>`, `<database>`, and `<file>` are placeholders):
-    * **sqlserver**: `sqlcmd -S <server> -d <database> -i <file> -s \";\" -W -I -f 65001`
-    * **postgres**: `psql -h <server> -d <database> -f <file> -F\";\" -A`
+* The root object contains an object for each supported platform, currently just `"sqlserver": {...}` and `"postgres": {...}`. If one is not required, it can be removed. The default command lines are shown here (`<server>`, `<database>`, `<file>`, and `<delimiter>` are placeholders):
+    * **sqlserver**: `sqlcmd -S <server> -d <database> -i <file> -s \"<delimiter>\" -W -I -f 65001`
+    * **postgres**: `psql -h <server> -d <database> -f <file> -F\"<delimiter>\" -A`
 * Each `<platform>` object contains:
     * a `"servers": {...}` object, and
     * an optional `"alignLimit"` numeric value. If the time estimate for doing the alignment exceeds this threshold, it is skipped. The default is `5` seconds. A value of `0` turns alignment off.
+    * an optional `"delimiter"` string value. This is used as the delimiter between columns in the query results. The default is `"|"`.
 * The `"servers"` object contains an object for each server of interest.
 * The `<server>` objects hold additional command-line arguments as needed: user ID, password, port, etc. To specify a switch that has no value, enter it like so: `{"-j": null}`. The additional arguments are appended to the platform's default command line.
 * The `<server>` objects also can have a special integer value named `"order"`. Use this to move favorites to the top. Servers are sorted primarily by `"order"` (ones without `"order"` are placed below the rest), and secondarily by name.

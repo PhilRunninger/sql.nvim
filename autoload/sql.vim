@@ -33,9 +33,10 @@ function! sql#showSQL() " {{{1
 endfunction
 
 function! sql#showCatalog() abort " {{{1
-    let bufnr = bufnr('⟪SQLCatalog⟫')
+    let bufferName = '⟪SQLCatalog⟫'
+    let bufnr = bufnr(bufferName)
     if bufnr == -1
-        let bufnr = bufnr('⟪SQLCatalog⟫', 1)
+        let bufnr = bufnr(bufferName, 1)
 
         let config = sql#settings#user()
         let serverList = []

@@ -1,7 +1,6 @@
 "  vim: foldmethod=marker
 
-let s:colSeparator = ';'  " Make sure SQL output separator matches this.
-
+" Buffer-level key mappings. {{{1
 call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
@@ -24,12 +23,17 @@ endfunction
 
 function! s:RunQuery() " {{{1
     let sqlOutBufNr = s:OpenSQLOutWindow(0)
-    call s:UpdateStatus(reltime(), sqlOutBufNr, v:null)
     let timer = timer_start(1000, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
     let [platform, server, database] = sql#connection#get()
-    let id = sql#query#run(function('s:RunQueryCallback', [timer]), platform, server, database)
-    call s:MapCancelKey(id)
+    call nvim_buf_set_var(sqlOutBufNr, 'delimiter', sql#settings#delimiter(platform))
+    try
+        let id = sql#query#run(function('s:RunQueryCallback', [timer]), platform, server, database)
+        call s:MapCancelKey(id)
+    catch
+        call timer_stop(timer)
+        echoerr "Your query couldn't be run. Check this file's connection string in line 1 for errors."
+    endtry
 endfunction
 
 function! s:MapCancelKey(id) " {{{1
@@ -42,7 +46,7 @@ function! s:CancelQuery(id)
 endfunction
 
 function! s:UpdateStatus(startTime, bufNr, timer) " {{{1
-    call nvim_buf_set_lines(a:bufNr,0,-1,0,[printf('Executing... %0.3f sec   Ctrl+C to quit.', reltimefloat(reltime(a:startTime)))])
+    call nvim_buf_set_lines(a:bufNr,0,-1,0,[printf('Executing... %0.0f sec   Ctrl+C to quit.', reltimefloat(reltime(a:startTime)))])
 endfunction
 
 function! s:WriteTempFile(queryType) " {{{1
@@ -65,16 +69,21 @@ function! s:RunQueryCallback(timer, job_id, data, event) " {{{1
 endfunction
 
 function! s:OpenSQLOutWindow(enter) " {{{1
-    let bufnr = bufnr('⟪SQLOut⟫', 1)
-    let winnr = bufwinnr('⟪SQLOut⟫')
-    if winnr == -1
-        let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})
+    let bufferName = '⟪SQLOut⟫'
+    let bufnr = bufnr(bufferName)
+    if bufnr == -1
+        let bufnr = bufnr(bufferName, 1)
         call nvim_set_option_value('buftype',  'nofile', {'buf':bufnr})
         call nvim_set_option_value('filetype', 'csv',    {'buf':bufnr})
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
-        call nvim_set_option_value('wrap',     v:false,  {'win':handle})
         call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery()<CR>', {'noremap':1})
         call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1})
+    endif
+
+    let winnr = bufwinnr(bufferName)
+    if winnr == -1
+        let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})
+        call nvim_set_option_value('wrap',     v:false,  {'win':handle})
     elseif a:enter
         execute winnr . ' wincmd w'
     endif
@@ -102,16 +111,16 @@ function! s:JoinLines() " {{{1
         if endRow == -1
             break
         endif
-        let required = count(getline(startRow), s:colSeparator)
+        let required = count(getline(startRow), b:delimiter)
         let startRow += 2
         while startRow < endRow && required > 0
             let rows = 0
-            let count = count(getline(startRow), s:colSeparator)
-            let countNext = count(getline(startRow+1), s:colSeparator)
+            let count = count(getline(startRow), b:delimiter)
+            let countNext = count(getline(startRow+1), b:delimiter)
             while startRow + rows < endRow && (count < required || countNext == 0)
                 let rows += 1
-                let count += count(getline(startRow + rows), s:colSeparator)
-                let countNext = count(getline(startRow + rows + 1), s:colSeparator)
+                let count += count(getline(startRow + rows), b:delimiter)
+                let countNext = count(getline(startRow + rows + 1), b:delimiter)
             endwhile
             if rows > 0
                 execute startRow.','.(startRow + rows).'join'
@@ -131,7 +140,7 @@ function! s:AlignColumns() " {{{1
         normal! gg
         let startRow = search('^.\+$','cW')
         while startRow > 0
-            let columns = count(getline(startRow), s:colSeparator) + 1
+            let columns = count(getline(startRow), b:delimiter) + 1
             let endRow = line("'}") - (line("'}") != line("$"))
             let rows = endRow - startRow - 1
             " These coefficients were derived from an experiment I did with
@@ -139,7 +148,7 @@ function! s:AlignColumns() " {{{1
             " columns (10 rows), and various sizes in between.
             let timeEstimate = 0.000299808*rows*columns + 0.014503037*columns
             if timeEstimate <= threshold
-                silent execute startRow . ',' . endRow . 'EasyAlign */'.s:colSeparator.'/'
+                silent execute startRow . ',' . endRow . 'EasyAlign */'.b:delimiter.'/'
             endif
             normal! }
             let startRow = search('^.\+$','W')
@@ -147,7 +156,6 @@ function! s:AlignColumns() " {{{1
     endif
 
     if exists(':CSVInit')
-        let b:delimiter = s:colSeparator
         let b:csv_headerline = 0
         CSVInit!
     endif

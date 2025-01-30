@@ -40,6 +40,7 @@ function! s:commandLine(platform, server, database, type, action, actionValues) 
     let cmdline = substitute(cmdline, '<file>', escape(file, '\'), '')
     let cmdline = substitute(cmdline, '<server>', escape(a:server, '\'), '')
     let cmdline = substitute(cmdline, '<database>', a:database, '')
+    let cmdline = substitute(cmdline, '<delimiter>', sql#settings#delimiter(a:platform), '')
 
     let parm = matchstr(cmdline, '<\w\{-}>')
     while parm != ''
