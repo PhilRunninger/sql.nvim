@@ -1,5 +1,6 @@
 "  vim: foldmethod=marker
 
+" Buffer-level key mappings. {{{1
 call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
@@ -22,7 +23,6 @@ endfunction
 
 function! s:RunQuery() " {{{1
     let sqlOutBufNr = s:OpenSQLOutWindow(0)
-    call s:UpdateStatus(reltime(), sqlOutBufNr, v:null)
     let timer = timer_start(1000, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
     let [platform, server, database] = sql#connection#get()
@@ -46,7 +46,7 @@ function! s:CancelQuery(id)
 endfunction
 
 function! s:UpdateStatus(startTime, bufNr, timer) " {{{1
-    call nvim_buf_set_lines(a:bufNr,0,-1,0,[printf('Executing... %0.3f sec   Ctrl+C to quit.', reltimefloat(reltime(a:startTime)))])
+    call nvim_buf_set_lines(a:bufNr,0,-1,0,[printf('Executing... %0.0f sec   Ctrl+C to quit.', reltimefloat(reltime(a:startTime)))])
 endfunction
 
 function! s:WriteTempFile(queryType) " {{{1
@@ -69,16 +69,21 @@ function! s:RunQueryCallback(timer, job_id, data, event) " {{{1
 endfunction
 
 function! s:OpenSQLOutWindow(enter) " {{{1
-    let bufnr = bufnr('⟪SQLOut⟫', 1)
-    let winnr = bufwinnr('⟪SQLOut⟫')
-    if winnr == -1
-        let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})
+    let bufferName = '⟪SQLOut⟫'
+    let bufnr = bufnr(bufferName)
+    if bufnr == -1
+        let bufnr = bufnr(bufferName, 1)
         call nvim_set_option_value('buftype',  'nofile', {'buf':bufnr})
         call nvim_set_option_value('filetype', 'csv',    {'buf':bufnr})
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
-        call nvim_set_option_value('wrap',     v:false,  {'win':handle})
         call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery()<CR>', {'noremap':1})
         call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1})
+    endif
+
+    let winnr = bufwinnr(bufferName)
+    if winnr == -1
+        let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})
+        call nvim_set_option_value('wrap',     v:false,  {'win':handle})
     elseif a:enter
         execute winnr . ' wincmd w'
     endif
