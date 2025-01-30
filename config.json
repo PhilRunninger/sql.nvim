@@ -6,7 +6,7 @@
             "-S": "<server>",
             "-d": "<database>",
             "-i": "<file>",
-            "-s": "\";\"",
+            "-s": "\"<delimiter>\"",
             "-W": null,
             "-I": null,
             "-f": 65001
@@ -49,7 +49,7 @@
             "-h": "<server>",
             "-d": "<database>",
             "-f": "<file>",
-            "-F": "\";\"",
+            "-F": "\"<delimiter>\"",
             "-A": null
         },
         "actions":{

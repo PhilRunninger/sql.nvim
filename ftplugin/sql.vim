@@ -1,7 +1,5 @@
 "  vim: foldmethod=marker
 
-let s:colSeparator = ';'  " Make sure SQL output separator matches this.
-
 call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
@@ -28,6 +26,7 @@ function! s:RunQuery() " {{{1
     let timer = timer_start(1000, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
     let [platform, server, database] = sql#connection#get()
+    call nvim_buf_set_var(sqlOutBufNr, 'delimiter', sql#settings#delimiter(platform))
     let id = sql#query#run(function('s:RunQueryCallback', [timer]), platform, server, database)
     call s:MapCancelKey(id)
 endfunction
@@ -102,16 +101,16 @@ function! s:JoinLines() " {{{1
         if endRow == -1
             break
         endif
-        let required = count(getline(startRow), s:colSeparator)
+        let required = count(getline(startRow), b:delimiter)
         let startRow += 2
         while startRow < endRow && required > 0
             let rows = 0
-            let count = count(getline(startRow), s:colSeparator)
-            let countNext = count(getline(startRow+1), s:colSeparator)
+            let count = count(getline(startRow), b:delimiter)
+            let countNext = count(getline(startRow+1), b:delimiter)
             while startRow + rows < endRow && (count < required || countNext == 0)
                 let rows += 1
-                let count += count(getline(startRow + rows), s:colSeparator)
-                let countNext = count(getline(startRow + rows + 1), s:colSeparator)
+                let count += count(getline(startRow + rows), b:delimiter)
+                let countNext = count(getline(startRow + rows + 1), b:delimiter)
             endwhile
             if rows > 0
                 execute startRow.','.(startRow + rows).'join'
@@ -131,7 +130,7 @@ function! s:AlignColumns() " {{{1
         normal! gg
         let startRow = search('^.\+$','cW')
         while startRow > 0
-            let columns = count(getline(startRow), s:colSeparator) + 1
+            let columns = count(getline(startRow), b:delimiter) + 1
             let endRow = line("'}") - (line("'}") != line("$"))
             let rows = endRow - startRow - 1
             " These coefficients were derived from an experiment I did with
@@ -139,7 +138,7 @@ function! s:AlignColumns() " {{{1
             " columns (10 rows), and various sizes in between.
             let timeEstimate = 0.000299808*rows*columns + 0.014503037*columns
             if timeEstimate <= threshold
-                silent execute startRow . ',' . endRow . 'EasyAlign */'.s:colSeparator.'/'
+                silent execute startRow . ',' . endRow . 'EasyAlign */'.b:delimiter.'/'
             endif
             normal! }
             let startRow = search('^.\+$','W')
@@ -147,7 +146,6 @@ function! s:AlignColumns() " {{{1
     endif
 
     if exists(':CSVInit')
-        let b:delimiter = s:colSeparator
         let b:csv_headerline = 0
         CSVInit!
     endif

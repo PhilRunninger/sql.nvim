@@ -16,6 +16,7 @@ function! s:InitializeUserConfig() " {{{1
     \   '// see https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#user-configuration.',
     \   '{',
     \   '    "sqlserver": {',
+    \   '        "delimiter": ";",',
     \   '        "servers": {',
     \   '            "server1": {',
     \   '                "-U": "user",',
@@ -73,6 +74,10 @@ endfunction
 function! sql#settings#alignLimit(platform) abort " {{{1
     return get(sql#settings#user()[a:platform], 'alignLimit',
     \          get(sql#settings#app()[a:platform], 'alignLimit', 5.0))
+endfunction
+
+function! sql#settings#delimiter(platform) abort " {{{1
+    return get(sql#settings#user()[a:platform], 'delimiter', '|')
 endfunction
 
 function! sql#settings#actions(platform, type) abort " {{{1
