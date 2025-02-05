@@ -23,7 +23,7 @@ endfunction
 
 function! s:RunQuery() " {{{1
     let sqlOutBufNr = s:OpenSQLOutWindow(0)
-    let timer = timer_start(1000, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
+    let timer = timer_start(100, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
     let [platform, server, database] = sql#connection#get()
     call nvim_buf_set_var(sqlOutBufNr, 'delimiter', sql#settings#delimiter(platform))
@@ -46,7 +46,7 @@ function! s:CancelQuery(id)
 endfunction
 
 function! s:UpdateStatus(startTime, bufNr, timer) " {{{1
-    call nvim_buf_set_lines(a:bufNr,0,-1,0,[printf('Executing... %0.0f sec   Ctrl+C to quit.', reltimefloat(reltime(a:startTime)))])
+    call nvim_buf_set_lines(a:bufNr,0,-1,0,[printf('Executing... %0.3f sec   Ctrl+C to quit.', reltimefloat(reltime(a:startTime)))])
 endfunction
 
 function! s:WriteTempFile(queryType) " {{{1
@@ -83,7 +83,8 @@ function! s:OpenSQLOutWindow(enter) " {{{1
     let winnr = bufwinnr(bufferName)
     if winnr == -1
         let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})
-        call nvim_set_option_value('wrap',     v:false,  {'win':handle})
+        call nvim_set_option_value('wrap',      v:false, {'win':handle})
+        call nvim_set_option_value('winfixbuf', v:true,  {'win':handle})
     elseif a:enter
         execute winnr . ' wincmd w'
     endif

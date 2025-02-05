@@ -15,7 +15,7 @@ nnoremap <silent> <buffer> K [z
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile
 setlocal cursorline
-setlocal nowrap nonumber norelativenumber nolist
+setlocal nowrap nonumber norelativenumber nolist winfixwidth winfixbuf
 setlocal foldopen-=search
 setlocal conceallevel=3 concealcursor=nvic
 setlocal fillchars=fold:\ ,eob:\  foldcolumn=0 foldmethod=expr foldexpr=SQLCatalogFoldLevel(v:lnum)
