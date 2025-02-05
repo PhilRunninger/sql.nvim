@@ -37,7 +37,7 @@ function! s:RunQuery() " {{{1
 endfunction
 
 function! s:MapCancelKey(id) " {{{1
-    execute 'nnoremap <buffer> <C-c> :call <SID>CancelQuery('.a:id.')<CR>'
+    execute 'nnoremap <silent> <buffer> <C-c> :call <SID>CancelQuery('.a:id.')<CR>'
 endfunction
 
 function! s:CancelQuery(id)
@@ -76,8 +76,8 @@ function! s:OpenSQLOutWindow(enter) " {{{1
         call nvim_set_option_value('buftype',  'nofile', {'buf':bufnr})
         call nvim_set_option_value('filetype', 'csv',    {'buf':bufnr})
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
-        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery()<CR>', {'noremap':1})
-        call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery()<CR>', {'noremap':1, 'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1, 'silent':1})
     endif
 
     let winnr = bufwinnr(bufferName)
