@@ -53,11 +53,21 @@
             "-A": null
         },
         "actions":{
-            "args": {"-t": null},
+            "args": {"-t": null, "-v": "object=\"<object>\""},
             "Catalog": {
                 "masterDB": "postgres",
                 "GetDatabases": "GetDatabases.sql",
                 "GetDatabaseObjects": "GetDBObjects.sql"
+            },
+            "Tables": {
+                "Select TOP 100":   "Select.sql",
+                "Select TOP 100 *": "SelectStar.sql",
+                "Insert":           "Insert.sql",
+                "Update":           "Update.sql"
+            },
+            "Views": {
+                "Select TOP 100":   "Select.sql",
+                "Select TOP 100 *": "SelectStar.sql"
             }
         }
     }
