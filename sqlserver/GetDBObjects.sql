@@ -4,18 +4,26 @@ set nocount on
 objects as
 (
     select charindex(type,'U V P FN FS IF TF') as S1, type, o.object_id,
-        '[' + s.name + '].[' + o.name + ']' +
+    CASE
+        WHEN s.name LIKE '%.%' THEN QUOTENAME(s.name)
+        WHEN s.name LIKE '% %' THEN QUOTENAME(s.name)
+        ELSE s.name
+    END + '.' + CASE
+        WHEN o.name LIKE '%.%' THEN QUOTENAME(o.name)
+        WHEN o.name LIKE '% %' THEN QUOTENAME(o.name)
+        ELSE o.name
+    END +
         isnull('  {' +
             lower(tp.name) +
             CASE WHEN tp.name IN ('varchar', 'char', 'varbinary', 'binary', 'text') THEN '(' + CASE WHEN p.max_length = -1 THEN 'MAX' ELSE CAST(p.max_length AS VARCHAR(5)) END + ')'
                  WHEN tp.name IN ('nvarchar', 'nchar', 'ntext')                     THEN '(' + CASE WHEN p.max_length = -1 THEN 'MAX' ELSE CAST(p.max_length / 2 AS VARCHAR(5)) END + ')'
                  WHEN tp.name IN ('datetime2', 'time2', 'datetimeoffset')           THEN '(' + CAST(p.scale AS VARCHAR(5)) + ')'
-                 WHEN tp.name IN ('decimal', 'numeric')                             THEN '(' + CAST(p.[precision] AS VARCHAR(5)) + ',' + CAST(p.scale AS VARCHAR(5)) + ')'
+                 WHEN tp.name IN ('decimal', 'numeric')                             THEN '(' + CAST(p.precision AS VARCHAR(5)) + ',' + CAST(p.scale AS VARCHAR(5)) + ')'
                  ELSE ''
             END + '}',
             '') as objectName
     FROM sys.schemas s
-    JOIN sys.objects o ON o.[schema_id] = s.[schema_id]
+    JOIN sys.objects o ON o.schema_id = s.schema_id
     left outer join sys.parameters p on o.object_id = p.object_id and p.parameter_id = 0
     left outer join sys.types tp ON p.user_type_id = tp.user_type_id
     where is_ms_shipped = 0
@@ -59,7 +67,7 @@ objects as
         CASE WHEN tp.name IN ('varchar', 'char', 'varbinary', 'binary', 'text') THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length AS VARCHAR(5)) END + ')'
              WHEN tp.name IN ('nvarchar', 'nchar', 'ntext')                     THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length / 2 AS VARCHAR(5)) END + ')'
              WHEN tp.name IN ('datetime2', 'time2', 'datetimeoffset')           THEN '(' + CAST(c.scale AS VARCHAR(5)) + ')'
-             WHEN tp.name IN ('decimal', 'numeric')                             THEN '(' + CAST(c.[precision] AS VARCHAR(5)) + ',' + CAST(c.scale AS VARCHAR(5)) + ')'
+             WHEN tp.name IN ('decimal', 'numeric')                             THEN '(' + CAST(c.precision AS VARCHAR(5)) + ',' + CAST(c.scale AS VARCHAR(5)) + ')'
              ELSE ''
         END +
         CASE WHEN c.is_nullable = 1 THEN '}' ELSE ' not null}' END as columnInfo
@@ -80,7 +88,7 @@ objects as
         CASE WHEN tp.name IN ('varchar', 'char', 'varbinary', 'binary', 'text') THEN '(' + CASE WHEN p.max_length = -1 THEN 'MAX' ELSE CAST(p.max_length AS VARCHAR(5)) END + ')'
              WHEN tp.name IN ('nvarchar', 'nchar', 'ntext')                     THEN '(' + CASE WHEN p.max_length = -1 THEN 'MAX' ELSE CAST(p.max_length / 2 AS VARCHAR(5)) END + ')'
              WHEN tp.name IN ('datetime2', 'time2', 'datetimeoffset')           THEN '(' + CAST(p.scale AS VARCHAR(5)) + ')'
-             WHEN tp.name IN ('decimal', 'numeric')                             THEN '(' + CAST(p.[precision] AS VARCHAR(5)) + ',' + CAST(p.scale AS VARCHAR(5)) + ')'
+             WHEN tp.name IN ('decimal', 'numeric')                             THEN '(' + CAST(p.precision AS VARCHAR(5)) + ',' + CAST(p.scale AS VARCHAR(5)) + ')'
              ELSE ''
         END + '}' as parameterInfo
     from objects o

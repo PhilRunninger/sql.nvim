@@ -1,3 +1,6 @@
-SELECT datname
-from pg_database
-where datistemplate = false;
+SELECT
+    datname
+FROM
+    pg_database
+WHERE
+    datistemplate = FALSE;
