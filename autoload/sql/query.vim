@@ -44,7 +44,7 @@ function! s:commandLine(platform, server, database, type, action, actionValues) 
 
     let parm = matchstr(cmdline, '<\w\{-}>')
     while parm != ''
-        let cmdline = substitute(cmdline, parm, get(a:actionValues, parm[1:-2], ''), '')
+        let cmdline = substitute(cmdline, parm, get(a:actionValues, parm[1:-2], '-'), '')
         let parm = matchstr(cmdline, '<\w\{-}>')
     endwhile
 
