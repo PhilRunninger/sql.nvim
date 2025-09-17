@@ -30,12 +30,12 @@ endfunction
 
 function! s:commandLine(platform, server, database, type, action, actionValues) abort " {{{1
     let actionValues = {
-        \ 'file': escape(empty(a:action) ?
+        \ 'file':      escape(empty(a:action) ?
             \ sql#settings#tempFile() :
-            \ sql#settings#root().'\'.a:platform.'\'.sql#settings#app()[a:platform].actions[a:type][a:action], '\'),
-        \ 'server':escape(a:server,'\'),
-        \ 'database':escape(a:database,'\'),
-        \ 'delimiter':sql#settings#delimiter(a:platform)
+            \ printf('%s\%s\%s', sql#settings#root(), a:platform, sql#settings#app()[a:platform].actions[a:type][a:action]), '\'),
+        \ 'server':    escape(a:server,'\'),
+        \ 'database':  escape(a:database,'\'),
+        \ 'delimiter': sql#settings#delimiter(a:platform)
     \ }
     let actionValues = extend(a:actionValues, actionValues, 'force')
 
@@ -62,5 +62,5 @@ function! s:formatArgString(args, actionValues={}) abort " {{{1
         call remove(args, k)
     endfor
 
-    return  join(values(map(args, {k,v -> v==v:null ? k : k.' '.v})), ' ')
+    return join(values(map(args, {k, v -> v == v:null ? k : k.' '.v})), ' ')
 endfunction
