@@ -48,7 +48,7 @@ function! s:commandLine(platform, server, database, type, action, actionValues) 
 endfunction
 
 function! s:formatArgString(args, actionValues={}) abort " {{{1
-    let args = filter(a:args,{k,_ -> k != 'order'})
+    let args = filter(copy(a:args),{k,_ -> k != 'order'})
 
     for k in keys(args)
         let parm = matchstr(args[k], '<\w\{-}>')
