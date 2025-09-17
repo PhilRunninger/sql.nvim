@@ -56,7 +56,7 @@ function! s:formatArgString(args, actionValues={}) abort " {{{1
             continue
         endif
         if has_key(a:actionValues, parm[1:-2])
-            let args[k] = substitute(args[k], parm, get(a:actionValues, parm[1:-2], ''), 'g')
+            let args[k] = substitute(args[k], parm, a:actionValues[parm[1:-2]], 'g')
             continue
         endif
         call remove(args, k)
