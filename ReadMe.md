@@ -34,6 +34,7 @@ This buffer shows the platforms and servers listed in the user config, and the d
 * <kbd>q</kbd> or <kbd>Esc</kbd> - Closes the SQL Catalog window.
 * <kbd>F5</kbd> - Refreshes the catalog. This is helpful after a CREATE or DROP, or after `:SQLUserConfig`.
 * <kbd>F8</kbd> - Returns to the SQL buffer that opened the Catalog.
+* <kbd>g/</kbd> - Presents a pre-filled search string for finding object names.
 
 ### `sqlout` - Buffer Name: ⟪SQLOut⟫
 This buffer shows the output from running the SQL script.

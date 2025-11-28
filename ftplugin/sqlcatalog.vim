@@ -11,6 +11,7 @@ nnoremap <silent> <buffer> <F5> :call <SID>Refresh()<CR>
 nnoremap <silent> <buffer> <F8> :call sql#showSQL()<CR>
 nnoremap <silent> <buffer> J ]z
 nnoremap <silent> <buffer> K [z
+nnoremap          <buffer> g/ /^\s\{6}\S*\zs
 
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile
