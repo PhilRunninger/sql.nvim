@@ -119,6 +119,16 @@ function! s:ObjectUnderCursor() " {{{1
     let type     = search('^    \S','bcnW')
     let object   = search('^      \S','bcnW')
 
+    if database < server
+        let [database, type, object] = [0, 0, 0]
+    endif
+    if type < database
+        let [type, object] = [0, 0]
+    endif
+    if object < type
+        let object = 0
+    endif
+
     return #{
         \ cursor:   #{line: line('.'), text: getline('.')},
         \ server:   #{line: server,    text: matchlist(getline(server), '^..\(.*\) (\(.*\))$')[1]},
