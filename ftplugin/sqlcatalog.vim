@@ -139,3 +139,17 @@ function! s:ObjectUnderCursor() " {{{1
         \ }
 endfunction
 
+function SqlCatalogStatusLine() " {{{1
+    let current = s:ObjectUnderCursor()
+    let text = current.server.text
+    if current.database.text != ''
+        let text .= '.' . current.database.text
+    endif
+    if current.type.text != ''
+        let text .= ' ' . tolower(current.type.text)
+    endif
+
+    return text
+endfunction
+
+setlocal statusline=%{SqlCatalogStatusLine()}
