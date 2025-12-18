@@ -11,6 +11,13 @@ function! sql#bufnr(bufnr = 0)
 endfunction
 
 function! sql#new() "{{{1
+    let nonFixedWindows = filter(range(1,winnr('$')), {_,w -> !getwinvar(w,'&winfixbuf')})
+    if empty(nonFixedWindows)
+        aboveleft new
+    elseif &winfixbuf == 1
+        execute nonFixedWindows[0] . 'wincmd w'
+    endif
+
     if bufname('%') != '' || &modified
         enew
     endif
