@@ -8,6 +8,8 @@ call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sq
 
 call nvim_buf_create_user_command(0, 'SQLConnect', 'call <SID>Connect()', {'nargs':0, 'bang':0})
 
+setlocal statusline=%l/%L\ %c%=%f%=Server:\ %{get(b:,'server','Not\ Connected')}
+
 function! s:Connect() " {{{1
     let servers = sql#settings#servers(v:false)
     let selection = inputlist(['Select a server for your connection:'] + servers)
