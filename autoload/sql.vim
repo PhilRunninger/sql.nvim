@@ -44,20 +44,7 @@ function! sql#showCatalog() abort " {{{1
     let bufnr = bufnr(bufferName)
     if bufnr == -1
         let bufnr = bufnr(bufferName, 1)
-
-        let config = sql#settings#user()
-        let serverList = []
-        for p in keys(config)
-            for s in keys(config[p].servers)
-                let order = get(config[p].servers[s], 'order', v:numbermax)
-                call add(serverList, [order, s.' ('.p.')'])
-            endfor
-        endfor
-        call sort(serverList, {a,b -> a[1]==b[1] ? 0 : a[1]>b[1] ? 1 : -1})
-        call sort(serverList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
-        call map(serverList, {_,v -> printf('%s %s', g:sql#unexplored, v[1])})
-
-        call nvim_buf_set_lines(bufnr,0,-1,0,serverList)
+        call nvim_buf_set_lines(bufnr,0,-1,0,sql#settings#servers(v:true))
     endif
     let winnr = bufwinnr(bufnr)
     if winnr == -1

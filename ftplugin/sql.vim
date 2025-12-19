@@ -1,22 +1,34 @@
 "  vim: foldmethod=marker
 
-" Buffer-level key mappings. {{{1
+" Buffer-level key mappings, commands, and settings. {{{1
 call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
+
+call nvim_buf_create_user_command(0, 'SQLConnect', 'call <SID>Connect()', {'nargs':0, 'bang':0})
+
+function! s:Connect() " {{{1
+    let servers = sql#settings#servers(v:false)
+    let selection = inputlist(['Select a server for your connection:'] + servers)
+    if selection < 1 || selection > len(servers)
+        echo 'Invalid selection. Cancelled.'
+        return v:false
+    endif
+    let b:server = matchstr(servers[selection - 1], '^\s*\d\+\.\s*\zs\S\+\ze (.\+)$')
+    return v:true
+endfunction
 
 function! s:PrepAndRunQuery(queryType) " {{{1
     if sql#query#isRunning()
         return
     endif
 
-    call sql#bufnr(bufnr())
-    if empty(sql#connection#get())
-        call sql#showCatalog()
-        echo 'Choose a connection from the catalog.'
+    if !exists('b:server') && !s:Connect()
         return
     endif
+
+    call sql#bufnr(bufnr())
     call s:WriteTempFile(a:queryType)
     call s:RunQuery()
 endfunction

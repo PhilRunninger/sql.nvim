@@ -67,6 +67,24 @@ function! sql#settings#user() " {{{1
     endtry
 endfunction
 
+function! sql#settings#servers(forCatalog) " {{{1
+    let serverList = []
+    let config = sql#settings#user()
+    for p in keys(config)
+        for s in keys(config[p].servers)
+            let order = get(config[p].servers[s], 'order', v:numbermax)
+            call add(serverList, [order, s.' ('.p.')'])
+        endfor
+    endfor
+    call sort(serverList, {a,b -> a[1]==b[1] ? 0 : a[1]>b[1] ? 1 : -1})
+    call sort(serverList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
+    if a:forCatalog
+        return map(serverList, {_,v -> printf('%s %s', g:sql#unexplored, v[1])})
+    else
+        return map(serverList, {i,v -> printf('    %d. %s', i+1, v[1])})
+    endif
+endfunction
+
 function! sql#settings#serverInfo(platform, server) abort " {{{1
     return sql#settings#user()[a:platform].servers[a:server]
 endfunction
