@@ -6,18 +6,6 @@ call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragrap
 call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
 
-setlocal statusline=%l/%L\ %c%=%f%=Server:\ %{get(b:,'server','Not\ Connected')}
-
-function! s:Connect() " {{{1
-    let servers = sql#settings#servers(v:false)
-    let selection = inputlist(['Select a server for your connection:'] + servers)
-    if selection < 1 || selection > len(servers)
-        echo 'Invalid selection. Cancelled.'
-        return v:false
-    endif
-    let b:server = matchstr(servers[selection - 1], '^\s*\d\+\.\s*\zs\S\+\ze (.\+)$')
-    return v:true
-endfunction
 setlocal statusline=%l/%L\ %c%=%f%=%{empty(sql#connection#get())?'Not\ connected':join(sql#connection#get()[1:2],'.')}
 
 function! s:PrepAndRunQuery(queryType) " {{{1
@@ -25,7 +13,10 @@ function! s:PrepAndRunQuery(queryType) " {{{1
         return
     endif
 
-    if !exists('b:server') && !s:Connect()
+    call sql#bufnr(bufnr())
+    if empty(sql#connection#get())
+        call sql#showCatalog()
+        echo 'Choose a connection from the catalog.'
         return
     endif
 

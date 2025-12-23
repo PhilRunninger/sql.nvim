@@ -44,7 +44,7 @@ function! sql#showCatalog() abort " {{{1
     let bufnr = bufnr(bufferName)
     if bufnr == -1
         let bufnr = bufnr(bufferName, 1)
-        call nvim_buf_set_lines(bufnr,0,-1,0,sql#settings#servers(v:true))
+        call nvim_buf_set_lines(bufnr,0,-1,0,sql#settings#servers())
     endif
     let winnr = bufwinnr(bufnr)
     if winnr == -1
