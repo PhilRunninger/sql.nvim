@@ -12,7 +12,11 @@
             "-f": 65001
         },
         "actions":{
-            "args": {"-h":-1, "-v": "object=\"<object>\""},
+            "args": {
+                "-m":1,
+                "-h":-1,
+                "-v": "object=\"<object>\""
+            },
             "Catalog": {
                 "masterDB": "master",
                 "GetDatabases": "GetDatabases.sql",

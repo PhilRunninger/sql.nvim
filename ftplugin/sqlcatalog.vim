@@ -1,6 +1,6 @@
 " vim: foldmethod=marker
 "
-" Vim settings and a custom folding level function for the SQLCatalog buffer.
+" Key mappings and settings for the SQLCatalog buffer. {{{1
 
 nnoremap <silent> <buffer> <Esc> :call <SID>CloseMe()<CR>
 nnoremap <silent> <buffer> q :call <SID>CloseMe()<CR>
