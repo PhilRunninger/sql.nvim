@@ -23,26 +23,26 @@
                 "GetDatabaseObjects": "GetDBObjects.sql"
             },
             "Tables": {
-                "Select TOP 100":   "Select.sql",
-                "Select TOP 100 *": "SelectStar.sql",
-                "Update":           "Update.sql",
-                "Insert":           "Insert.sql",
-                "Script":           "CreateTable.sql"
+                "Select":  "Select.sql",
+                "Preview": "SelectStar.sql",
+                "Update":  "Update.sql",
+                "Insert":  "Insert.sql",
+                "Script":  "CreateTable.sql"
             },
             "Views": {
-                "Select TOP 100":   "Select.sql",
-                "Select TOP 100 *": "SelectStar.sql",
-                "Script":           "TSqlText.sql"
+                "Select":  "Select.sql",
+                "Preview": "SelectStar.sql",
+                "Script":  "TSqlText.sql"
             },
             "Stored Procedures": {
-                "Script": "TSqlText.sql",
+                "Script":  "TSqlText.sql",
                 "Execute": "ExecuteProc.sql"
             },
             "Scalar Functions": {
-                "Script": "TSqlText.sql"
+                "Script":  "TSqlText.sql"
             },
             "Table-valued Functions": {
-                "Script": "TSqlText.sql"
+                "Script":  "TSqlText.sql"
             }
         }
     },
@@ -64,14 +64,14 @@
                 "GetDatabaseObjects": "GetDBObjects.sql"
             },
             "Tables": {
-                "Select TOP 100":   "Select.sql",
-                "Select TOP 100 *": "SelectStar.sql",
-                "Insert":           "Insert.sql",
-                "Update":           "Update.sql"
+                "Select":  "Select.sql",
+                "Preview": "SelectStar.sql",
+                "Insert":  "Insert.sql",
+                "Update":  "Update.sql"
             },
             "Views": {
-                "Select TOP 100":   "Select.sql",
-                "Select TOP 100 *": "SelectStar.sql"
+                "Select":  "Select.sql",
+                "Preview": "SelectStar.sql"
             }
         }
     }
