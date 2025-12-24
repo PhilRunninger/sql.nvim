@@ -33,7 +33,7 @@ function! sql#actions#openWindow(platform, server, database, type, object)   " {
 endfunction
 
 function! sql#actions#run(action, newBuffer) " {{{1
-    call sql#query#run(function('s:RunActionCallback', [a:newBuffer, a:action]), s:platform, s:server, s:database, s:type, a:action, {'object':s:object})
+    call sql#query#run(function('s:RunActionCallback', [a:newBuffer, a:action]), sql#settings#delimiter(s:platform), s:platform, s:server, s:database, s:type, a:action, {'object':s:object})
 endfunction
 
 function! s:RunActionCallback(newBuffer, action, job_id, data, event)

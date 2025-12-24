@@ -52,11 +52,12 @@ function! s:ExpandOrOpenMenu() " {{{1
     endif
 
     let current = s:ObjectUnderCursor()
+    let delimiter = sql#settings#delimiter(current.platform.text)
     if current.cursor.text =~ printf('^%s', g:sql#unexplored)    " Unexplored server
         let masterDB = sql#settings#app()[current.platform.text].actions.Catalog.masterDB
-        call sql#query#run(function('s:GetDBInfoCallback', [current.cursor.line, printf('  %s ', g:sql#unexplored)]), current.platform.text, current.server.text, masterDB, 'Catalog', 'GetDatabases')
+        call sql#query#run(function('s:GetDBInfoCallback', [current.cursor.line, printf('  %s ', g:sql#unexplored)]), delimiter, current.platform.text, current.server.text, masterDB, 'Catalog', 'GetDatabases')
     elseif current.cursor.text =~ printf('^  %s', g:sql#unexplored)    " Unexplored database
-        call sql#query#run(function('s:GetDBInfoCallback', [current.cursor.line, '    ']), current.platform.text, current.server.text, current.database.text, 'Catalog', 'GetDatabaseObjects')
+        call sql#query#run(function('s:GetDBInfoCallback', [current.cursor.line, '    ']), delimiter, current.platform.text, current.server.text, current.database.text, 'Catalog', 'GetDatabaseObjects')
     elseif current.cursor.text =~ '^      \(  \)\?'   " DB Object or Type
         call sql#actions#openWindow(current.platform.text, current.server.text, current.database.text, current.type.text, current.object.text)
     endif

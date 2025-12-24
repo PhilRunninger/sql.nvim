@@ -1,14 +1,21 @@
 "  vim: foldmethod=marker
 
 " Buffer-level key mappings, commands, and settings. {{{1
-call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
-call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
+" Run script/paragraph/selection.
+call nvim_buf_set_keymap(0, 'n', '<F5>',     ':call <SID>PrepAndRunQuery("file", 0)<CR>',                  {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<S-F5>',   ':call <SID>PrepAndRunQuery, 0("paragraph")<CR>',             {'silent':1})
+call nvim_buf_set_keymap(0, 'v', '<F5>',     ':<C-U>call <SID>PrepAndRunQuery("selection", 0)<CR>',        {'silent':1})
+
+" Run script/paragraph/selection with delimiter override.
+call nvim_buf_set_keymap(0, 'n', '<M-F5>',   ':call <SID>PrepAndRunQuery("file", 1)<CR>',                  {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<M-S-F5>', ':call <SID>PrepAndRunQuery("paragraph", 1)<CR>',             {'silent':1})
+call nvim_buf_set_keymap(0, 'v', '<M-F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection", 1)<CR>',        {'silent':1})
+
+call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
 
 setlocal statusline=%l/%L\ %c%=%f%=%{empty(sql#connection#get())?'Not\ connected':join(sql#connection#get()[1:2],'.')}
 
-function! s:PrepAndRunQuery(queryType) " {{{1
+function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
     if sql#query#isRunning()
         return
     endif
@@ -22,17 +29,26 @@ function! s:PrepAndRunQuery(queryType) " {{{1
 
     call sql#bufnr(bufnr())
     call s:WriteTempFile(a:queryType)
-    call s:RunQuery()
+
+    let delimiter = sql#settings#delimiter(sql#connection#get()[0])
+    if a:delimiterOverride
+        let override = input('Enter a custom delimiter for this execution, default: ' . delimiter . '   ')
+        if !empty(override)
+            let delimiter = override
+        endif
+    endif
+    call s:RunQuery(delimiter)
 endfunction
 
-function! s:RunQuery() " {{{1
+function! s:RunQuery(delimiter) " {{{1
     let sqlOutBufNr = s:OpenSQLOutWindow(0)
     let timer = timer_start(100, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
+    call nvim_buf_set_var(sqlOutBufNr, 'delimiter', a:delimiter)
     let [platform, server, database] = sql#connection#get()
-    call nvim_buf_set_var(sqlOutBufNr, 'delimiter', sql#settings#delimiter(platform))
+
     try
-        let id = sql#query#run(function('s:RunQueryCallback', [timer]), platform, server, database)
+        let id = sql#query#run(function('s:RunQueryCallback', [timer]), a:delimiter, platform, server, database)
         call s:MapCancelKey(id)
     catch
         call timer_stop(timer)
@@ -80,7 +96,7 @@ function! s:OpenSQLOutWindow(enter) " {{{1
         call nvim_set_option_value('buftype',  'nofile', {'buf':bufnr})
         call nvim_set_option_value('filetype', 'csv',    {'buf':bufnr})
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
-        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery()<CR>', {'noremap':1, 'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery(b:delimiter)<CR>', {'noremap':1, 'silent':1})
         call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1, 'silent':1})
     endif
 
