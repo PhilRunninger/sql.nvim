@@ -3,7 +3,7 @@
 " Buffer-level key mappings, commands, and settings. {{{1
 " Run script/paragraph/selection.
 call nvim_buf_set_keymap(0, 'n', '<F5>',     ':call <SID>PrepAndRunQuery("file", 0)<CR>',                  {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<S-F5>',   ':call <SID>PrepAndRunQuery, 0("paragraph")<CR>',             {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<S-F5>',   ':call <SID>PrepAndRunQuery("paragraph", 0)<CR>',             {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<F5>',     ':<C-U>call <SID>PrepAndRunQuery("selection", 0)<CR>',        {'silent':1})
 
 " Run script/paragraph/selection with delimiter override.
