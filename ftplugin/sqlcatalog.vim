@@ -11,7 +11,8 @@ nnoremap <silent> <buffer> <F5> :call <SID>Refresh()<CR>
 nnoremap <silent> <buffer> <F8> :call sql#showSQL()<CR>
 nnoremap <silent> <buffer> J ]z
 nnoremap <silent> <buffer> K [z
-nnoremap          <buffer> g/ /^\s\{6}\S*\zs
+nnoremap          <buffer> <S-F3> :call SearchCatalog()<CR>
+nnoremap <silent> <buffer> <F3> :call FindNext()<CR>
 
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile
@@ -30,6 +31,13 @@ function! SearchCatalog(identifier = '') " {{{1
 
     let @/ = '\c^\s\{6}\S*\zs' . identifier
     call FindNext()
+endfunction
+
+function! FindNext() " {{{1
+    normal! n
+    while foldclosed(line('.')) != -1
+        normal! zo
+    endwhile
 endfunction
 
 function! SQLCatalogFoldLevel(lnum) " {{{1
