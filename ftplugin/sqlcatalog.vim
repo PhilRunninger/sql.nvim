@@ -22,6 +22,16 @@ setlocal conceallevel=3 concealcursor=nvic
 setlocal fillchars=fold:\ ,eob:\  foldcolumn=0 foldmethod=expr foldexpr=SQLCatalogFoldLevel(v:lnum)
 setlocal foldtext=getline(v:foldstart)
 
+function! SearchCatalog(identifier = '') " {{{1
+    let identifier = empty(a:identifier) ? input('Enter object name to search for: ') : a:identifier
+    if empty(identifier)
+        return
+    endif
+
+    let @/ = '\c^\s\{6}\S*\zs' . identifier
+    call FindNext()
+endfunction
+
 function! SQLCatalogFoldLevel(lnum) " {{{1
     let l:current_indent = 1 + len(matchstr(getline(a:lnum),'^ *')) / 2
     let l:next_indent = 1 + len(matchstr(getline(a:lnum + 1),'^ *')) / 2
