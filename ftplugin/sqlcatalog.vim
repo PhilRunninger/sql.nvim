@@ -29,15 +29,22 @@ function! SearchCatalog(identifier = '') " {{{1
         return
     endif
 
-    let @/ = '\c^\s\{6}\S*\zs' . identifier
+    let s:search = '\c^\s\{6}\S*\zs' . identifier
     call FindNext()
 endfunction
 
 function! FindNext() " {{{1
-    normal! n
-    while foldclosed(line('.')) != -1
-        normal! zo
-    endwhile
+    if !exists('s:search')
+        echo 'No search term specified. Use Shift-F3 first.'
+        return
+    endif
+
+    if search(s:search, 'w') == 0
+        echo 'No match found.'
+        return
+    endif
+
+    normal! zv
 endfunction
 
 function! SQLCatalogFoldLevel(lnum) " {{{1
