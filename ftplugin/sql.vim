@@ -11,16 +11,18 @@ call nvim_buf_set_keymap(0, 'n', '<M-F5>',   ':call <SID>PrepAndRunQuery("file",
 call nvim_buf_set_keymap(0, 'n', '<M-S-F5>', ':call <SID>PrepAndRunQuery("paragraph", 1)<CR>',             {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<M-F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection", 1)<CR>',        {'silent':1})
 
-call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call <SID>FindObjectInCatalog()<CR>',                       {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call <SID>FindObjectInCatalog(expand("<cword>"))<CR>',      {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<S-F3>',   ':call <SID>FindObjectInCatalog("")<CR>',                     {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>',    {'silent':1})
 
 setlocal statusline=%l/%L\ %c%=%f%=%{empty(sql#connection#get())?'Not\ connected':join(sql#connection#get()[1:2],'.')}
 
-function! s:FindObjectInCatalog() " {{{1
-    let identifer = expand('<cword>')
-    call sql#bufnr(bufnr())
+function! s:FindObjectInCatalog(identifier) " {{{1
+    if &filetype == 'sql'
+        call sql#bufnr(bufnr())
+    endif
     call sql#showCatalog()
-    call SearchCatalog(printf('\<%s\>', identifer))
+    call sql#search#start(empty(a:identifier) ? '' : printf('\<%s\>', a:identifier))
 endfunction
 
 function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
@@ -104,6 +106,9 @@ function! s:OpenSQLOutWindow(enter) " {{{1
         call nvim_set_option_value('buftype',  'nofile', {'buf':bufnr})
         call nvim_set_option_value('filetype', 'csv',    {'buf':bufnr})
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
+
+        call nvim_buf_set_keymap(bufnr, 'n', '<F3>',   ':call <SID>FindObjectInCatalog(expand("<cword>"))<CR>', {'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<S-F3>', ':call <SID>FindObjectInCatalog("")<CR>', {'silent':1})
         call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery(b:delimiter)<CR>', {'noremap':1, 'silent':1})
         call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1, 'silent':1})
     endif

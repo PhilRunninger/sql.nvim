@@ -11,8 +11,8 @@ nnoremap <silent> <buffer> <F5> :call <SID>Refresh()<CR>
 nnoremap <silent> <buffer> <F8> :call sql#showSQL()<CR>
 nnoremap <silent> <buffer> J ]z
 nnoremap <silent> <buffer> K [z
-nnoremap          <buffer> <S-F3> :call SearchCatalog()<CR>
-nnoremap <silent> <buffer> <F3> :call FindNext()<CR>
+nnoremap <silent> <buffer> <S-F3> :call sql#search#start()<CR>
+nnoremap <silent> <buffer> <F3> :call sql#search#next()<CR>
 
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile
@@ -22,30 +22,6 @@ setlocal foldopen-=search
 setlocal conceallevel=3 concealcursor=nvic
 setlocal fillchars=fold:\ ,eob:\  foldcolumn=0 foldmethod=expr foldexpr=SQLCatalogFoldLevel(v:lnum)
 setlocal foldtext=getline(v:foldstart)
-
-function! SearchCatalog(identifier = '') " {{{1
-    let identifier = empty(a:identifier) ? input('Enter object name to search for: ') : a:identifier
-    if empty(identifier)
-        return
-    endif
-
-    let s:search = '\c^\s\{6}\S*\zs' . identifier
-    call FindNext()
-endfunction
-
-function! FindNext() " {{{1
-    if !exists('s:search')
-        echo 'No search term specified. Use Shift-F3 first.'
-        return
-    endif
-
-    if search(s:search, 'w') == 0
-        echo 'No match found.'
-        return
-    endif
-
-    normal! zv
-endfunction
 
 function! SQLCatalogFoldLevel(lnum) " {{{1
     let l:current_indent = 1 + len(matchstr(getline(a:lnum),'^ *')) / 2
