@@ -129,14 +129,25 @@ function! s:ObjectUnderCursor() " {{{1
         let object = 0
     endif
 
-    return #{
-        \ cursor:   #{line: line('.'), text: getline('.')},
-        \ server:   #{line: server,    text: matchlist(getline(server), '^..\(.*\) (\(.*\))$')[1]},
-        \ platform: #{line: server,    text: matchlist(getline(server), '^..\(.*\) (\(.*\))$')[2]},
-        \ database: #{line: database,  text: matchstr(getline(database), '^  ..\zs.*\ze$')},
-        \ type:     #{line: type,      text: trim(getline(type))},
-        \ object:   #{line: object,    text: trim(getline(object))}
-        \ }
+    try
+        return #{
+            \ cursor:   #{line: line('.'), text: getline('.')},
+            \ server:   #{line: server,    text: matchlist(getline(server), '^..\(.*\) (\(.*\))$')[1]},
+            \ platform: #{line: server,    text: matchlist(getline(server), '^..\(.*\) (\(.*\))$')[2]},
+            \ database: #{line: database,  text: matchstr(getline(database), '^  ..\zs.*\ze$')},
+            \ type:     #{line: type,      text: trim(getline(type))},
+            \ object:   #{line: object,    text: trim(getline(object))}
+            \ }
+    catch
+        return #{
+            \ cursor:   #{line: line('.'), text: getline('.')},
+            \ server:   #{line: 0,         text: ''},
+            \ platform: #{line: 0,         text: ''},
+            \ database: #{line: 0,         text: ''},
+            \ type:     #{line: 0,         text: ''},
+            \ object:   #{line: 0,         text: ''}
+            \ }
+    endtry
 endfunction
 
 function SqlCatalogStatusLine() " {{{1
