@@ -27,9 +27,7 @@ function! SQLCatalogFoldLevel(lnum) " {{{1
     let l:current_indent = 1 + len(matchstr(getline(a:lnum),'^ *')) / 2
     let l:next_indent = 1 + len(matchstr(getline(a:lnum + 1),'^ *')) / 2
 
-    if a:lnum == line('$')
-        return '<1'
-    elseif l:current_indent < l:next_indent
+    if l:current_indent < l:next_indent
         return '>' . l:current_indent
     elseif l:current_indent > l:next_indent
         return '<' . (l:current_indent - 1)
