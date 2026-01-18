@@ -11,11 +11,12 @@ function! sql#bufnr(bufnr = 0)
 endfunction
 
 function! sql#new() "{{{1
-    let nonFixedWindows = filter(range(1,winnr('$')), {_,w -> !getwinvar(w,'&winfixbuf')})
-    if empty(nonFixedWindows)
+    let freeWindows = filter(range(1,winnr('$')), {_,w -> !getwinvar(w,'&winfixbuf')})
+    if empty(freeWindows)
+        1wincmd w
         aboveleft new
     elseif &winfixbuf == 1
-        execute nonFixedWindows[0] . 'wincmd w'
+        execute freeWindows[0] . 'wincmd w'
     endif
 
     if bufname('%') != '' || &modified
@@ -32,8 +33,13 @@ function! sql#showSQL() " {{{1
     endif
 
     let winnr = bufwinnr(bufnr)
-    if winnr == -1
+    let freeWindows = filter(range(1,winnr('$')), {_,w -> !getwinvar(w,'&winfixbuf')})
+    if empty(freeWindows)
+        1wincmd w
         execute 'aboveleft sbuffer ' . bufnr
+    elseif winnr == -1
+        execute freeWindows[0] . 'wincmd w'
+        execute 'edit ' . bufnr
     else
         execute winnr . 'wincmd w'
     endif
@@ -54,5 +60,3 @@ function! sql#showCatalog() abort " {{{1
         execute winnr . 'wincmd w'
     endif
 endfunction
-
-"  vim: foldmethod=marker

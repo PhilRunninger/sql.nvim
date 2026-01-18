@@ -39,7 +39,8 @@ endfunction
 function! s:RunActionCallback(newBuffer, action, job_id, data, event)
     stopinsert
     let data = map(a:data, {_,v -> substitute(v, nr2char(13).'$', '', '')})
-    execute bufwinnr(sql#bufnr()).'wincmd w'
+    call sql#actions#closeWindow()
+    call sql#showSQL()
     if a:newBuffer
         execute 'edit ' . a:action . ' ' . s:database . '.' . s:object . '.sql'
         let saveBufnr = sql#bufnr()
