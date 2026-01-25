@@ -11,8 +11,9 @@ nnoremap <silent> <buffer> <F5> :call <SID>Refresh()<CR>
 nnoremap <silent> <buffer> <F8> :call sql#showSQL()<CR>
 nnoremap <silent> <buffer> J ]z
 nnoremap <silent> <buffer> K [z
-nnoremap <silent> <buffer> <S-F3> :call sql#search#start()<CR>
+nnoremap <silent> <buffer> <C-F3> :call sql#search#start()<CR>
 nnoremap <silent> <buffer> <F3> :call sql#search#next()<CR>
+nnoremap <silent> <buffer> <S-F3> :call sql#search#next(-1)<CR>
 
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile

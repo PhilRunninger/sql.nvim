@@ -12,7 +12,7 @@ call nvim_buf_set_keymap(0, 'n', '<M-S-F5>', ':call <SID>PrepAndRunQuery("paragr
 call nvim_buf_set_keymap(0, 'v', '<M-F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection", 1)<CR>',        {'silent':1})
 
 call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call <SID>FindObjectInCatalog(expand("<cword>"))<CR>',      {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<S-F3>',   ':call <SID>FindObjectInCatalog("")<CR>',                     {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<C-F3>',   ':call <SID>FindObjectInCatalog("")<CR>',                     {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>',    {'silent':1})
 
 setlocal statusline=%l/%L\ %c%=%f%=%{empty(sql#connection#get())?'Not\ connected':join(sql#connection#get()[1:2],'.')}
@@ -108,9 +108,9 @@ function! s:OpenSQLOutWindow(enter) " {{{1
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
 
         call nvim_buf_set_keymap(bufnr, 'n', '<F3>',   ':call <SID>FindObjectInCatalog(expand("<cword>"))<CR>', {'silent':1})
-        call nvim_buf_set_keymap(bufnr, 'n', '<S-F3>', ':call <SID>FindObjectInCatalog("")<CR>', {'silent':1})
-        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call <SID>RunQuery(b:delimiter)<CR>', {'noremap':1, 'silent':1})
-        call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1, 'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<C-F3>', ':call <SID>FindObjectInCatalog("")<CR>', {'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ' :call <SID>RunQuery(b:delimiter)<CR>', {'noremap':1, 'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F8>',  ':call sql#showSQL()<CR>', {'noremap':1, 'silent':1})
     endif
 
     let winnr = bufwinnr(bufferName)

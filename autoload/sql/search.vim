@@ -10,13 +10,13 @@ function! sql#search#start(identifier = '') " {{{1
     call sql#search#next()
 endfunction
 
-function! sql#search#next() " {{{1
+function! sql#search#next(direction = 1) " {{{1
     if !exists('s:search')
-        echo 'No search term specified. Use Shift-F3 first.'
+        echo 'No search term specified. Use Ctrl+F3 first.'
         return
     endif
 
-    if search(s:search, 'w') == 0
+    if search(s:search, a:direction == 1 ? 'w' : 'b') == 0
         echo 'No match found among object names.'
         return
     endif
