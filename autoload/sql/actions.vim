@@ -43,6 +43,7 @@ function! s:RunActionCallback(newBuffer, action, job_id, data, event)
     call sql#showSQL()
     if a:newBuffer
         execute 'edit ' . a:action . ' ' . s:database . '.' . s:object . '.sql'
+        setlocal bufhidden=hide buftype=nofile noswapfile
         let saveBufnr = sql#bufnr()
         let bufnr = sql#bufnr(bufnr())
         call sql#connection#set(s:platform, s:server, s:database)
