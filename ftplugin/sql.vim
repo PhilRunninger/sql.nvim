@@ -129,10 +129,11 @@ function! s:FormatSQLOut() " {{{1
     silent execute 'keeppatterns %s/^\s*\((\d\+ rows\?\( affected\)\?)\)/\r\1\r/e'
 
     call s:JoinLines()
-    call s:AlignColumns()
 
     silent execute 'keeppatterns g/^$\n^$/d'
     silent execute 'keeppatterns g/^$\n^\s*(\d\+ rows\?\( affected\)\?)/d'
+
+    call s:AlignColumns()
 
     normal gg
 endfunction
@@ -169,8 +170,43 @@ function! s:JoinLines() " {{{1
 endfunction
 
 function! s:AlignColumns() " {{{1
+    if exists('*v:lua.MiniAlign.setup')
+        call s:MiniAlign()
+    elseif exists(':EasyAlign')
+        call s:EasyAlign()
+    endif
+
+    if exists(':CSVInit')
+        let b:csv_headerline = 0
+        CSVInit!
+    endif
+endfunction
+
+function! s:MiniAlign() " {{{1
+    echomsg bufname('%')
+    echomsg 'Aligning with mini.align...'
+    echomsg 'delimiter: ' . b:delimiter
+
+    let alignKeystroke = luaeval('require("mini.align").config.mappings.start')
+    normal! G
+    let startRow = search('^([1-9]\d* rows\?\( affected\)\?)','cbW')
+    echomsg 'startRow: ' . startRow . '>>>'.getline(startRow).'<<<'
+    while startRow > 0
+        echomsg 'Aligning rows ending at ' . startRow
+        echomsg 'Command:  normal ' . alignKeystroke . 'ip' . b:delimiter
+        execute 'normal ' . alignKeystroke . 'ip' . b:delimiter
+        let startRow = search('^([1-9]\d* rows\?\( affected\)\?)','bW')
+        echomsg 'startRow: ' . startRow . '>>>'.getline(startRow).'<<<'
+    endwhile
+endfunction
+
+function! s:EasyAlign() " {{{1
+
+    "TODO: Make this function work with lines 135-136 happening before
+    "aligning columns..
+
     let threshold = sql#settings#alignLimit(sql#connection#get()[0])
-    if exists(':EasyAlign') && threshold > 0
+    if threshold > 0
         normal! gg
         let startRow = search('^.\+$','cW')
         while startRow > 0
@@ -187,10 +223,5 @@ function! s:AlignColumns() " {{{1
             normal! }
             let startRow = search('^.\+$','W')
         endwhile
-    endif
-
-    if exists(':CSVInit')
-        let b:csv_headerline = 0
-        CSVInit!
     endif
 endfunction
