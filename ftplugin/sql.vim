@@ -135,14 +135,20 @@ function! s:FormatSQLOut() " {{{1
 
     call s:AlignColumns()
 
-    normal gg
+    normal! gg
 endfunction
 
+command JoinLines call <SID>JoinLines()
 function! s:JoinLines() " {{{1
-    let startRow = 1
-    while startRow < line('$')
+    " This function is needed when an output column contains newlines. This
+    " will rejoin the column's value and bring the rest of the row up with it.
+    let bottomBorder = '^\s*(\d\+ rows\?\( affected\)\?)'
+    let topBorder = '^\(-\+\s*' . b:delimiter . '\s*\)\+-\+$'
+    normal! gg
+    let startRow = search(topBorder,'cW') - 1
+    while startRow > -1
         call cursor(startRow,1)
-        let endRow = search('^\s*(\d\+ rows\?\( affected\)\?)', 'cW') - 1
+        let endRow = search(bottomBorder, 'cW') - 1
         if endRow == -1
             break
         endif
@@ -164,7 +170,8 @@ function! s:JoinLines() " {{{1
                 let startRow += 1
             endif
         endwhile
-        let startRow = endRow + 3
+        call cursor(endRow,1)
+        let startRow = search(topBorder,'cW') - 1
     endwhile
     silent execute 'keeppatterns %s/'.nr2char(13).'$//e'
 endfunction
@@ -183,35 +190,25 @@ function! s:AlignColumns() " {{{1
 endfunction
 
 function! s:MiniAlign() " {{{1
-    echomsg bufname('%')
-    echomsg 'Aligning with mini.align...'
-    echomsg 'delimiter: ' . b:delimiter
-
     let alignKeystroke = luaeval('require("mini.align").config.mappings.start')
     normal! G
     let startRow = search('^([1-9]\d* rows\?\( affected\)\?)','cbW')
-    echomsg 'startRow: ' . startRow . '>>>'.getline(startRow).'<<<'
     while startRow > 0
-        echomsg 'Aligning rows ending at ' . startRow
-        echomsg 'Command:  normal ' . alignKeystroke . 'ip' . b:delimiter
         execute 'normal ' . alignKeystroke . 'ip' . b:delimiter
         let startRow = search('^([1-9]\d* rows\?\( affected\)\?)','bW')
-        echomsg 'startRow: ' . startRow . '>>>'.getline(startRow).'<<<'
     endwhile
 endfunction
 
 function! s:EasyAlign() " {{{1
-
-    "TODO: Make this function work with lines 135-136 happening before
-    "aligning columns..
-
     let threshold = sql#settings#alignLimit(sql#connection#get()[0])
     if threshold > 0
         normal! gg
         let startRow = search('^.\+$','cW')
         while startRow > 0
+            let startRow += (getline(startRow) =~ '^Changed database context to' ? 1 : 0)
+
             let columns = count(getline(startRow), b:delimiter) + 1
-            let endRow = line("'}") - (line("'}") != line("$"))
+            let endRow = line("'}") - (line("'}") == line("$") ? 0 : 1)
             let rows = endRow - startRow - 1
             " These coefficients were derived from an experiment I did with
             " tables as long as 10000 rows (2 columns), as wide as 2048
