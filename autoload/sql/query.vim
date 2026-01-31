@@ -32,7 +32,7 @@ function! s:commandLine(delimiter, platform, server, database, type, action, act
     let actionValues = {
         \ 'file':      escape(empty(a:action) ?
             \ sql#settings#tempFile() :
-            \ printf('%s\%s\%s', sql#settings#root(), a:platform, sql#settings#app()[a:platform].actions[a:type][a:action]), '\'),
+            \ printf('%s\%s\%s', sql#settings#root(), a:platform, sql#settings#app()[a:platform].actions[a:type][a:action].file), '\'),
         \ 'server':    escape(a:server,'\'),
         \ 'database':  escape(a:database,'\'),
         \ 'delimiter': a:delimiter

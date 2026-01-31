@@ -95,5 +95,7 @@ function! sql#settings#delimiter(platform) abort " {{{1
 endfunction
 
 function! sql#settings#actions(platform, type) abort " {{{1
-    return sort(keys(get(sql#settings#app()[a:platform].actions, a:type, {})))
+    let actionList = values(map(sql#settings#app()['sqlserver'].actions[a:type], {k,v -> [v.order, k]}))
+    call sort(actionList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
+    return map(actionList, {_,v -> v[1]})
 endfunction
