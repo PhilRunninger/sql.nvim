@@ -138,10 +138,10 @@ function! s:FormatSQLOut() " {{{1
     normal! gg
 endfunction
 
-command JoinLines call <SID>JoinLines()
 function! s:JoinLines() " {{{1
     " This function is needed when an output column contains newlines. This
-    " will rejoin the column's value and bring the rest of the row up with it.
+    " will rejoin the column's value and bring the rest of the row up with it,
+    " preserving the grid layout as much as possible.
     let bottomBorder = '^\s*(\d\+ rows\?\( affected\)\?)'
     let topBorder = '^\(-\+\s*' . b:delimiter . '\s*\)\+-\+$'
     normal! gg
