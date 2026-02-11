@@ -54,6 +54,7 @@ function! s:RunQuery(delimiter) " {{{1
     let sqlOutBufNr = s:OpenSQLOutWindow(0)
     let timer = timer_start(100, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
+    call nvim_buf_set_var(sqlOutBufNr, 'csv_delimiter', a:delimiter)
     call nvim_buf_set_var(sqlOutBufNr, 'delimiter', a:delimiter)
     let [platform, server, database] = sql#connection#get()
 
@@ -94,6 +95,10 @@ function! s:RunQueryCallback(timer, job_id, data, event) " {{{1
     call timer_stop(a:timer)
     stopinsert
     let sqlOutBufNr = s:OpenSQLOutWindow(1)
+
+    syntax clear
+    source $VIMRUNTIME/**/syntax/csv.vim
+
     call nvim_buf_set_lines(sqlOutBufNr,0,-1,0,map(a:data, {_,v -> substitute(v, nr2char(13).'$', '', '')}))
     call s:FormatSQLOut()
 endfunction
@@ -181,11 +186,6 @@ function! s:AlignColumns() " {{{1
         call s:MiniAlign()
     elseif exists(':EasyAlign')
         call s:EasyAlign()
-    endif
-
-    if exists(':CSVInit')
-        let b:csv_headerline = 0
-        CSVInit!
     endif
 endfunction
 
