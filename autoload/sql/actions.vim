@@ -50,7 +50,7 @@ function! s:RunActionCallback(newBuffer, action, job_id, data, event)
         call nvim_buf_set_lines(bufnr, 1, line('$'), 1, data)
         call sql#bufnr(saveBufnr)
     else
-        let @"=join(data, nr2char(10))
+        call setreg(&clipboard =~? 'unnamedplus' ? '+' : &clipboard =~? 'unnamed' ? '*' : '', data, 'l')
         echo 'Result is ready to paste.'
     endif
 endfunction
