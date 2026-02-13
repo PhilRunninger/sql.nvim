@@ -25,6 +25,18 @@ function! sql#sqlout#open(enter) " {{{1
     return bufnr
 endfunction
 
+function! sql#sqlout#toMarkdown()
+    if bufname(bufnr()) !=# s:bufferName
+        echohl WarningMsg
+        echo 'This command must be run in the ' . s:bufferName . ' buffer.'
+        return
+    endif
+
+    silent execute 'keeppatterns %s/ *' . b:delimiter . ' */|/g'
+    silent execute 'keeppatterns g/^[-|]/s/-\+/---/g'
+    silent execute 'keeppatterns %s/^\s*(\d\+ rows\?\( affected\)\?)/\r&/'
+endfunction
+
 function! sql#sqlout#format() " {{{1
     call s:JoinLines()
     call s:AlignColumns()

@@ -7,6 +7,7 @@ command! -nargs=1 -complete=customlist,<SID>SQLSubCommands SQL call <SID>Sql('<a
 let s:subCommands = {
     \ 'new':    function('sql#new'),
     \ 'config': function('sql#settings#edit'),
+    \ 'md':     function('sql#sqlout#toMarkdown'),
     \ }
 function! s:SQLSubCommands(A,L,P) abort
     return filter(keys(s:subCommands), {_,v -> v =~ "^" . a:A})
