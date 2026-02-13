@@ -39,7 +39,7 @@ function! sql#showSQL() " {{{1
         execute 'aboveleft sbuffer ' . bufnr
     elseif winnr == -1
         execute freeWindows[0] . 'wincmd w'
-        execute 'edit ' . bufnr
+        execute 'buffer ' . bufnr
     else
         execute winnr . 'wincmd w'
     endif
