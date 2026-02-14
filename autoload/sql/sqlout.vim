@@ -1,4 +1,7 @@
+"  vim: foldmethod=marker
+
 let s:bufferName = '⟪SQLOut⟫'
+let s:rowsAffectedRegex = '^\s*(\d\+ rows\?\( affected\)\?)'
 
 function! sql#sqlout#open(enter) " {{{1
     let bufnr = bufnr(s:bufferName)
@@ -34,7 +37,7 @@ function! sql#sqlout#toMarkdown()
 
     silent execute 'keeppatterns %s/ *' . b:delimiter . ' */|/g'
     silent execute 'keeppatterns g/^[-|]/s/-\+/---/g'
-    silent execute 'keeppatterns %s/^\s*(\d\+ rows\?\( affected\)\?)/\r&/'
+    silent execute 'keeppatterns %s/' . s:rowsAffectedRegex . '/\r&/'
 endfunction
 
 function! sql#sqlout#format() " {{{1
@@ -47,13 +50,12 @@ function! sql#sqlout#format() " {{{1
 endfunction
 
 function! s:JoinLines() " {{{1
-    let bottomBorder = '\(^$\|^\s*(\d\+ rows\?\( affected\)\?)\)'
-    let topBorder = '^\(-\+\s*' . b:delimiter . '\s*\)\+-\+$'
+    let headerUnderlineRegex = '^\(-\+\s*' . b:delimiter . '\s*\)\+-\+$'
     normal! gg
-    let startRow = search(topBorder,'cW') - 1
+    let startRow = search(headerUnderlineRegex,'cW') - 1
     while startRow > -1
         call cursor(startRow,1)
-        let endRow = search(bottomBorder, 'cW') - 1
+        let endRow = search(s:rowsAffectedRegex, 'cW') - 1
         if endRow == -1
             break
         endif
@@ -76,10 +78,10 @@ function! s:JoinLines() " {{{1
             endif
         endwhile
         call cursor(endRow,1)
-        let startRow = search(topBorder,'cW') - 1
+        let startRow = search(headerUnderlineRegex,'cW') - 1
     endwhile
     silent execute 'keeppatterns g/^$/d'
-    silent execute 'keeppatterns %s/^\s*\zs(\d\+ rows\?\( affected\)\?)\ze/&\r/e'
+    silent execute 'keeppatterns %s/' . s:rowsAffectedRegex . '/&\r/e'
 endfunction
 
 function! s:AlignColumns() " {{{1
@@ -93,10 +95,10 @@ endfunction
 function! s:MiniAlign() " {{{1
     let alignKeystroke = luaeval('require("mini.align").config.mappings.start')
     normal! G
-    let startRow = search('^([1-9]\d* rows\?\( affected\)\?)','cbW')
+    let startRow = search(s:rowsAffectedRegex,'cbW')
     while startRow > 0
         execute 'normal ' . alignKeystroke . 'ip' . b:delimiter
-        let startRow = search('^([1-9]\d* rows\?\( affected\)\?)','bW')
+        let startRow = search(s:rowsAffectedRegex,'bW')
     endwhile
 endfunction
 
