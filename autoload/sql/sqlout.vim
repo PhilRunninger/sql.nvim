@@ -1,7 +1,10 @@
 "  vim: foldmethod=marker
 
 let s:bufferName = '⟪SQLOut⟫'
-let s:rowsAffectedRegex = '^\s*(\d\+ rows\?\( affected\)\?)'
+
+function! s:dividingLine() " {{{1
+    return '\(-\+\(' . b:delimiter . '-\+\)\+\)'
+endfunction
 
 function! sql#sqlout#open(enter) " {{{1
     let bufnr = bufnr(s:bufferName)
@@ -37,11 +40,13 @@ function! sql#sqlout#toMarkdown()
 
     silent execute 'keeppatterns %s/ *' . b:delimiter . ' */|/g'
     silent execute 'keeppatterns g/^[-|]/s/-\+/---/g'
-    silent execute 'keeppatterns %s/' . s:rowsAffectedRegex . '/\r&/'
 endfunction
 
 function! sql#sqlout#format() " {{{1
-    call s:JoinLines()
+    " Add newline before each column header row, but not line 1.
+    execute '2,$s/.*\n' . s:dividingLine() . '/\r&/e'
+
+    " call s:JoinLines()
     call s:AlignColumns()
     normal! gg
 
@@ -49,40 +54,41 @@ function! sql#sqlout#format() " {{{1
     source $VIMRUNTIME/**/syntax/csv.vim
 endfunction
 
-function! s:JoinLines() " {{{1
-    let headerUnderlineRegex = '^\(-\+\s*' . b:delimiter . '\s*\)\+-\+$'
-    normal! gg
-    let startRow = search(headerUnderlineRegex,'cW') - 1
-    while startRow > -1
-        call cursor(startRow,1)
-        let endRow = search(s:rowsAffectedRegex, 'cW') - 1
-        if endRow == -1
-            break
-        endif
-        let required = count(getline(startRow), b:delimiter)
-        let startRow += 2
-        while startRow < endRow && required > 0
-            let rows = 0
-            let count = count(getline(startRow), b:delimiter)
-            let countNext = count(getline(startRow+1), b:delimiter)
-            while startRow + rows < endRow && (count < required || countNext == 0)
-                let rows += 1
-                let count += count(getline(startRow + rows), b:delimiter)
-                let countNext = count(getline(startRow + rows + 1), b:delimiter)
-            endwhile
-            if rows > 0
-                execute startRow.','.(startRow + rows).'join'
-                let endRow -= rows
-            else
-                let startRow += 1
-            endif
-        endwhile
-        call cursor(endRow,1)
-        let startRow = search(headerUnderlineRegex,'cW') - 1
-    endwhile
-    silent execute 'keeppatterns g/^$/d'
-    silent execute 'keeppatterns %s/' . s:rowsAffectedRegex . '/&\r/e'
-endfunction
+" function! s:JoinLines() " {{{1
+"     let s:rowsAffectedRegex = '^\s*(\d\+ rows\?\( affected\)\?)'
+"     let headerUnderlineRegex = '^\(-\+\s*' . b:delimiter . '\s*\)\+-\+$'
+"     normal! gg
+"     let startRow = search(headerUnderlineRegex,'cW') - 1
+"     while startRow > -1
+"         call cursor(startRow,1)
+"         let endRow = search(s:rowsAffectedRegex, 'cW') - 1
+"         if endRow == -1
+"             break
+"         endif
+"         let required = count(getline(startRow), b:delimiter)
+"         let startRow += 2
+"         while startRow < endRow && required > 0
+"             let rows = 0
+"             let count = count(getline(startRow), b:delimiter)
+"             let countNext = count(getline(startRow+1), b:delimiter)
+"             while startRow + rows < endRow && (count < required || countNext == 0)
+"                 let rows += 1
+"                 let count += count(getline(startRow + rows), b:delimiter)
+"                 let countNext = count(getline(startRow + rows + 1), b:delimiter)
+"             endwhile
+"             if rows > 0
+"                 execute startRow.','.(startRow + rows).'join'
+"                 let endRow -= rows
+"             else
+"                 let startRow += 1
+"             endif
+"         endwhile
+"         call cursor(endRow,1)
+"         let startRow = search(headerUnderlineRegex,'cW') - 1
+"     endwhile
+"     silent execute 'keeppatterns g/^$/d'
+"     silent execute 'keeppatterns %s/' . s:rowsAffectedRegex . '/&\r/e'
+" endfunction
 
 function! s:AlignColumns() " {{{1
     if exists('*v:lua.MiniAlign.setup')
@@ -95,33 +101,22 @@ endfunction
 function! s:MiniAlign() " {{{1
     let alignKeystroke = luaeval('require("mini.align").config.mappings.start')
     normal! G
-    let startRow = search(s:rowsAffectedRegex,'cbW')
-    while startRow > 0
+    while search(s:dividingLine(),'bW') > 0
         execute 'normal ' . alignKeystroke . 'ip' . b:delimiter
-        let startRow = search(s:rowsAffectedRegex,'bW')
     endwhile
 endfunction
 
 function! s:EasyAlign() " {{{1
-    let threshold = sql#settings#alignLimit(sql#connection#get()[0])
-    if threshold > 0
-        normal! gg
-        let startRow = search('^.\+$','cW')
-        while startRow > 0
-            let startRow += (getline(startRow) =~ '^Changed database context to' ? 1 : 0)
-
-            let columns = count(getline(startRow), b:delimiter) + 1
-            let endRow = line("'}") - (line("'}") == line("$") ? 0 : 1)
-            let rows = endRow - startRow - 1
-            " These coefficients were derived from an experiment I did with
-            " tables as long as 10000 rows (2 columns), as wide as 2048
-            " columns (10 rows), and various sizes in between.
-            let timeEstimate = 0.000299808*rows*columns + 0.014503037*columns
-            if timeEstimate <= threshold
-                silent execute startRow . ',' . endRow . 'EasyAlign */'.b:delimiter.'/'
+    let timeLimit = sql#settings#alignLimit(sql#connection#get()[0])
+    if timeLimit > 0
+        normal! G
+        while search(s:dividingLine(),'bW') > 0
+            let columns = count(getline('.'), b:delimiter) + 1
+            let rows = line("'}") - line("'{") - 1
+            if 0.0003*rows*columns + 0.015*columns <= timeLimit
+                silent execute "'{,'}EasyAlign */" . b:delimiter . '/'
             endif
-            normal! }
-            let startRow = search('^.\+$','W')
+            normal! {
         endwhile
     endif
 endfunction
