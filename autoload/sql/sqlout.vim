@@ -3,7 +3,7 @@
 let s:bufferName = '⟪SQLOut⟫'
 
 function! s:dividingLine() " {{{1
-    return '\(-\+\(' . b:delimiter . '-\+\)\+\)'
+    return '^-\+\(' . b:delimiter . '-\+\)*$'
 endfunction
 
 function! sql#sqlout#open(enter) " {{{1
@@ -38,8 +38,8 @@ function! sql#sqlout#toMarkdown()
         return
     endif
 
+    silent execute 'keeppatterns g/' . s:dividingLine() . '/s/-\+/---/g'
     silent execute 'keeppatterns %s/ *' . b:delimiter . ' */|/g'
-    silent execute 'keeppatterns g/^[-|]/s/-\+/---/g'
 endfunction
 
 function! sql#sqlout#format() " {{{1
