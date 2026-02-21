@@ -46,7 +46,7 @@ function! sql#sqlout#format() " {{{1
     " Add newline before each column header row, but not line 1.
     execute '2,$s/.*\n' . s:dividingLine() . '/\r&/e'
 
-    " call s:JoinLines()
+    call s:JoinLines()
     call s:AlignColumns()
     normal! gg
 
@@ -54,41 +54,37 @@ function! sql#sqlout#format() " {{{1
     source $VIMRUNTIME/**/syntax/csv.vim
 endfunction
 
-" function! s:JoinLines() " {{{1
-"     let s:rowsAffectedRegex = '^\s*(\d\+ rows\?\( affected\)\?)'
-"     let headerUnderlineRegex = '^\(-\+\s*' . b:delimiter . '\s*\)\+-\+$'
-"     normal! gg
-"     let startRow = search(headerUnderlineRegex,'cW') - 1
-"     while startRow > -1
-"         call cursor(startRow,1)
-"         let endRow = search(s:rowsAffectedRegex, 'cW') - 1
-"         if endRow == -1
-"             break
-"         endif
-"         let required = count(getline(startRow), b:delimiter)
-"         let startRow += 2
-"         while startRow < endRow && required > 0
-"             let rows = 0
-"             let count = count(getline(startRow), b:delimiter)
-"             let countNext = count(getline(startRow+1), b:delimiter)
-"             while startRow + rows < endRow && (count < required || countNext == 0)
-"                 let rows += 1
-"                 let count += count(getline(startRow + rows), b:delimiter)
-"                 let countNext = count(getline(startRow + rows + 1), b:delimiter)
-"             endwhile
-"             if rows > 0
-"                 execute startRow.','.(startRow + rows).'join'
-"                 let endRow -= rows
-"             else
-"                 let startRow += 1
-"             endif
-"         endwhile
-"         call cursor(endRow,1)
-"         let startRow = search(headerUnderlineRegex,'cW') - 1
-"     endwhile
-"     silent execute 'keeppatterns g/^$/d'
-"     silent execute 'keeppatterns %s/' . s:rowsAffectedRegex . '/&\r/e'
-" endfunction
+function! s:JoinLines() " {{{1
+    normal! gg
+    let startRow = search(s:dividingLine(),'cW') - 1
+    while startRow > -1
+        call cursor(startRow,1)
+        let endRow = search('^$', 'cW') - 1
+        if endRow == -1
+            break
+        endif
+        let required = count(getline(startRow), b:delimiter)
+        let startRow += 2
+        while startRow < endRow && required > 0
+            let rows = 0
+            let count = count(getline(startRow), b:delimiter)
+            let countNext = count(getline(startRow+1), b:delimiter)
+            while startRow + rows < endRow && (count < required || countNext == 0)
+                let rows += 1
+                let count += count(getline(startRow + rows), b:delimiter)
+                let countNext = count(getline(startRow + rows + 1), b:delimiter)
+            endwhile
+            if rows > 0
+                execute startRow.','.(startRow + rows).'join'
+                let endRow -= rows
+            else
+                let startRow += 1
+            endif
+        endwhile
+        call cursor(endRow+1,1)
+        let startRow = search(s:dividingLine(),'cW') - 1
+    endwhile
+endfunction
 
 function! s:AlignColumns() " {{{1
     if exists('*v:lua.MiniAlign.setup')
