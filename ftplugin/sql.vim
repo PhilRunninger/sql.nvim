@@ -11,19 +11,11 @@ call nvim_buf_set_keymap(0, 'n', '<M-F5>',   ':call <SID>PrepAndRunQuery("file",
 call nvim_buf_set_keymap(0, 'n', '<M-S-F5>', ':call <SID>PrepAndRunQuery("paragraph", 1)<CR>',             {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<M-F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection", 1)<CR>',        {'silent':1})
 
-call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call <SID>FindObjectInCatalog(expand("<cword>"))<CR>',      {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<C-F3>',   ':call <SID>FindObjectInCatalog("")<CR>',                     {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call sql#search#start(expand("<cword>"))<CR>',              {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<C-F3>',   ':call sql#search#start("")<CR>',                             {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>',    {'silent':1})
 
 setlocal statusline=%l/%L\ %c%=%f%=%{empty(sql#connection#get())?'Not\ connected':join(sql#connection#get()[1:2],'.')}
-
-function! s:FindObjectInCatalog(identifier) " {{{1
-    if &filetype == 'sql'
-        call sql#bufnr(bufnr())
-    endif
-    call sql#showCatalog()
-    call sql#search#start(empty(a:identifier) ? '' : printf('\<%s\>', a:identifier))
-endfunction
 
 function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
     if sql#query#isRunning()
@@ -47,10 +39,10 @@ function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
             let delimiter = override
         endif
     endif
-    call s:RunQuery(delimiter)
+    call RunQuery(delimiter)
 endfunction
 
-function! s:RunQuery(delimiter) " {{{1
+function! RunQuery(delimiter) " {{{1
     let sqlOutBufNr = sql#sqlout#open(0)
     let timer = timer_start(100, function('s:UpdateStatus',[reltime(), sqlOutBufNr]), {'repeat': -1})
 
