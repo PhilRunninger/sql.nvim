@@ -85,6 +85,10 @@ function! sql#settings#serverInfo(platform, server) abort " {{{1
     return sql#settings#user()[a:platform].servers[a:server]
 endfunction
 
+function! sql#settings#marks(platform, server) abort " {{{1
+    return get(sql#settings#serverInfo(a:platform, a:server), 'marks', {})
+endfunction
+
 function! sql#settings#alignLimit(platform) abort " {{{1
     return get(sql#settings#user()[a:platform], 'alignLimit',
     \          get(sql#settings#app()[a:platform], 'alignLimit', 5.0))
