@@ -44,11 +44,13 @@ endfunction
 
 function! sql#sqlout#format() " {{{1
     " Add newline before each column header row, but not line 1.
-    execute '2,$s/.*\n' . s:dividingLine() . '/\r&/e'
+    if line('$') > 1
+        execute '2,$s/.*\n' . s:dividingLine() . '/\r&/e'
 
-    call s:JoinLines()
-    call s:AlignColumns()
-    normal! gg
+        call s:JoinLines()
+        call s:AlignColumns()
+        normal! gg
+    endif
 
     syntax clear
     source $VIMRUNTIME/**/syntax/csv.vim
