@@ -10,36 +10,14 @@ function! sql#settings#init(root) " {{{1
 endfunction
 
 function! s:InitializeUserConfig() " {{{1
-    " Using a list of strings for pretty formatting.
-    let sampleConfig = [
-    \   '// Complete the user configuration below, and then remove these comments. For details,',
-    \   '// see https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#user-configuration.',
-    \   '{',
-    \   '    "sqlserver": {',
-    \   '        "delimiter": ";",',
-    \   '        "servers": {',
-    \   '            "server1": {',
-    \   '                "-U": "user",',
-    \   '                "-P": "password"',
-    \   '            },',
-    \   '            "server2": {"order":1}',
-    \   '        }',
-    \   '    },',
-    \   '    "postgres": {',
-    \   '        "alignLimit": 0,',
-    \   '        "servers": {',
-    \   '            "server3": {',
-    \   '                "-p": 5432',
-    \   '            }',
-    \   '        }',
-    \   '    }',
-    \   '}'
-    \ ]
-
     if !isdirectory(fnamemodify(s:userConfigPath, ':p:h'))
         call mkdir(fnamemodify(s:userConfigPath, ':p:h'), 'p')
     endif
-    call writefile(sampleConfig, s:userConfigPath)
+    call filecopy(s:root.'\configTemplate.json', s:userConfigPath)
+    call sql#settings#edit()
+    echohl WarningMsg
+    echomsg 'A user config file has been created for you. Use `:SQL config` to add your DB server connections and settings.'
+    echohl None
 endfunction
 
 function! sql#settings#edit() " {{{1

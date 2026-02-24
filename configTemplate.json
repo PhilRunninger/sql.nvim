@@ -1,0 +1,29 @@
+{
+    "sqlserver": {
+        "delimiter": "\t",
+        "servers": {
+            "server1": {
+                "-U": "user",
+                "-P": "password",
+                "marks": {
+                    "a": "AdventureWorks2019"
+                }
+            },
+            "server2": {
+                "order":1,
+                "marks": {
+                    "r": "Retail",
+                    "m": "Movies"
+                }
+            }
+        }
+    },
+    "postgres": {
+        "alignLimit": 0,
+        "servers": {
+            "server3": {
+                "-p": 5432
+            }
+        }
+    }
+}
