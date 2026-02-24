@@ -3,6 +3,7 @@
 " Buffer-level key mappings. {{{1
 call nvim_buf_set_keymap(0, 'n', '<F5>',   ':call <SID>PrepAndRunQuery("file")<CR>',                  {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<S-F5>', ':call <SID>PrepAndRunQuery("paragraph")<CR>',             {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<C-F5>', ':call <SID>PrepAndRunQuery("block")<CR>',                 {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection")<CR>',        {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<F8>',   ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>', {'silent':1})
 
@@ -17,7 +18,9 @@ function! s:PrepAndRunQuery(queryType) " {{{1
         echo 'Choose a connection from the catalog.'
         return
     endif
-    call s:WriteTempFile(a:queryType)
+    if !s:WriteTempFile(a:queryType)
+        return
+    endif
     call s:RunQuery()
 endfunction
 
@@ -57,7 +60,47 @@ function! s:WriteTempFile(queryType) " {{{1
     elseif a:queryType == 'selection'
         silent normal! gv"zy
         call writefile(split(@z,'\n'), sql#settings#tempFile())
+    elseif a:queryType == 'block'
+        let block = s:FindBeginEndBlock()
+        if empty(block)
+            echo 'Cursor is not inside a BEGIN...END block.'
+            return 0
+        endif
+        call writefile(getline(block[0], block[1]), sql#settings#tempFile())
     endif
+    return 1
+endfunction
+
+function! s:FindBeginEndBlock() " {{{1
+    let cursor = line('.')
+    let pos = cursor
+    while pos >= 1
+        if getline(pos) =~? '\<BEGIN\>'
+            let end = s:FindMatchingEnd(pos)
+            if end >= cursor
+                return [pos, end]
+            endif
+        endif
+        let pos -= 1
+    endwhile
+    return []
+endfunction
+
+function! s:FindMatchingEnd(start) " {{{1
+    let depth = 0
+    let end = a:start
+    while end <= line('$')
+        if getline(end) =~? '\<BEGIN\>'
+            let depth += 1
+        elseif getline(end) =~? '\<END\>'
+            let depth -= 1
+            if depth == 0
+                return end
+            endif
+        endif
+        let end += 1
+    endwhile
+    return -1
 endfunction
 
 function! s:RunQueryCallback(timer, job_id, data, event) " {{{1

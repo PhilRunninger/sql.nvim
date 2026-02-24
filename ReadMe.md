@@ -22,6 +22,7 @@ Buffers of this type are where queries are written. The `:SQL` command will eith
 
 * <kbd>F5</kbd> - Submits the whole file or the visual selection to the database.
 * <kbd>Shift+F5</kbd> - Submits the current paragraph to the database.
+* <kbd>Ctrl+F5</kbd> - Submits the BEGIN...END block surrounding the cursor to the database.
 * <kbd>F8</kbd> - Opens a window showing the servers' catalogs. Actions done in the catalog will target the SQL buffer active when <kbd>F8</kbd> was pressed.
 
 ### `sqlcatalog` - Buffer Name: ⟪SQLCatalog⟫
