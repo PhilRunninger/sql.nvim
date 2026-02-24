@@ -1,6 +1,6 @@
 SET NOCOUNT ON
 
-SELECT 'USE ' + DB_NAME()
+SELECT 'USE ' + QUOTENAME(DB_NAME())
 UNION ALL
 SELECT 'GO'
 UNION ALL
@@ -25,7 +25,7 @@ WHERE
     o.object_id = OBJECT_ID('$(object)')
 UNION ALL
 SELECT
-    'FROM ' + DB_NAME() + '.' +  /* database */
+    'FROM ' + QUOTENAME(DB_NAME()) + '.' +  /* database */
     CASE /* schema name */
         WHEN s.name LIKE '%.%' THEN QUOTENAME(s.name)
         WHEN s.name LIKE '% %' THEN QUOTENAME(s.name)

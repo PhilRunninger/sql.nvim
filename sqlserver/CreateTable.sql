@@ -1,11 +1,11 @@
 SET NOCOUNT ON
 
-SELECT 'USE ' + DB_NAME()
+SELECT 'USE ' + QUOTENAME(DB_NAME())
 UNION ALL
 SELECT 'GO'
 UNION ALL
 SELECT
-    'CREATE TABLE ' + DB_NAME() + '.' +  /* database */
+    'CREATE TABLE ' + QUOTENAME(DB_NAME()) + '.' +  /* database */
     CASE  /* schema name */
         WHEN s.name LIKE '%.%' THEN QUOTENAME(s.name)
         WHEN s.name LIKE '% %' THEN QUOTENAME(s.name)

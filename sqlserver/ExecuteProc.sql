@@ -1,6 +1,6 @@
 set NOCOUNT on
 
-SELECT 'USE ' + DB_NAME()
+SELECT 'USE ' + QUOTENAME(DB_NAME())
 union all
 select 'GO'
 union all
@@ -21,7 +21,7 @@ where p.is_output = 1
 and o.object_id = OBJECT_ID('$(object)')
 --
 union all
-select 'EXECUTE ' + DB_NAME() + '.$(object)'
+select 'EXECUTE ' + QUOTENAME(DB_NAME()) + '.$(object)'
 --
 union all
 --
