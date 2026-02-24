@@ -72,35 +72,20 @@ function! s:WriteTempFile(queryType) " {{{1
 endfunction
 
 function! s:FindBeginEndBlock() " {{{1
-    let cursor = line('.')
-    let pos = cursor
-    while pos >= 1
-        if getline(pos) =~? '\<BEGIN\>'
-            let end = s:FindMatchingEnd(pos)
-            if end >= cursor
-                return [pos, end]
-            endif
-        endif
-        let pos -= 1
-    endwhile
-    return []
+    let start = searchpair('\c\<BEGIN\>', '', '\c\<END\>', 'bcWn')
+    if start == 0
+        return []
+    endif
+    let end = s:FindMatchingEnd(start)
+    return end == -1 ? [] : [start, end]
 endfunction
 
 function! s:FindMatchingEnd(start) " {{{1
-    let depth = 0
-    let end = a:start
-    while end <= line('$')
-        if getline(end) =~? '\<BEGIN\>'
-            let depth += 1
-        elseif getline(end) =~? '\<END\>'
-            let depth -= 1
-            if depth == 0
-                return end
-            endif
-        endif
-        let end += 1
-    endwhile
-    return -1
+    let save_pos = getpos('.')
+    call cursor(a:start, 1)
+    let end = searchpair('\c\<BEGIN\>', '', '\c\<END\>', 'W')
+    call setpos('.', save_pos)
+    return end == 0 ? -1 : end
 endfunction
 
 function! s:RunQueryCallback(timer, job_id, data, event) " {{{1
