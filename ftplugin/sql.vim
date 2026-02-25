@@ -4,12 +4,13 @@
 " Run script/paragraph/selection.
 call nvim_buf_set_keymap(0, 'n', '<F5>',     ':call <SID>PrepAndRunQuery("file", 0)<CR>',                  {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<S-F5>',   ':call <SID>PrepAndRunQuery("paragraph", 0)<CR>',             {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<C-F5>',   ':call <SID>PrepAndRunQuery("block")<CR>',                    {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<C-F5>',   ':call <SID>PrepAndRunQuery("block", 0)<CR>',                 {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<F5>',     ':<C-U>call <SID>PrepAndRunQuery("selection", 0)<CR>',        {'silent':1})
 
 " Run script/paragraph/selection with delimiter override.
 call nvim_buf_set_keymap(0, 'n', '<M-F5>',   ':call <SID>PrepAndRunQuery("file", 1)<CR>',                  {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<M-S-F5>', ':call <SID>PrepAndRunQuery("paragraph", 1)<CR>',             {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<M-C-F5>', ':call <SID>PrepAndRunQuery("block", 1)<CR>',                 {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<M-F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection", 1)<CR>',        {'silent':1})
 
 call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call sql#search#start(expand("<cword>"))<CR>',              {'silent':1})
@@ -94,19 +95,8 @@ endfunction
 
 function! s:FindBeginEndBlock() " {{{1
     let start = searchpair('\c\<BEGIN\>', '', '\c\<END\>', 'bcWn')
-    if start == 0
-        return []
-    endif
-    let end = s:FindMatchingEnd(start)
-    return end == -1 ? [] : [start, end]
-endfunction
-
-function! s:FindMatchingEnd(start) " {{{1
-    let save_pos = getpos('.')
-    call cursor(a:start, 1)
-    let end = searchpair('\c\<BEGIN\>', '', '\c\<END\>', 'W')
-    call setpos('.', save_pos)
-    return end == 0 ? -1 : end
+    let end = searchpair('\c\<BEGIN\>', '', '\c\<END\>', 'cWn')
+    return (start == 0 || end == 0) ? [] : [start, end]
 endfunction
 
 function! s:RunQueryCallback(timer, job_id, data, event) " {{{1
