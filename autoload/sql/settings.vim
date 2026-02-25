@@ -10,36 +10,14 @@ function! sql#settings#init(root) " {{{1
 endfunction
 
 function! s:InitializeUserConfig() " {{{1
-    " Using a list of strings for pretty formatting.
-    let sampleConfig = [
-    \   '// Complete the user configuration below, and then remove these comments. For details,',
-    \   '// see https://github.com/PhilRunninger/sql.nvim?tab=readme-ov-file#user-configuration.',
-    \   '{',
-    \   '    "sqlserver": {',
-    \   '        "delimiter": ";",',
-    \   '        "servers": {',
-    \   '            "server1": {',
-    \   '                "-U": "user",',
-    \   '                "-P": "password"',
-    \   '            },',
-    \   '            "server2": {"order":1}',
-    \   '        }',
-    \   '    },',
-    \   '    "postgres": {',
-    \   '        "alignLimit": 0,',
-    \   '        "servers": {',
-    \   '            "server3": {',
-    \   '                "-p": 5432',
-    \   '            }',
-    \   '        }',
-    \   '    }',
-    \   '}'
-    \ ]
-
     if !isdirectory(fnamemodify(s:userConfigPath, ':p:h'))
         call mkdir(fnamemodify(s:userConfigPath, ':p:h'), 'p')
     endif
-    call writefile(sampleConfig, s:userConfigPath)
+    call filecopy(s:root.'\configTemplate.json', s:userConfigPath)
+    call sql#settings#edit()
+    echohl WarningMsg
+    echomsg 'A user config file has been created for you. Use `:SQL config` to add your DB server connections and settings.'
+    echohl None
 endfunction
 
 function! sql#settings#edit() " {{{1
@@ -67,8 +45,26 @@ function! sql#settings#user() " {{{1
     endtry
 endfunction
 
+function! sql#settings#servers() " {{{1
+    let serverList = []
+    let config = sql#settings#user()
+    for p in keys(config)
+        for s in keys(config[p].servers)
+            let order = get(config[p].servers[s], 'order', v:numbermax)
+            call add(serverList, [order, s.' ('.p.')'])
+        endfor
+    endfor
+    call sort(serverList, {a,b -> a[1]==b[1] ? 0 : a[1]>b[1] ? 1 : -1})
+    call sort(serverList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
+    return map(serverList, {_,v -> printf('%s %s', g:sql#unexplored, v[1])})
+endfunction
+
 function! sql#settings#serverInfo(platform, server) abort " {{{1
     return sql#settings#user()[a:platform].servers[a:server]
+endfunction
+
+function! sql#settings#marks(platform, server) abort " {{{1
+    return get(sql#settings#serverInfo(a:platform, a:server), 'marks', {})
 endfunction
 
 function! sql#settings#alignLimit(platform) abort " {{{1
@@ -81,5 +77,7 @@ function! sql#settings#delimiter(platform) abort " {{{1
 endfunction
 
 function! sql#settings#actions(platform, type) abort " {{{1
-    return sort(keys(get(sql#settings#app()[a:platform].actions, a:type, {})))
+    let actionList = values(map(sql#settings#app()['sqlserver'].actions[a:type], {k,v -> [v.order, k]}))
+    call sort(actionList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
+    return map(actionList, {_,v -> v[1]})
 endfunction

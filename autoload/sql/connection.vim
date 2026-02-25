@@ -11,5 +11,5 @@ endfunction
 
 function! sql#connection#get() " {{{1
     let bufnr = sql#bufnr()
-    return matchlist(nvim_buf_get_lines(bufnr,0,1,0)[0], s:connectionStringRegex)[1:3]
+    return bufexists(bufnr) ? matchlist(nvim_buf_get_lines(bufnr,0,1,0)[0], s:connectionStringRegex)[1:3] : []
 endfunction

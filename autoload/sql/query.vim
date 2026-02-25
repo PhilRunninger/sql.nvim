@@ -4,9 +4,9 @@ function! sql#query#isRunning() " {{{1
     return exists('s:job_id')
 endfunction
 
-function! sql#query#run(callback, platform, server, database, type='', action='', actionValues={}) abort " {{{1
+function! sql#query#run(callback, delimiter, platform, server, database, type='', action='', actionValues={}) abort " {{{1
     if !sql#query#isRunning()
-        let cmdline = s:commandLine(a:platform, a:server, a:database, a:type, a:action, a:actionValues)
+        let cmdline = s:commandLine(a:delimiter, a:platform, a:server, a:database, a:type, a:action, a:actionValues)
         let s:job_id = jobstart(cmdline, #{stdout_buffered: v:true, stderr_buffered: v:true, on_stdout: function('s:on_stdout', [a:callback]), on_stderr: function('s:on_stderr'), on_exit: function('s:on_exit')})
     endif
     return s:job_id
@@ -28,14 +28,14 @@ function! s:on_exit(job_id, data, event) " {{{1
     unlet s:job_id
 endfunction
 
-function! s:commandLine(platform, server, database, type, action, actionValues) abort " {{{1
+function! s:commandLine(delimiter, platform, server, database, type, action, actionValues) abort " {{{1
     let actionValues = {
         \ 'file':      escape(empty(a:action) ?
             \ sql#settings#tempFile() :
-            \ printf('%s\%s\%s', sql#settings#root(), a:platform, sql#settings#app()[a:platform].actions[a:type][a:action]), '\'),
+            \ printf('%s\%s\%s', sql#settings#root(), a:platform, sql#settings#app()[a:platform].actions[a:type][a:action].file), '\'),
         \ 'server':    escape(a:server,'\'),
-        \ 'database':  escape(a:database,'\'),
-        \ 'delimiter': sql#settings#delimiter(a:platform)
+        \ 'database':  printf('"%s"', escape(a:database,'\')),
+        \ 'delimiter': a:delimiter
     \ }
     let actionValues = extend(a:actionValues, actionValues, 'force')
 
@@ -48,7 +48,7 @@ function! s:commandLine(platform, server, database, type, action, actionValues) 
 endfunction
 
 function! s:formatArgString(args, actionValues={}) abort " {{{1
-    let args = filter(copy(a:args),{k,_ -> k != 'order'})
+    let args = filter(copy(a:args),{k,_ -> k != 'order' && k!= 'marks'})
 
     for k in keys(args)
         let parm = matchstr(args[k], '<\w\{-}>')
