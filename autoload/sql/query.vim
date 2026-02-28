@@ -41,14 +41,14 @@ function! s:commandLine(delimiter, platform, server, database, type, action, act
 
     let cmdline = sql#settings#app()[a:platform].executable
     let cmdline .= ' '.s:formatArgString(sql#settings#app()[a:platform].args, actionValues)
-    let cmdline .= ' '.s:formatArgString(sql#settings#serverInfo(a:platform,a:server), actionValues)
+    let cmdline .= ' '.s:formatArgString(sql#settings#args(a:platform,a:server), actionValues)
     let cmdline .= empty(a:action) ? '' : ' '.s:formatArgString(sql#settings#app()[a:platform].actions.args, actionValues)
 
     return cmdline
 endfunction
 
 function! s:formatArgString(args, actionValues={}) abort " {{{1
-    let args = filter(copy(a:args),{k,_ -> k != 'order' && k!= 'marks'})
+    let args = a:args
 
     for k in keys(args)
         let parm = matchstr(args[k], '<\w\{-}>')

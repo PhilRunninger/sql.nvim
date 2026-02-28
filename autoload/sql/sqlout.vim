@@ -35,6 +35,7 @@ function! sql#sqlout#toMarkdown()
     if bufname(bufnr()) !=# s:bufferName
         echohl WarningMsg
         echo 'This command must be run in the ' . s:bufferName . ' buffer.'
+        echohl None
         return
     endif
 

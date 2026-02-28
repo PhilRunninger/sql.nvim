@@ -1,0 +1,49 @@
+{
+    "_comment": [
+        " This is your configuration file. The plugin connects to either SQL Server or PostgreSQL databases using ",
+        " sqlcmd.exe or psql.exe respectively. Their configurations are stored in the 'sqlserver' and 'postgres' ",
+        " objects in this file. If you don't need one, you may remove it or simply leave its 'servers' object empty. ",
+        "",
+        " The platform objects, 'sqlserver' and 'postgres', have the following attributes. ",
+        "   'delimiter' - (optional) the separator between columns in returned query results. Default: | (pipe) ",
+        "   'alignLimit' - (optional) the maximum allowable time in seconds to be spent aligning columns. Default: 5 ",
+        "   'servers' - an object containing server objects ",
+        "",
+        " The server object's name is used in the sqlcmd's -S or psql's -h parameter. It can be an IP address, a hostname, ",
+        " or a named instance. The server object contains these attributes: ",
+        "   'order' - (optional) an integer used to move favorites to the top of the catalog in ascending order. ",
+        "   'marks' - (optional) an object containing a letters and their corresponding database names, used to quickly ",
+        "             navigate to a database in the Catalog using the nvim jump-to-mark commands. See :h 'a ",
+        "   'args' - (optional) arguments added to the command line. For example, SQL Server user ID and password is entered ",
+        "            with '-U':'user' and '-P':'password'. For a switch with no value, enter it like so: '-j':null. "
+    ],
+    "sqlserver": {
+        "delimiter": "\t",
+        "servers": {
+            "HOSTNAME": {
+                "args": {
+                    "-U": "user",
+                    "-P": "password"
+                },
+                "marks": {
+                    "a": "AdventureWorks2019"
+                }
+            },
+            "SERVER\\INSTANCE": {
+                "order":1,
+                "marks": {
+                    "r": "Retail",
+                    "m": "Movies"
+                }
+            }
+        }
+    },
+    "postgres": {
+        "alignLimit": 0,
+        "servers": {
+            "IPADDRESS": {
+                "-p": 5432
+            }
+        }
+    }
+}

@@ -19,5 +19,6 @@ function! s:Sql(cmd) abort
     else
         echohl ErrorMsg
         echo 'Unknown command: ' . a:cmd
+        echohl None
     endif
 endfunction

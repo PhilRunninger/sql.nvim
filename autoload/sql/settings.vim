@@ -4,16 +4,18 @@ function! sql#settings#init(root) " {{{1
     let s:root = a:root
     let s:tempFile = tempname()
     let s:userConfigPath = stdpath('data') . '\sql.nvim\userconfig.json'
-    if !filereadable(s:userConfigPath)
-        call s:InitializeUserConfig()
-    endif
+    call s:InitializeUserConfig()
 endfunction
 
 function! s:InitializeUserConfig() " {{{1
+    if filereadable(s:userConfigPath)
+        return
+    endif
+
     if !isdirectory(fnamemodify(s:userConfigPath, ':p:h'))
         call mkdir(fnamemodify(s:userConfigPath, ':p:h'), 'p')
     endif
-    call filecopy(s:root.'\configTemplate.json', s:userConfigPath)
+    call filecopy(s:root.'\userconfig.json', s:userConfigPath)
     call sql#settings#edit()
     echohl WarningMsg
     echomsg 'A user config file has been created for you. Use `:SQL config` to add your DB server connections and settings.'
@@ -38,7 +40,11 @@ endfunction
 
 function! sql#settings#user() " {{{1
     try
-        return json_decode(readfile(s:userConfigPath))
+        let userSettigns = json_decode(readfile(s:userConfigPath))
+        if has_key(userSettigns, '_comment')
+            call remove(userSettigns, '_comment')
+        endif
+        return userSettigns
     catch
         call sql#settings#edit()
         throw 'sql.nvim: Invalid User Config'
@@ -65,6 +71,20 @@ endfunction
 
 function! sql#settings#marks(platform, server) abort " {{{1
     return get(sql#settings#serverInfo(a:platform, a:server), 'marks', {})
+endfunction
+
+function! sql#settings#args(platform, server) abort " {{{1
+    let args = get(sql#settings#serverInfo(a:platform, a:server), 'args', {})
+    if !empty(args)
+        return args
+    endif
+
+    " For backward compatibility with older config files, if args is not
+    " defined, return the whole server info minus the order and marks keys.
+    let args = sql#settings#serverInfo(a:platform, a:server)
+    call remove(args, 'order')
+    call remove(args, 'marks')
+    return args
 endfunction
 
 function! sql#settings#alignLimit(platform) abort " {{{1
