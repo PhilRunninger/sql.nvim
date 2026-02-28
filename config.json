@@ -8,8 +8,7 @@
             "-i": "<file>",
             "-s": "\"<delimiter>\"",
             "-W": null,
-            "-I": null,
-            "-f": 65001
+            "-I": null
         },
         "actions":{
             "args": {
