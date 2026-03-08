@@ -9,13 +9,13 @@
         "   'alignLimit' - (optional) the maximum allowable time in seconds to be spent aligning columns. Default: 5 ",
         "   'servers' - an object containing server objects ",
         "",
-        " The server object's name is used in the sqlcmd's -S or psql's -h parameter. It can be an IP address, a hostname, ",
+        " The server object's name is used in sqlcmd's -S or psql's -h parameter. It can be an IP address, a hostname, ",
         " or a named instance. The server object contains these attributes: ",
-        "   'order' - (optional) an integer used to move favorites to the top of the catalog in ascending order. ",
-        "   'marks' - (optional) an object containing a letters and their corresponding database names, used to quickly ",
+        "   'order' - (optional) an integer to move favorites to the top of the catalog in ascending order. ",
+        "   'marks' - (optional) an object containing letters and their corresponding database names, used to quickly ",
         "             navigate to a database in the Catalog using the nvim jump-to-mark commands. See :h 'a ",
-        "   'args' - (optional) arguments added to the command line. For example, SQL Server user ID and password is entered ",
-        "            with '-U':'user' and '-P':'password'. For a switch with no value, enter it like so: '-j':null. "
+        "   'args' - (optional) additional command line arguments. For example, SQL Server user ID and password are entered ",
+        "            with '-U':'user' and '-P':'password'. For a switch with no value, use null like so: '-j':null "
     ],
     "sqlserver": {
         "delimiter": "\t",
