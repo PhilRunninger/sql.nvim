@@ -67,7 +67,14 @@ endfunction
 function! s:Refresh() " {{{1
     setlocal modifiable
     let current = s:ObjectUnderCursor()
-    if current.cursor.text =~ printf('^[%s%s]', g:sql#unexplored, g:sql#explored)    " Cursor is on a server. Remove all databases, and set server to be unexplored.
+    if line('$') == 1 && getline(1) == ''   " Buffer is empty. Populate with servers.
+        let winnr = winnr()
+        let servers = sql#settings#servers()
+        execute winnr.'wincmd w'
+        call nvim_buf_set_lines(0,0,-1,0,servers)
+        setlocal nomodifiable
+        return
+    elseif current.cursor.text =~ printf('^[%s%s]', g:sql#unexplored, g:sql#explored)    " Cursor is on a server. Remove all databases, and set server to be unexplored.
         call cursor(current.server.line, 1)
         normal! ]z
         let lastLine = line('.')
