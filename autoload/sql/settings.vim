@@ -79,19 +79,7 @@ function! sql#settings#marks(platform, server) abort " {{{1
 endfunction
 
 function! sql#settings#args(platform, server) abort " {{{1
-    let info = sql#settings#serverInfo(a:platform, a:server)
-    if has_key(info, 'args')
-        return info.args
-    endif
-
-    " For backward compatibility with older config files, if args is not
-    " defined, return the whole server info minus the order and marks keys.
-    for k in ['order','marks']
-        if has_key(info, k)
-            call remove(info, k)
-        endif
-    endfor
-    return info
+    return get(sql#settings#serverInfo(a:platform, a:server), 'args', {})
 endfunction
 
 function! sql#settings#alignLimit(platform) abort " {{{1
