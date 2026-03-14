@@ -22,6 +22,61 @@ function! s:InitializeUserConfig() " {{{1
     echohl None
 endfunction
 
+function! s:ValidateUserConfig() " {{{1
+    let userSettings = json_decode(readfile(s:userConfigPath))
+
+    if type(userSettings) != v:t_dict
+        throw 'User config must be a JSON object'
+    endif
+    call s:validKeys(userSettings, ['sqlserver', 'postgres'], 'Invalid platform: %s')
+
+    for p in keys(userSettings)
+        if p == '_comment'
+            call remove(userSettings, p)
+            continue
+        endif
+
+        call s:isType(userSettings, p, v:false, [v:t_dict], '%s must be an object')
+
+        call s:validKeys(userSettings[p], ['delimiter', 'alignLimit', 'servers'], 'Unsupported platform attribute: '.p.'.%s')
+        call s:isType(userSettings[p], 'delimiter', v:false, [v:t_string], p . '.%s must be a string')
+        call s:isType(userSettings[p], 'alignLimit', v:false, [v:t_number, v:t_float], p . '.%s must be a number')
+        call s:isType(userSettings[p], 'servers', v:true, [v:t_dict], p . '.%s is required and must be an object')
+
+        for s in keys(userSettings[p].servers)
+            call s:isType(userSettings[p].servers, s, v:false, [v:t_dict], p . '.servers.%s must be an object')
+            call s:validKeys(userSettings[p].servers[s], ['order', 'marks', 'args'], 'Consider moving '.p.'.servers.'.s.'.%s to '.p.'.servers.'.s.'.args')
+            call s:isType(userSettings[p].servers[s], 'order', v:false, [v:t_number], p . '.servers.'.s.'.%s must be an integer')
+            call s:isType(userSettings[p].servers[s], 'marks', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
+            call s:isType(userSettings[p].servers[s], 'args', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
+        endfor
+    endfor
+
+    return userSettings
+endfunction
+
+function! s:isType(obj, key, required, validTypes, msg)
+    if !has_key(a:obj, a:key)
+        if a:required
+            throw printf(a:msg, a:key)
+        else
+            return
+        endif
+    endif
+
+    if index(a:validTypes, type(a:obj[a:key])) == -1
+        throw printf(a:msg, a:key)
+    endif
+endfunction
+
+function! s:validKeys(obj, allowed, msg)
+    for k in keys(a:obj)
+        if index(a:allowed, k) == -1
+            throw printf(a:msg, k)
+        endif
+    endfor
+endfunction
+
 function! sql#settings#edit() " {{{1
     let winnr = bufwinnr(bufnr(s:userConfigPath))
     if winnr == -1
@@ -43,20 +98,19 @@ function! sql#settings#app() " {{{1
     return json_decode(readfile(s:root.'\config.json'))
 endfunction
 
-function! sql#settings#user() " {{{1
+function! sql#settings#user() abort " {{{1
     try
-        let userSettigns = json_decode(readfile(s:userConfigPath))
-        if has_key(userSettigns, '_comment')
-            call remove(userSettigns, '_comment')
-        endif
-        return userSettigns
+        return s:ValidateUserConfig()
     catch
         call sql#settings#edit()
-        throw 'sql.nvim: Invalid User Config'
+        echohl WarningMsg
+        echomsg 'Error in sql.nvim user config: '.v:exception
+        echohl None
+        return {}
     endtry
 endfunction
 
-function! sql#settings#servers() " {{{1
+function! sql#settings#servers() abort " {{{1
     let serverList = []
     let config = sql#settings#user()
     for p in keys(config)
