@@ -23,7 +23,12 @@ function! s:InitializeUserConfig() " {{{1
 endfunction
 
 function! sql#settings#edit() " {{{1
-    execute 'split '.s:userConfigPath
+    let winnr = bufwinnr(bufnr(s:userConfigPath))
+    if winnr == -1
+        execute 'split '.s:userConfigPath
+    else
+        execute winnr.'wincmd w'
+    endif
 endfunction
 
 function! sql#settings#root() " {{{1
