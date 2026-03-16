@@ -24,6 +24,7 @@ endfunction
 
 function! s:ValidateUserConfig() " {{{1
     let userSettings = json_decode(readfile(s:userConfigPath))
+    call s:removeComments(userSettings)
 
     if type(userSettings) != v:t_dict
         throw 'User config must be a JSON object'
@@ -31,11 +32,6 @@ function! s:ValidateUserConfig() " {{{1
     call s:validKeys(userSettings, ['sqlserver', 'postgres'], 'Invalid platform: %s')
 
     for p in keys(userSettings)
-        if p == '_comment'
-            call remove(userSettings, p)
-            continue
-        endif
-
         call s:isType(userSettings, p, v:false, [v:t_dict], '%s must be an object')
 
         call s:validKeys(userSettings[p], ['delimiter', 'alignLimit', 'servers'], 'Unsupported platform attribute: '.p.'.%s')
@@ -53,6 +49,21 @@ function! s:ValidateUserConfig() " {{{1
     endfor
 
     return userSettings
+endfunction
+
+function! s:removeComments(obj)
+    if type(a:obj) == v:t_dict
+        if has_key(a:obj, '')
+            call remove(a:obj, '')
+        endif
+        for k in keys(a:obj)
+            call s:removeComments(a:obj[k])
+        endfor
+    elseif type(a:obj) == v:t_list
+        for i in range(len(a:obj))
+            call s:removeComments(a:obj[i])
+        endfor
+    endif
 endfunction
 
 function! s:isType(obj, key, required, validTypes, msg)
