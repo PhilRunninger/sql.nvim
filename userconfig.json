@@ -1,26 +1,10 @@
 {
-    "": [
-        "Supported platforms are sqlserver (SQL Server using sqlcmd.exe) and postres (PostgreSQL using psql.exe).",
-        "If you don't need one, you may remove it or simply leave its 'servers' object empty."
-    ],
+    "_comment_": "See https://github.com/PhilRunninger/sql.nvim#user-configuration for instructions.",
     "sqlserver": {
-        "": [
-            "delimiter (optional) - the separator between columns in returned query results. Default: | (pipe)",
-            "alignLimit (optional) - the maximum allowable time in seconds to be spent aligning columns. Default: 5",
-            "servers - an object containing server objects"
-        ],
         "delimiter": "\t",
         "alignLimit": 5,
         "servers": {
-            "": "Keys are server names in sqlcmd's -S or psql's -h parameter (IP address, hostname, or named instance.)",
             "HOSTNAME": {
-                "": [
-                    " order (optional) - an integer to move favorite servers to the top of the catalog in ascending order.",
-                    " marks (optional) - an object containing letters and their corresponding database names, used to quickly",
-                    "         navigate to a database in the Catalog using the nvim jump-to-mark commands. See :h 'a",
-                    " args (optional) - additional command line arguments. For example, SQL Server user ID and password are entered",
-                    "        with '-U':'user' and '-P':'password'. For a switch with no value, use null like so: '-j':null"
-                ],
                 "order":1,
                 "marks": {
                     "a": "AdventureWorks2019"
@@ -32,9 +16,5 @@
             }
         }
     },
-    "postgres": {
-        "servers": {
-            "IPADDRESS": { }
-        }
-    }
+    "postgres": { "servers": { "IPADDRESS": { } } }
 }

@@ -47,10 +47,10 @@ function! s:ValidateUserConfig() " {{{1
     return userSettings
 endfunction
 
-function! s:removeComments(obj)
+function! s:removeComments(obj) " {{{2
     if type(a:obj) == v:t_dict
-        if has_key(a:obj, '')
-            call remove(a:obj, '')
+        if has_key(a:obj, '_comment_')
+            call remove(a:obj, '_comment_')
         endif
         for k in keys(a:obj)
             call s:removeComments(a:obj[k])
