@@ -16,10 +16,6 @@ function! s:InitializeUserConfig() " {{{1
         call mkdir(fnamemodify(s:userConfigPath, ':p:h'), 'p')
     endif
     call filecopy(s:root.'\userconfig.json', s:userConfigPath)
-    call sql#settings#edit()
-    echohl WarningMsg
-    echomsg 'A user config file has been created for you. Use `:SQL config` to add your DB server connections and settings.'
-    echohl None
 endfunction
 
 function! s:ValidateUserConfig() " {{{1
@@ -66,7 +62,7 @@ function! s:removeComments(obj)
     endif
 endfunction
 
-function! s:isType(obj, key, required, validTypes, msg)
+function! s:isType(obj, key, required, validTypes, msg) " {{{2
     if !has_key(a:obj, a:key)
         if a:required
             throw printf(a:msg, a:key)
@@ -80,7 +76,7 @@ function! s:isType(obj, key, required, validTypes, msg)
     endif
 endfunction
 
-function! s:validKeys(obj, allowed, msg)
+function! s:validKeys(obj, allowed, msg) " {{{2
     for k in keys(a:obj)
         if index(a:allowed, k) == -1
             throw printf(a:msg, k)
@@ -89,6 +85,8 @@ function! s:validKeys(obj, allowed, msg)
 endfunction
 
 function! sql#settings#edit() " {{{1
+    call s:InitializeUserConfig()
+
     let winnr = bufwinnr(bufnr(s:userConfigPath))
     if winnr == -1
         execute 'split '.s:userConfigPath
