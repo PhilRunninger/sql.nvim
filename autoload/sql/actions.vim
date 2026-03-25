@@ -38,7 +38,15 @@ endfunction
 
 function! s:RunActionCallback(newBuffer, action, job_id, data, event)
     stopinsert
+
     let data = map(a:data, {_,v -> substitute(v, nr2char(13).'$', '', '')})
+    for i in range(len(data)-1,0,-1)
+        if data[i] == 'J3o.i1n4N1e5x9t2L6i5n3e5T8o9P7r9e3v2i3o8u4s6'
+            let data[i-1] .= data[i+1]
+            call remove(data, i, i+1)
+        endif
+    endfor
+
     call sql#actions#closeWindow()
     call sql#showSQL()
     if a:newBuffer
