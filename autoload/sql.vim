@@ -60,3 +60,12 @@ function! sql#showCatalog() abort " {{{1
         execute winnr . 'wincmd w'
     endif
 endfunction
+
+function! sql#statusline() abort " {{{1
+    if empty(sql#connection#get())
+        return '%l/%L %c%=%f%=%#ErrorMsg# Not connected '
+    else
+        return '%l/%L %c%=%f%=%{join(sql#connection#get()[1:2],".")} '
+    endif
+endfunction
+

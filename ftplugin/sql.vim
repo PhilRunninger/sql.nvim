@@ -17,7 +17,7 @@ call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call sql#search#start(expand("<cw
 call nvim_buf_set_keymap(0, 'n', '<C-F3>',   ':call sql#search#start("")<CR>',                             {'silent':1})
 call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>',    {'silent':1})
 
-setlocal statusline=%l/%L\ %c%=%f%=%{empty(sql#connection#get())?'Not\ connected':join(sql#connection#get()[1:2],'.')}
+setlocal statusline=%{%sql#statusline()%}
 
 function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
     if sql#query#isRunning()
