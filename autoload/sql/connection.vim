@@ -1,15 +1,22 @@
 "  vim: foldmethod=marker
 
-let s:connectionSeparator = ' ▶ '
-let s:connectionStringPattern = '-- Connection: %s'.s:connectionSeparator.'%s'.s:connectionSeparator.'%s'
-let s:connectionStringRegex = '^' . substitute(s:connectionStringPattern, '%s', '\\(.\\+\\)', 'g') . '$'
-
 function! sql#connection#set(platform, server, database) " {{{1
     let bufnr = sql#bufnr()
-    call nvim_buf_set_lines(bufnr, 0, empty(sql#connection#get())?0:1, 0, [printf(s:connectionStringPattern, a:platform, a:server, a:database)])
+    call nvim_buf_set_var(bufnr, 'platform', a:platform)
+    call nvim_buf_set_var(bufnr, 'server',   a:server)
+    call nvim_buf_set_var(bufnr, 'database', a:database)
+    redrawstatus!
 endfunction
 
 function! sql#connection#get() " {{{1
-    let bufnr = sql#bufnr()
-    return bufexists(bufnr) ? matchlist(nvim_buf_get_lines(bufnr,0,1,0)[0], s:connectionStringRegex)[1:3] : []
+    try
+        let bufnr = sql#bufnr()
+        return [
+            \ nvim_buf_get_var(bufnr, 'platform'),
+            \ nvim_buf_get_var(bufnr, 'server'),
+            \ nvim_buf_get_var(bufnr, 'database')
+            \ ]
+    catch
+        return []
+    endtry
 endfunction

@@ -19,6 +19,60 @@ call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call 
 
 setlocal statusline=%{%sql#statusline()%}
 
+" Retreive and save state per file - saved connection info.   {{{1
+let s:stateFilePath = stdpath('data') . '\sql.nvim\userstate.json'
+
+function! s:getState()
+    if !filereadable(s:stateFilePath)
+        return []
+    endif
+
+    let allStates = sort(json_decode(readfile(s:stateFilePath)), {a, b -> b.accessed - a.accessed})
+    let state = filter(copy(allStates), {_,v -> v.file == fnamemodify(bufname(bufnr()),':p')})
+    if !empty(state)
+        call sql#connection#set(state[0].plt, state[0].srv, state[0].db)
+    endif
+
+    return allStates
+endfunction
+
+function! s:saveState()
+    let state = sql#connection#get()
+    if empty(state)
+        return
+    endif
+
+    let allStates = s:getState()
+    let newState = {'accessed':localtime(), 'file':fnamemodify(bufname(bufnr()),':p'), 'plt':state[0], 'srv':state[1], 'db':state[2]}
+
+    let idx = -1
+    for i in range(len(allStates))
+        if allStates[i].file == fnamemodify(bufname(bufnr()),':p')
+            let idx = i
+            break
+        endif
+    endfor
+
+    if idx > -1
+        call remove(allStates, idx)
+    endif
+    call insert(allStates, newState)
+
+    if len(allStates) > 500
+        call remove(allStates, 500, -1)
+    endif
+
+    call writefile([json_encode(allStates)], s:stateFilePath)
+endfunction
+
+call s:getState()
+call s:saveState() " Updates 'accessed' if file is used and not saved again.
+
+augroup sqlNvim
+    autocmd!
+    autocmd BufWrite <buffer> call s:saveState()
+augroup END
+
 function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
     if sql#query#isRunning()
         return
