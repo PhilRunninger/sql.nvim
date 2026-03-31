@@ -85,11 +85,13 @@ function! s:validKeys(obj, allowed, msg) " {{{2
 endfunction
 
 function! sql#settings#edit() " {{{1
+    call sql#closeCatalog(1)
+
     call s:InitializeUserConfig()
 
     let winnr = bufwinnr(bufnr(s:userConfigPath))
     if winnr == -1
-        execute 'split '.s:userConfigPath
+        execute 'aboveleft split '.s:userConfigPath
     else
         execute winnr.'wincmd w'
     endif
