@@ -55,7 +55,7 @@ function! s:RunActionCallback(newBuffer, action, job_id, data, event)
         let saveBufnr = sql#bufnr()
         let bufnr = sql#bufnr(bufnr())
         call sql#connection#set(s:platform, s:server, s:database)
-        call nvim_buf_set_lines(bufnr, 1, line('$'), 1, data)
+        call nvim_buf_set_lines(bufnr, 0, line('$'), 1, data)
         call sql#bufnr(saveBufnr)
     else
         call setreg(&clipboard =~? 'unnamedplus' ? '+' : &clipboard =~? 'unnamed' ? '*' : '', data, 'l')

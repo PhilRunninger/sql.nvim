@@ -54,7 +54,7 @@ SELECT
         WHEN tp.name IN ('tinyint', 'smallint', 'int', 'bigint', 'real', 'float', 'numeric', 'bit', 'decimal', 'smallmoney', 'money') THEN '  '
         ELSE ''''''
     END +
-    '  /* ' + c.name + '*/'
+    '  /* ' + c.name + ' */'
 FROM
     sys.schemas s
     INNER JOIN sys.objects o ON o.[schema_id] = s.[schema_id]
