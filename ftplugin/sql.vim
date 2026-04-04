@@ -130,7 +130,7 @@ endfunction
 
 function! s:WriteTempFile(queryType) " {{{1
     if a:queryType == 'file'
-        call writefile(getline(2,line('$')), sql#settings#tempFile())
+        call writefile(getline(1,line('$')), sql#settings#tempFile())
     elseif a:queryType == 'paragraph'
         call writefile(getline(line("'{"),line("'}")), sql#settings#tempFile())
     elseif a:queryType == 'selection'
