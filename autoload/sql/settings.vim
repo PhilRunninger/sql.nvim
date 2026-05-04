@@ -85,7 +85,7 @@ function! s:validKeys(obj, allowed, msg) " {{{2
 endfunction
 
 function! sql#settings#edit() " {{{1
-    call sql#closeCatalog(1)
+    call sql#catalog#close(1)
 
     call s:InitializeUserConfig()
 

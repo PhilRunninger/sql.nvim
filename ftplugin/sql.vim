@@ -80,7 +80,7 @@ function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
 
     call sql#bufnr(bufnr())
     if empty(sql#connection#get())
-        call sql#showCatalog()
+        call sql#catalog#show()
         echo 'Choose a connection from the catalog.'
         return
     endif

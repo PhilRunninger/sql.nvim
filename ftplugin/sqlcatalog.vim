@@ -2,8 +2,8 @@
 "
 " Key mappings and settings for the SQLCatalog buffer. {{{1
 
-nnoremap <silent> <buffer> <Esc> :call sql#closeCatalog(0)<CR>
-nnoremap <silent> <buffer> q :call sql#closeCatalog(0)<CR>
+nnoremap <silent> <buffer> <Esc> :call sql#catalog#close(0)<CR>
+nnoremap <silent> <buffer> q :call sql#catalog#close(0)<CR>
 nnoremap <silent> <buffer> h :call <SID>Collapse()<CR>
 nnoremap <silent> <buffer> l :call <SID>ExpandOrOpenMenu()<CR>
 nnoremap <silent> <buffer> <Enter> :call <SID>SetConnection()<CR>
@@ -93,7 +93,7 @@ endfunction
 
 function! s:GetDBInfoCallback(line, prefix, job_id, data, event) " {{{1
     stopinsert
-    call sql#showCatalog()
+    call sql#catalog#show()
 
     let data = filter(copy(a:data), {_,v -> !empty(v)})
     if empty(data) | return | endif
