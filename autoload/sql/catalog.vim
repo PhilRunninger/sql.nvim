@@ -36,3 +36,7 @@ function! sql#catalog#close(wipeout) abort " {{{1
         execute winnr.'wincmd c'
     endif
 endfunction
+
+function! sql#catalog#getLines() abort " {{{1
+    return getbufline(s:bufferName, 1, '$')
+endfunction

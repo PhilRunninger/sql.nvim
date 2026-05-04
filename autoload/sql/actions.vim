@@ -18,7 +18,7 @@ function! sql#actions#openWindow(platform, server, database, type, object)   " {
         \ 'width': max(map(copy(actions), {_,v -> len(v)})),
         \ 'noautocmd': 1,
         \ 'style': 'minimal',
-        \ 'border': 'double',
+        \ 'border': 'rounded',
         \ 'title': 'Actions'
     \ }
     let s:actionsWindow = nvim_open_win(nvim_create_buf(0,1),1,config)

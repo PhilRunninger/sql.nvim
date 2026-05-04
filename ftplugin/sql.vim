@@ -13,9 +13,8 @@ call nvim_buf_set_keymap(0, 'n', '<M-S-F5>', ':call <SID>PrepAndRunQuery("paragr
 call nvim_buf_set_keymap(0, 'n', '<M-C-F5>', ':call <SID>PrepAndRunQuery("block", 1)<CR>',                 {'silent':1})
 call nvim_buf_set_keymap(0, 'v', '<M-F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection", 1)<CR>',        {'silent':1})
 
-call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call sql#search#start(expand("<cword>"))<CR>',              {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<C-F3>',   ':call sql#search#start("")<CR>',                             {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#showCatalog()<CR>',    {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call sql#search#openWindow()<CR>', {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#catalog#show()<CR>',    {'silent':1})
 
 setlocal statusline=%{%sql#statusline()%}
 
