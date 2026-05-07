@@ -79,7 +79,7 @@ function! sql#search#openWindow()   " {{{1
         \ 'anchor': 'NW',
         \ 'row': 0,
         \ 'col': 0,
-        \ 'height': max([1, len(keys(s:patterns)) + len(buffers)]),
+        \ 'height': 1 + len(keys(s:patterns)) + len(buffers),
         \ 'width': max( [50] + map(keys(s:patterns) + buffers, {_,v -> len(v)}) ),
         \ 'noautocmd': 1,
         \ 'style': 'minimal',
@@ -93,7 +93,7 @@ function! sql#search#openWindow()   " {{{1
     augroup END
 
     setlocal modifiable filetype=sqlsearch
-    call nvim_buf_set_lines(0, 0, line('$'), 1, sort(keys(s:patterns)) + sort(buffers))
+    call nvim_buf_set_lines(0, 0, line('$'), 1, sort(keys(s:patterns)) + ['Custom: Select to enter your own pattern.'] + sort(buffers))
     nohlsearch
     setlocal nomodifiable
 endfunction
@@ -115,15 +115,16 @@ function! sql#search#run(target) " {{{1
     if a:target =~ '^Buffer: '
         call sql#showSQL()
         execute 'buffer ' . a:target[8:-1]
-        return
-    endif
-
-    if &filetype == 'sql'
+    elseif a:target =~ '^Custom: '
+        let @/ = input('Enter a search pattern for the catalog: ')
+        call sql#catalog#show()
+        normal! nzvzz
+    elseif &filetype == 'sql'
         " Set up the return-to SQL buffer.
         call sql#bufnr(bufnr())
-    endif
-    call sql#catalog#show()
 
-    let @/ = s:patterns[a:target]
-    normal! nzvzz
+        let @/ = s:patterns[a:target]
+        call sql#catalog#show()
+        normal! nzvzz
+    endif
 endfunction
