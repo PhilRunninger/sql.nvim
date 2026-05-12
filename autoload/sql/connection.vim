@@ -8,9 +8,9 @@ function! sql#connection#set(platform, server, database) " {{{1
     redrawstatus!
 endfunction
 
-function! sql#connection#get() " {{{1
+function! sql#connection#get(bufnr = 0) " {{{1
     try
-        let bufnr = sql#bufnr()
+        let bufnr = a:bufnr == 0 ? sql#bufnr() : a:bufnr
         return [
             \ nvim_buf_get_var(bufnr, 'platform'),
             \ nvim_buf_get_var(bufnr, 'server'),
