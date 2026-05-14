@@ -54,7 +54,7 @@ function! s:RunActionCallback(newBuffer, action, job_id, data, event)
         setlocal bufhidden=hide buftype=nofile noswapfile
         let saveBufnr = sql#bufnr()
         let bufnr = sql#bufnr(bufnr())
-        call sql#state#setConnection(bufnr, s:platform, s:server, s:database)
+        call sql#state#setConnection(bufnr, [s:platform, s:server, s:database])
         call nvim_buf_set_lines(bufnr, 0, line('$'), 1, data)
         call sql#bufnr(saveBufnr)
     else

@@ -35,12 +35,12 @@ function! sql#state#read() abort   "{{{1
         " Version 3:
         "   {
         "       "version":3,
-        "       "connections":{file1:{"plt":platform, "srv":server, "db":database, "date":date},...},
-        "       "marks":{mark1:{"plt":platform, "srv":server, "db":database},...}
+        "       "connections":{file1:{"db":[platform, :server, database], "date":date},...},
+        "       "marks":{mark1:{"db":[platform, :server, database]},...}
         "   }
         let temp = {}
         for conn in s:state
-            let temp[conn.file] = {'plt': conn.plt, 'srv': conn.srv, 'db': conn.db, 'date': conn.date}
+            let temp[conn.file] = {'db': [conn.plt, conn.srv, conn.db], 'date': conn.date}
         endfor
         let s:state = { 'version': 3, 'connections': temp, 'marks': {} }
     endif
@@ -52,26 +52,28 @@ function! sql#state#getConnection(bufnr) abort   " {{{1
     let filename = fnamemodify(bufname(str2nr(a:bufnr)), ':p')
 
     if has_key(s:state.connections, filename)
-        return [s:state.connections[filename].plt, s:state.connections[filename].srv, s:state.connections[filename].db]
+        return s:state.connections[filename].db
     endif
 
     return []
 endfunction
 
-function! sql#state#writeNoFile(abuf, afile) abort   " {{{1
-    " Using <abuf> and <afile> here handles the case of writing a `nofile`
-    " buffer to a new filename. <abuf> refers to the original buffer, and
-    " <afile> is the new name.
+function! sql#state#saveAs(abuf, afile) abort   " {{{1
+    " This function is specifically designed to handle saving a
+    " &buftype=nofile buffer when using the `:w filename` command. That's the
+    " only way to save such a buffer. It just so happens to work when saving
+    " normal SQL buffers too. <abuf> refers to the original buffer, and
+    " <afile> is the new filename.
     let filename = fnamemodify(a:afile, ':p')
     let conn = sql#state#getConnection(a:abuf)
     if !empty(conn)
-        let s:state.connections[filename] = {'plt': conn[0], 'srv': conn[1], 'db': conn[2], 'date':strftime('%Y-%m-%dT%H:%M:%S')}
+        let s:state.connections[filename] = {'db': conn, 'date':strftime('%Y-%m-%dT%H:%M:%S')}
     endif
 endfunction
 
-function! sql#state#setConnection(bufnr, platform, server, database) abort   " {{{1
+function! sql#state#setConnection(bufnr, db) abort   " {{{1
     let filename = fnamemodify(bufname(str2nr(a:bufnr)), ':p')
-    let s:state.connections[filename] = {'plt': a:platform, 'srv': a:server, 'db': a:database, 'date':strftime('%Y-%m-%dT%H:%M:%S')}
+    let s:state.connections[filename] = {'db': a:db, 'date':strftime('%Y-%m-%dT%H:%M:%S')}
 endfunction
 
 function! sql#state#write() abort   " {{{1
