@@ -1,6 +1,14 @@
 "  vim: foldmethod=marker
 
 call sql#settings#init(expand('<sfile>:p:h:h'))
+call sql#state#read()
+
+augroup sqlNvim
+    autocmd!
+    autocmd VimLeavePre * call sql#state#write()
+    autocmd VimLeave * if v:dying | echo "\nAAAAaaaarrrggghhhh!!!\n" | echo confirm('done') | endif
+    autocmd BufWritePost *.sql call sql#state#writeNoFile(expand('<abuf>'), expand('<afile>'))
+augroup END
 
 command! -nargs=1 -complete=customlist,<SID>SQLSubCommands SQL call <SID>Sql('<args>')
 

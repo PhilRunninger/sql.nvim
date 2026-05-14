@@ -106,7 +106,7 @@ function! s:MiniAlign() " {{{1
 endfunction
 
 function! s:EasyAlign() " {{{1
-    let timeLimit = sql#settings#alignLimit(sql#connection#get()[0])
+    let timeLimit = sql#settings#alignLimit(sql#state#getConnection(sql#bufnr())[0])
     if timeLimit > 0
         normal! G
         while search(s:dividingLine(),'bW') > 0

@@ -139,7 +139,7 @@ function! s:SetConnection() " {{{1
     endif
 
     let current = s:ObjectUnderCursor()
-    call sql#connection#set(current.platform.text, current.server.text, current.database.text)
+    call sql#state#setConnection(sql#bufnr(), current.platform.text, current.server.text, current.database.text)
 endfunction
 
 function! s:ObjectUnderCursor() " {{{1

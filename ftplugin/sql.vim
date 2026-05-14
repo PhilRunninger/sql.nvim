@@ -18,12 +18,7 @@ call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call 
 
 setlocal statusline=%{%sql#statusline()%}
 
-call sql#state#getConnection()
-
-augroup sqlNvim
-    autocmd!
-    autocmd BufWrite,BufUnload *.sql call sql#state#saveConnections(expand('<abuf>'))
-augroup END
+call sql#state#getConnection(bufnr())
 
 function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
     if sql#query#isRunning()
@@ -31,7 +26,8 @@ function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
     endif
 
     call sql#bufnr(bufnr())
-    if empty(sql#connection#get())
+    let connection = sql#state#getConnection(bufnr())
+    if empty(connection)
         call sql#catalog#show()
         echo 'Choose a connection from the catalog.'
         return
@@ -40,7 +36,7 @@ function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
         return
     endif
 
-    let delimiter = sql#settings#delimiter(sql#connection#get()[0])
+    let delimiter = sql#settings#delimiter(connection[0])
     if a:delimiterOverride
         let override = input('Enter a custom delimiter for this execution, default: ' . delimiter . '   ')
         if !empty(override)
@@ -56,7 +52,7 @@ function! RunQuery(delimiter) " {{{1
 
     call nvim_buf_set_var(sqlOutBufNr, 'csv_delimiter', a:delimiter)
     call nvim_buf_set_var(sqlOutBufNr, 'delimiter', a:delimiter)
-    let [platform, server, database] = sql#connection#get()
+    let [platform, server, database] = sql#state#getConnection(bufnr())
 
     try
         let id = sql#query#run(function('s:RunQueryCallback', [timer]), a:delimiter, platform, server, database)

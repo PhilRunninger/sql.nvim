@@ -45,11 +45,12 @@ function! sql#showSQL() " {{{1
     endif
 endfunction
 
+
 function! sql#statusline() abort " {{{1
-    if empty(sql#connection#get())
+    if empty(sql#state#getConnection(bufnr()))
         return '%l/%L %c%=%f%=%#ErrorMsg# Not connected '
     else
-        return '%l/%L %c%=%f%=%{join(sql#connection#get()[1:2],".")} '
+        return '%l/%L %c%=%f%=%{join(sql#state#getConnection(bufnr())[1:2],".")} '
     endif
 endfunction
 
