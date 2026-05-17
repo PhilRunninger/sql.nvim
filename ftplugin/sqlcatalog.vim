@@ -12,6 +12,8 @@ nnoremap <silent> <buffer> <F8> :call sql#showSQL()<CR>
 nnoremap <silent> <buffer> J ]z
 nnoremap <silent> <buffer> K [z
 nnoremap <silent> <buffer> <F3> :call sql#search#openWindow()<CR>
+nnoremap <silent> <buffer> m :call <SID>SetMark()<CR>
+nnoremap <silent> <buffer> dm :call <SID>DeleteMark()<CR>
 
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile
@@ -101,35 +103,71 @@ function! s:GetDBInfoCallback(line, prefix, job_id, data, event) " {{{1
     call nvim_buf_set_lines(0,a:line,a:line,0,map(data, {_,v -> a:prefix.substitute(v, nr2char(13).'$','','')}))
     setlocal nomodifiable
 
-    call s:SetMarks()
+    call s:InitializeMarks()
 
     call cursor(a:line,1)
     normal! zmzv0
 endfunction
 
-function! s:SetMarks()   " {{{1
-    let userSettings = sql#settings#user()
-    for platform in keys(userSettings)
-        for server in keys(userSettings[platform].servers)
-            let marks = sql#settings#marks(platform, server)
-            for mark in keys(marks)
-                normal! gg
-                while search('^  \S ' . marks[mark], 'W') > 0
-                    let current = s:ObjectUnderCursor()
-                    if current.platform.text != platform | continue | endif
-                    if current.server.text != server | continue | endif
+function! s:DeleteMark()   " {{{1
+    let mark = nr2char(getchar())
+    if !has_key(sql#state#getMarks(), mark)
+        echo 'No such mark.'
+        return
+    endif
 
-                    call nvim_buf_del_mark(0, mark)
-                    call nvim_buf_set_mark(0, mark, line('.'), 1, {})
+    call nvim_buf_del_mark(0, mark)
 
-                    let ns = nvim_create_namespace('sqlCatalogMarks')
-                    let id = char2nr(mark)
-                    call nvim_buf_del_extmark(0, ns, id)
-                    call nvim_buf_set_extmark(0, ns, line('.')-1,0, {'id':id, 'virt_text':[[mark,'SqlCatalogMark']], 'virt_text_pos':'overlay'})
-                endwhile
-            endfor
-        endfor
+    let ns = nvim_create_namespace('sqlCatalogMarks')
+    let id = char2nr(mark)
+    call nvim_buf_del_extmark(0, ns, id)
+
+    call sql#state#deleteMark(mark)
+endfunction
+
+function! s:SetMark()    " {{{1
+    let mark = nr2char(getchar())
+    if mark !~? '^[a-z]$'
+        echo 'Mark name must be a single letter (a-z).'
+        return
+    endif
+
+    if getline('.') !~ '^  [' . g:sql#explored . g:sql#unexplored . ' ] '
+        echo 'Your cursor must be within a database to set a mark.'
+        return
+    endif
+
+    let current = s:ObjectUnderCursor()
+    call cursor(current.database.line, 1)
+
+    call s:createMark(mark, line('.'))
+    call sql#state#saveMark(mark, [current.platform.text, current.server.text, current.database.text])
+endfunction
+
+function! s:InitializeMarks()   " {{{1
+    let marks = sql#state#getMarks()
+    for mark in keys(marks)
+        let [platform, server, database] = marks[mark]
+        normal! gg
+        while search('^  \S ' . database, 'W') > 0
+            let current = s:ObjectUnderCursor()
+            if current.platform.text != platform | continue | endif
+            if current.server.text != server | continue | endif
+
+            call s:createMark(mark, line('.'))
+            break
+        endwhile
     endfor
+endfunction
+
+function! s:createMark(mark, line)
+    call nvim_buf_del_mark(0, a:mark)
+    call nvim_buf_set_mark(0, a:mark, a:line, 1, {})
+
+    let ns = nvim_create_namespace('sqlCatalogMarks')
+    let id = char2nr(a:mark)
+    call nvim_buf_del_extmark(0, ns, id)
+    call nvim_buf_set_extmark(0, ns, a:line-1,0, {'id':id, 'virt_text':[[a:mark,'SqlCatalogMark']], 'virt_text_pos':'overlay'})
 endfunction
 
 function! s:SetConnection() " {{{1

@@ -36,7 +36,7 @@ function! sql#state#read() abort   "{{{1
         "   {
         "       "version":3,
         "       "connections":{file1:{"db":[platform, :server, database], "date":date},...},
-        "       "marks":{mark1:{"db":[platform, :server, database]},...}
+        "       "marks":{mark1:[platform, :server, database],...}
         "   }
         let temp = {}
         for conn in s:state
@@ -74,6 +74,20 @@ endfunction
 function! sql#state#setConnection(bufnr, db) abort   " {{{1
     let filename = fnamemodify(bufname(str2nr(a:bufnr)), ':p')
     let s:state.connections[filename] = {'db': a:db, 'date':strftime('%Y-%m-%dT%H:%M:%S')}
+endfunction
+
+function! sql#state#getMarks() abort   " {{{1
+    return s:state.marks
+endfunction
+
+function! sql#state#deleteMark(mark) abort   " {{{1
+    if has_key(s:state.marks, a:mark)
+        call remove(s:state.marks, a:mark)
+    endif
+endfunction
+
+function! sql#state#saveMark(mark, db) abort   " {{{1
+    let s:state.marks[a:mark] = a:db
 endfunction
 
 function! sql#state#write() abort   " {{{1

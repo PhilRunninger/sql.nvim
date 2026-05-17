@@ -8,9 +8,6 @@
         "servers": {
             "HOSTNAME": {
                 "order":1,
-                "marks": {
-                    "a": "AdventureWorks2019"
-                },
                 "args": {
                     "-U": "user",
                     "-P": "password"
