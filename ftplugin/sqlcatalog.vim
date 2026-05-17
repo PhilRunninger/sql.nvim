@@ -178,6 +178,7 @@ function! s:SetConnection() " {{{1
 
     let current = s:ObjectUnderCursor()
     call sql#state#setConnection(sql#bufnr(), [current.platform.text, current.server.text, current.database.text])
+    redrawstatus!
 endfunction
 
 function! s:ObjectUnderCursor() " {{{1
