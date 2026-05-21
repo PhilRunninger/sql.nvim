@@ -2,18 +2,18 @@
 "
 " Key mappings and settings for the SQLCatalog buffer. {{{1
 
-nnoremap <silent> <buffer> <Esc> :call sql#catalog#close(0)<CR>
-nnoremap <silent> <buffer> q :call sql#catalog#close(0)<CR>
-nnoremap <silent> <buffer> h :call <SID>Collapse()<CR>
-nnoremap <silent> <buffer> l :call <SID>ExpandOrOpenMenu()<CR>
-nnoremap <silent> <buffer> <Enter> :call <SID>SetConnection()<CR>
-nnoremap <silent> <buffer> <F5> :call <SID>Refresh()<CR>
-nnoremap <silent> <buffer> <F8> :call sql#showSQL()<CR>
-nnoremap <silent> <buffer> J ]z
-nnoremap <silent> <buffer> K [z
-nnoremap <silent> <buffer> <F3> :call sql#search#openWindow()<CR>
-nnoremap <silent> <buffer> m :call <SID>SetMark()<CR>
-nnoremap <silent> <buffer> dm :call <SID>DeleteMark()<CR>
+call nvim_buf_set_keymap(0,'n', '<Esc>',':call sql#catalog#close(0)<CR>',   {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', 'q',':call sql#catalog#close(0)<CR>',       {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', 'h',':call <SID>Collapse()<CR>',            {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', 'l',':call <SID>ExpandOrOpenMenu()<CR>',    {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', '<Enter>',':call <SID>SetConnection()<CR>', {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', '<F5>',':call <SID>Refresh()<CR>',          {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', '<F8>',':call sql#showSQL()<CR>',           {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', 'J',']z',                                   {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', 'K','[z',                                   {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', '<F3>',':call sql#search#openWindow()<CR>', {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', 'm',':call <SID>SetMark()<CR>',             {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0,'n', 'dm',':call <SID>DeleteMark()<CR>',         {'noremap':1, 'silent':1})
 
 setlocal nomodifiable
 setlocal bufhidden=hide buftype=nofile noswapfile

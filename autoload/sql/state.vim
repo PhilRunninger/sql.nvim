@@ -35,8 +35,8 @@ function! sql#state#read() abort   "{{{1
         " Version 3:
         "   {
         "       "version":3,
-        "       "connections":{file1:{"db":[platform, :server, database], "date":date},...},
-        "       "marks":{mark1:[platform, :server, database],...}
+        "       "connections":{file1:{"db":[platform, server, database], "date":date},...},
+        "       "marks":{mark1:[platform, server, database],...}
         "   }
         let temp = {}
         for conn in s:state

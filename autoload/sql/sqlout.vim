@@ -14,9 +14,9 @@ function! sql#sqlout#open(enter) " {{{1
         call nvim_set_option_value('filetype', 'csv',    {'buf':bufnr})
         call nvim_set_option_value('swapfile', v:false,  {'buf':bufnr})
 
-        call nvim_buf_set_keymap(bufnr, 'n', '<F3>', ':call sql#search#openWindow()<CR>', {'silent':1})
-        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call RunQuery(b:delimiter)<CR>', {'noremap':1, 'silent':1})
-        call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>', {'noremap':1, 'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F3>', ':call sql#search#openWindow()<CR>', {'noremap':1, 'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F5>', ':call RunQuery(b:delimiter)<CR>',   {'noremap':1, 'silent':1})
+        call nvim_buf_set_keymap(bufnr, 'n', '<F8>', ':call sql#showSQL()<CR>',           {'noremap':1, 'silent':1})
     endif
 
     let winnr = bufwinnr(s:bufferName)

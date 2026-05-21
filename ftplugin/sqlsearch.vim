@@ -1,7 +1,7 @@
 "  vim: foldmethod=marker
 
-nnoremap <silent> <buffer> <Esc> :call sql#search#closeWindow()<CR>
-nnoremap <silent> <buffer> q :call sql#search#closeWindow()<CR>
-nnoremap <silent> <buffer> h :call sql#search#closeWindow()<CR>
-nnoremap <silent> <buffer> l :call sql#search#run(getline('.'))<CR>
-nnoremap <silent> <buffer> <Enter> :call sql#search#run(getline('.'))<CR>
+call nvim_buf_set_keymap(0, 'n', '<Esc>',   ':call sql#search#closeWindow()<CR>',     {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', 'q',       ':call sql#search#closeWindow()<CR>',     {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', 'h',       ':call sql#search#closeWindow()<CR>',     {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', 'l',       ':call sql#search#run(getline("."))<CR>', {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<Enter>', ':call sql#search#run(getline("."))<CR>', {'noremap':1, 'silent':1})

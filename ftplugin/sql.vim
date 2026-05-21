@@ -2,19 +2,19 @@
 
 " Buffer-level key mappings, commands, and settings. {{{1
 " Run script/paragraph/selection.
-call nvim_buf_set_keymap(0, 'n', '<F5>',     ':call <SID>PrepAndRunQuery("file", 0)<CR>',                  {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<S-F5>',   ':call <SID>PrepAndRunQuery("paragraph", 0)<CR>',             {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<C-F5>',   ':call <SID>PrepAndRunQuery("block", 0)<CR>',                 {'silent':1})
-call nvim_buf_set_keymap(0, 'v', '<F5>',     ':<C-U>call <SID>PrepAndRunQuery("selection", 0)<CR>',        {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F5>',     ':call <SID>PrepAndRunQuery("file", 0)<CR>',                {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<S-F5>',   ':call <SID>PrepAndRunQuery("paragraph", 0)<CR>',           {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<C-F5>',   ':call <SID>PrepAndRunQuery("block", 0)<CR>',               {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'v', '<F5>',     ':<C-U>call <SID>PrepAndRunQuery("selection", 0)<CR>',      {'noremap':1, 'silent':1})
 
 " Run script/paragraph/selection with delimiter override.
-call nvim_buf_set_keymap(0, 'n', '<M-F5>',   ':call <SID>PrepAndRunQuery("file", 1)<CR>',                  {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<M-S-F5>', ':call <SID>PrepAndRunQuery("paragraph", 1)<CR>',             {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<M-C-F5>', ':call <SID>PrepAndRunQuery("block", 1)<CR>',                 {'silent':1})
-call nvim_buf_set_keymap(0, 'v', '<M-F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection", 1)<CR>',        {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<M-F5>',   ':call <SID>PrepAndRunQuery("file", 1)<CR>',                {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<M-S-F5>', ':call <SID>PrepAndRunQuery("paragraph", 1)<CR>',           {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<M-C-F5>', ':call <SID>PrepAndRunQuery("block", 1)<CR>',               {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'v', '<M-F5>',   ':<C-U>call <SID>PrepAndRunQuery("selection", 1)<CR>',      {'noremap':1, 'silent':1})
 
-call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call sql#search#openWindow()<CR>', {'silent':1})
-call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#catalog#show()<CR>',    {'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F3>',     ':call sql#search#openWindow()<CR>',                        {'noremap':1, 'silent':1})
+call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call sql#catalog#show()<CR>', {'noremap':1, 'silent':1})
 
 setlocal statusline=%{%sql#statusline()%}
 
@@ -59,17 +59,17 @@ function! RunQuery(delimiter) " {{{1
         call s:MapCancelKey(id)
     catch
         call timer_stop(timer)
-        echoerr "Your query couldn't be run. Check this file's connection string in line 1 for errors."
+        echoerr 'There was a problem running your query. Exception: ' . v:exception
     endtry
 endfunction
 
 function! s:MapCancelKey(id) " {{{1
-    execute 'nnoremap <silent> <buffer> <C-c> :call <SID>CancelQuery('.a:id.')<CR>'
+    call nvim_buf_set_keymap(0, 'n', '<C-c>', ':call <SID>CancelQuery('.a:id.')<CR>', {'noremap':1, 'silent':1})
 endfunction
 
 function! s:CancelQuery(id)
     call jobstop(a:id)
-    nunmap <buffer> <C-c>
+    call nvim_buf_del_keymap(0, 'n', '<C-c>')
 endfunction
 
 function! s:UpdateStatus(startTime, bufNr, timer) " {{{1

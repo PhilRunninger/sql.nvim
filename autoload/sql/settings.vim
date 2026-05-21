@@ -37,9 +37,8 @@ function! s:ValidateUserConfig() " {{{1
 
         for s in keys(userSettings[p].servers)
             call s:isType(userSettings[p].servers, s, v:false, [v:t_dict], p . '.servers.%s must be an object')
-            call s:validKeys(userSettings[p].servers[s], ['order', 'marks', 'args'], 'Consider moving '.p.'.servers.'.s.'.%s to '.p.'.servers.'.s.'.args')
+            call s:validKeys(userSettings[p].servers[s], ['order', 'args'], 'Consider moving '.p.'.servers.'.s.'.%s to '.p.'.servers.'.s.'.args')
             call s:isType(userSettings[p].servers[s], 'order', v:false, [v:t_number], p . '.servers.'.s.'.%s must be an integer')
-            call s:isType(userSettings[p].servers[s], 'marks', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
             call s:isType(userSettings[p].servers[s], 'args', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
         endfor
     endfor
