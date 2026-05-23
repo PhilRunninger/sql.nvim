@@ -52,7 +52,7 @@ function! RunQuery(delimiter) " {{{1
 
     call nvim_buf_set_var(sqlOutBufNr, 'csv_delimiter', a:delimiter)
     call nvim_buf_set_var(sqlOutBufNr, 'delimiter', a:delimiter)
-    let [platform, server, database] = sql#state#getConnection(bufnr())
+    let [platform, server, database] = sql#state#getConnection(sql#bufnr())
 
     try
         let id = sql#query#run(function('s:RunQueryCallback', [timer]), a:delimiter, platform, server, database)
