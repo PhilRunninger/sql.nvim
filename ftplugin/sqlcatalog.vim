@@ -23,7 +23,7 @@ setlocal signcolumn=no
 setlocal foldopen-=search
 setlocal conceallevel=3 concealcursor=nvic
 setlocal fillchars=fold:\ ,eob:\  foldcolumn=0 foldmethod=expr foldexpr=SQLCatalogFoldLevel(v:lnum)
-setlocal foldtext=getline(v:foldstart)
+setlocal foldtext=""
 
 function! SQLCatalogFoldLevel(lnum) " {{{1
     let l:current_indent = 1 + len(matchstr(getline(a:lnum),'^ *')) / 2
