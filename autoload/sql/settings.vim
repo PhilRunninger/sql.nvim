@@ -2,6 +2,9 @@
 
 function! sql#settings#init(root) " {{{1
     let s:root = a:root
+    if has('win32') || has(win64)
+        let s:root = substitute(s:root, '/', '\', 'g')
+    endif
     let s:tempFile = tempname()
     let s:userConfigPath = stdpath('data') . '\sql.nvim\userconfig.json'
     call s:InitializeUserConfig()

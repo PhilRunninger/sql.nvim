@@ -31,8 +31,8 @@ endfunction
 function! s:commandLine(delimiter, platform, server, database, type, action, actionValues) abort " {{{1
     let actionValues = {
         \ 'file':      escape(empty(a:action) ?
-            \ sql#settings#tempFile() :
-            \ printf('%s\%s\%s', sql#settings#root(), a:platform, sql#settings#app()[a:platform].actions[a:type][a:action].file), '\'),
+            \ printf('"%s"', sql#settings#tempFile()) :
+            \ printf('"%s\%s\%s"', sql#settings#root(), a:platform, sql#settings#app()[a:platform].actions[a:type][a:action].file), '\'),
         \ 'server':    escape(a:server,'\'),
         \ 'database':  printf('"%s"', escape(a:database,'\')),
         \ 'delimiter': a:delimiter
