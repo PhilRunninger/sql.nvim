@@ -87,7 +87,7 @@ function! sql#search#openWindow()   " {{{1
         \ 'title': 'Schema.Object Search - Choose a pattern or buffer.'
     \ }
     let s:searchWindow = nvim_open_win(nvim_create_buf(0,1),1,config)
-    augroup SqlAuGroup
+    augroup SqlAuGroupSearch
         autocmd!
         autocmd BufLeave <buffer> call sql#search#closeWindow()
     augroup END

@@ -3,7 +3,7 @@
 call sql#settings#init(expand('<sfile>:p:h:h'))
 call sql#state#read()
 
-augroup sqlNvim
+augroup SqlAuGroup
     autocmd!
     autocmd VimLeavePre * call sql#state#write()
     autocmd BufWritePost *.sql call sql#state#saveAs(expand('<abuf>'), expand('<afile>'))
