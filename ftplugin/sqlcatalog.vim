@@ -50,6 +50,7 @@ endfunction
 function! s:ExpandOrOpenMenu() " {{{1
     if foldclosed('.') != -1
         normal! zo0
+        return
     endif
 
     let current = s:ObjectUnderCursor()
