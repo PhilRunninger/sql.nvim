@@ -9,11 +9,9 @@ function! s:bufMatches(bufnr)   " {{{1
         return 0
     endif
     for p in keys(s:patterns)
-        " if len(s:patterns[p]) == 2   " buffer must match 2-part names to reduce false positive hits
-            if bufname(a:bufnr) =~ printf('.*%s.*', s:patterns[p])
-                return 1
-            endif
-        " endif
+        if bufname(a:bufnr) =~ printf('.*%s.*', s:patterns[p])
+            return 1
+        endif
     endfor
     return 0
 endfunction
@@ -72,30 +70,72 @@ function! sql#search#openWindow()   " {{{1
     call s:createPatterns()
     call s:validatePatterns()
 
-    let buffers = map(filter(range(1,bufnr('$')),{_,v -> s:bufMatches(v)}), {_,v -> 'Buffer: '.bufname(v)})
+    let buffers = sort(map(filter(range(1,bufnr('$')),{_,v -> s:bufMatches(v)}), {_,v -> '    '.bufname(v)}))
+
+    let s:lines = flatten([
+        \ 'Patterns',
+        \ map(sort(keys(s:patterns)), {_,v -> '    ' . v}),
+        \ '    ',
+        \ 'Buffers',
+        \ buffers
+        \])
 
     let config = {
         \ 'relative': 'cursor',
         \ 'anchor': 'NW',
         \ 'row': 0,
         \ 'col': 0,
-        \ 'height': 1 + len(keys(s:patterns)) + len(buffers),
-        \ 'width': max( [50] + map(keys(s:patterns) + buffers, {_,v -> len(v)}) ),
+        \ 'height': len(s:lines),
+        \ 'width': max( [40] + map(copy(s:lines), {_,v -> len(v)}) ),
         \ 'noautocmd': 1,
-        \ 'style': 'minimal',
-        \ 'border': 'rounded',
-        \ 'title': 'Schema.Object Search - Choose a pattern or buffer.'
+        \ 'style': 'minimal'
     \ }
     let s:searchWindow = nvim_open_win(nvim_create_buf(0,1),1,config)
     augroup SqlAuGroupSearch
         autocmd!
         autocmd BufLeave <buffer> call sql#search#closeWindow()
+        autocmd CursorMoved <buffer> call sql#search#setEditability()
+        autocmd TextChanged,TextChangedI <buffer> call sql#search#checkLineCount()
     augroup END
 
-    setlocal modifiable filetype=sqlsearch
-    call nvim_buf_set_lines(0, 0, line('$'), 1, sort(keys(s:patterns)) + ['Custom: Select to enter your own pattern.'] + sort(buffers))
+    call nvim_buf_set_lines(0, 0, -1, 0, s:lines)
     nohlsearch
-    setlocal nomodifiable
+
+    let s:ns = nvim_create_namespace('my_annotations')
+    call nvim_buf_set_extmark(
+        \ 0,
+        \ s:ns,
+        \ len(keys(s:patterns)) + 1,
+        \ 0,
+        \ {
+        \   'virt_text': [[' ← ', 'Comment'],['o', 'Keyword'],[': other pattern', 'Comment']],
+        \   'virt_text_pos': 'eol'
+        \ })
+
+    setlocal nomodifiable filetype=sqlsearch
+endfunction
+
+function! sql#search#editCustomPattern()
+    call search('\nBuffers', 'cw')
+    setlocal modifiable
+    execute 'normal! S    '
+    startinsert!
+endfunction
+
+function! sql#search#setEditability()
+    if getline(line('.')+1) =~ '^Buffers'
+        setlocal modifiable
+    else
+        setlocal nomodifiable
+    endif
+endfunction
+
+function! sql#search#checkLineCount()
+    if line('$') != len(s:lines)
+        setlocal modifiable
+        call nvim_buf_set_lines(0, 0, -1, 0, s:lines)
+        setlocal nomodifiable
+    endif
 endfunction
 
 function! sql#search#closeWindow() " {{{1
@@ -106,24 +146,28 @@ function! sql#search#closeWindow() " {{{1
 endfunction
 
 function! sql#search#run(target) " {{{1
+    let text = trim(getline(a:target))
+
     call sql#search#closeWindow()
 
-    if empty(a:target)
+    if text =~ '^\(Patterns\|\|Buffers\)$'
         return
     endif
 
-    if a:target =~ '^Buffer: '
+    if a:target > len(keys(s:patterns)) + 3 " Matching buffer
         call sql#showSQL()
-        execute 'buffer ' . a:target[8:-1]
-    elseif a:target =~ '^Custom: '
-        let @/ = input('Enter a search pattern for the catalog: ')
+        execute 'buffer ' . escape(text, ' ')
+    elseif a:target == len(keys(s:patterns)) + 2 " User-entered pattern
+        let @/ = text
         call sql#catalog#show()
         normal! nzvzz
-    elseif &filetype == 'sql'
-        " Set up the return-to SQL buffer.
-        call sql#bufnr(bufnr())
+    else                        " Match in Catalog
+        if &filetype == 'sql'
+            " Set up the return-to SQL buffer.
+            call sql#bufnr(bufnr())
+        endif
 
-        let @/ = s:patterns[a:target]
+        let @/ = s:patterns[text]
         call sql#catalog#show()
         normal! nzvzz
     endif
