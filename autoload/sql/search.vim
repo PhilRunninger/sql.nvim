@@ -115,22 +115,28 @@ function! sql#search#openWindow()   " {{{1
     setlocal nomodifiable filetype=sqlsearch
 endfunction
 
-function! sql#search#editCustomPattern()
+function! sql#search#editCustomPattern() " {{{1
     call search('\nBuffers', 'cw')
     setlocal modifiable
     execute 'normal! S    '
     startinsert!
 endfunction
 
-function! sql#search#setEditability()
+function! sql#search#setEditability() " {{{1
     if getline(line('.')+1) =~ '^Buffers'
         setlocal modifiable
     else
         setlocal nomodifiable
     endif
+
+    if getline(line('.')) =~ '^\s\+'
+        setlocal cursorline
+    else
+        setlocal nocursorline
+    endif
 endfunction
 
-function! sql#search#checkLineCount()
+function! sql#search#checkLineCount() " {{{1
     if line('$') != len(s:lines)
         setlocal modifiable
         call nvim_buf_set_lines(0, 0, -1, 0, s:lines)
