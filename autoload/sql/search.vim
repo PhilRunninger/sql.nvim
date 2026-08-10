@@ -113,6 +113,7 @@ function! sql#search#openWindow()   " {{{1
         \ })
 
     setlocal nomodifiable filetype=sqlsearch
+    normal 2gg
 endfunction
 
 function! sql#search#editCustomPattern() " {{{1
