@@ -112,7 +112,8 @@ function! sql#search#openWindow()   " {{{1
         \   'virt_text_pos': 'eol'
         \ })
 
-    setlocal nomodifiable filetype=sqlsearch
+    let s:backspace = &backspace
+    setlocal nomodifiable filetype=sqlsearch backspace-=eol
     normal 2gg
 endfunction
 
@@ -150,6 +151,8 @@ function! sql#search#closeWindow() " {{{1
         call nvim_win_hide(s:searchWindow)
     endif
     unlet! s:searchWindow
+
+    let &backspace = s:backspace
 endfunction
 
 function! sql#search#run(target) " {{{1

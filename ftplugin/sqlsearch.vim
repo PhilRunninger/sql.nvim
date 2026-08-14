@@ -8,5 +8,3 @@ call nvim_buf_set_keymap(0, 'n', '<Enter>', ':call sql#search#run(line("."))<CR>
 call nvim_buf_set_keymap(0, 'n', 'o',       ':call sql#search#editCustomPattern()<CR>', {'noremap':1, 'silent':1})
 call nvim_buf_set_keymap(0, 'n', 'O',       ':call sql#search#editCustomPattern()<CR>', {'noremap':1, 'silent':1})
 call nvim_buf_set_keymap(0, 'i', '<CR>',    '<ESC>:<C-U>call sql#search#run(line("."))<CR>',      {'noremap':1, 'silent':1})
-
-setlocal backspace-=eol
