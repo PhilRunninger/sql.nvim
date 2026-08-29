@@ -12,12 +12,14 @@ augroup END
 command! -nargs=1 -complete=customlist,<SID>SQLSubCommands SQL call <SID>Sql('<args>')
 
 let s:subCommands = {
-    \ 'new':    function('sql#new'),
-    \ 'config': function('sql#settings#edit'),
-    \ 'md':     function('sql#sqlout#toMarkdown'),
+    \ 'new':          function('sql#new'),
+    \ 'config':       function('sql#settings#edit'),
+    \ 'fmt:markdown': function('sql#sqlout#convert', ['markdown']),
+    \ 'fmt:ascii':    function('sql#sqlout#convert', ['ascii']),
+    \ 'fmt:unicode':  function('sql#sqlout#convert', ['unicode']),
     \ }
 function! s:SQLSubCommands(A,L,P) abort
-    return filter(keys(s:subCommands), {_,v -> v =~ "^" . a:A})
+    return sort(filter(keys(s:subCommands), {_,v -> v =~ "^" . a:A}))
 endfunction
 
 function! s:Sql(cmd) abort

@@ -3,7 +3,7 @@
 let s:bufferName = '⟪SQLOut⟫'
 
 function! s:dividingLine() " {{{1
-    return '^-\+\(' . b:delimiter . '-\+\)*$'
+    return '^-\+\( *' . b:delimiter . '-\+\)*$'
 endfunction
 
 function! sql#sqlout#open(enter) " {{{1
@@ -31,7 +31,7 @@ function! sql#sqlout#open(enter) " {{{1
     return bufnr
 endfunction
 
-function! sql#sqlout#toMarkdown()
+function! sql#sqlout#convert(format) " {{{1
     if bufname(bufnr()) !=# s:bufferName
         echohl WarningMsg
         echo 'This command must be run in the ' . s:bufferName . ' buffer.'
@@ -39,8 +39,20 @@ function! sql#sqlout#toMarkdown()
         return
     endif
 
-    silent execute 'keeppatterns g/' . s:dividingLine() . '/s/-\+/---/g'
-    silent execute 'keeppatterns %s/ *' . b:delimiter . ' */|/g'
+    if a:format == 'markdown'
+        silent execute 'keeppatterns g/' . s:dividingLine() . '/s/-\+/---/ge'
+        silent execute 'keeppatterns %s/ *' . b:delimiter . ' */|/ge'
+    elseif a:format == 'ascii'
+        silent execute 'keeppatterns g/' . s:dividingLine() . '/s/[- ]/=/ge'
+        silent execute 'keeppatterns %s/' . b:delimiter . '/ | /ge'
+        silent execute 'keeppatterns %s/= | =/==:==/ge'
+        silent execute 'keeppatterns %s/\s\+$//e'
+    elseif a:format == 'unicode'
+        silent execute 'keeppatterns g/' . s:dividingLine() . '/s/[- ]/═/ge'
+        silent execute 'keeppatterns %s/' . b:delimiter . '/ │ /ge'
+        silent execute 'keeppatterns %s/═ │ ═/══╪══/ge'
+        silent execute 'keeppatterns %s/\s\+$//e'
+    endif
 endfunction
 
 function! sql#sqlout#format() " {{{1
