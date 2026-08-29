@@ -2,7 +2,6 @@
 "
 " Key mappings and settings for the SQLCatalog buffer. {{{1
 
-call nvim_buf_set_keymap(0,'n', '<Esc>',':call sql#catalog#close(0)<CR>',   {'noremap':1, 'silent':1})
 call nvim_buf_set_keymap(0,'n', 'q',':call sql#catalog#close(0)<CR>',       {'noremap':1, 'silent':1})
 call nvim_buf_set_keymap(0,'n', 'h',':call <SID>Collapse()<CR>',            {'noremap':1, 'silent':1})
 call nvim_buf_set_keymap(0,'n', 'l',':call <SID>ExpandOrOpenMenu()<CR>',    {'noremap':1, 'silent':1})
