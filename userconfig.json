@@ -1,0 +1,19 @@
+{
+    "REMOVE_ME": "This property causes `:SQL config` to run. Delete it to complete your config.",
+
+    "_comment_": "See https://github.com/PhilRunninger/sql.nvim#user-configuration for instructions.",
+    "sqlserver": {
+        "delimiter": "\t",
+        "alignLimit": 5,
+        "servers": {
+            "HOSTNAME": {
+                "order":1,
+                "args": {
+                    "-U": "user",
+                    "-P": "password"
+                }
+            }
+        }
+    },
+    "postgres": { "servers": { "IPADDRESS": { } } }
+}

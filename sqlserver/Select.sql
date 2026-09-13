@@ -1,16 +1,21 @@
 SET NOCOUNT ON
 
-SELECT
-    'SELECT TOP 100'
+SELECT 'USE ' + QUOTENAME(DB_NAME())
+UNION ALL
+SELECT 'GO'
+UNION ALL
+SELECT 'SELECT TOP 100'
 UNION ALL
 SELECT
-    '    ' + CASE
+    '    ' +
+    CASE  /* comma between columns */
+        WHEN c.column_id > 1 THEN ','
+        ELSE ''
+    END +
+    CASE  /* column name */
         WHEN c.name LIKE '%.%' THEN QUOTENAME(c.name)
         WHEN c.name LIKE '% %' THEN QUOTENAME(c.name)
         ELSE c.name
-    END + CASE
-        WHEN c.column_id = MAX(c.column_id) OVER () THEN ''
-        ELSE ','
     END
 FROM
     sys.schemas s
@@ -20,11 +25,13 @@ WHERE
     o.object_id = OBJECT_ID('$(object)')
 UNION ALL
 SELECT
-    'FROM ' + CASE
+    'FROM ' + QUOTENAME(DB_NAME()) + '.' +  /* database */
+    CASE /* schema name */
         WHEN s.name LIKE '%.%' THEN QUOTENAME(s.name)
         WHEN s.name LIKE '% %' THEN QUOTENAME(s.name)
         ELSE s.name
-    END + '.' + CASE
+    END + '.' + /* object name */
+    CASE
         WHEN o.name LIKE '%.%' THEN QUOTENAME(o.name)
         WHEN o.name LIKE '% %' THEN QUOTENAME(o.name)
         ELSE o.name
