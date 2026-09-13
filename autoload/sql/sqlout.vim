@@ -21,7 +21,7 @@ function! sql#sqlout#open(enter) " {{{1
 
     let winnr = bufwinnr(s:bufferName)
     if winnr == -1
-        let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'split':'below'})
+        let handle = nvim_open_win(bufnr, a:enter, {'noautocmd':1, 'vertical':0})
         call nvim_set_option_value('wrap',        v:false, {'win':handle})
         call nvim_set_option_value('winfixbuf',   v:true,  {'win':handle})
         call nvim_set_option_value('virtualedit', 'all',   {'win':handle})

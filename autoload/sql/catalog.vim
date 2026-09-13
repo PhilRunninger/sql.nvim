@@ -12,7 +12,7 @@ function! sql#catalog#show() abort " {{{1
         endif
         let winnr = bufwinnr(bufnr)
         if winnr == -1
-            call nvim_open_win(bufnr,1,{'width':40, 'noautocmd':1, 'style':'minimal', 'split':'right', 'win':-1})
+            call nvim_open_win(bufnr,1,{'width':40, 'noautocmd':1, 'style':'minimal', 'vertical':1, 'win':-1})
             call nvim_set_option_value('filetype', 'sqlcatalog',    {'buf':bufnr})
         else
             execute winnr . 'wincmd w'
