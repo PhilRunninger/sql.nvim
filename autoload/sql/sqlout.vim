@@ -34,7 +34,7 @@ endfunction
 function! sql#sqlout#convert(format) " {{{1
     if bufname(bufnr()) !=# s:bufferName
         echohl WarningMsg
-        echo 'This command must be run in the ' . s:bufferName . ' buffer.'
+        echo 'SQL.nvim: This command must be run in the ' . s:bufferName . ' buffer.'
         echohl None
         return
     endif

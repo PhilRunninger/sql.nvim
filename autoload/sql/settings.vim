@@ -124,7 +124,7 @@ function! sql#settings#user() abort " {{{1
     catch
         call sql#settings#edit()
         echohl WarningMsg
-        echomsg 'Error in sql.nvim user config: '.v:exception
+        echomsg 'SQL.nvim: Error in user config: '.v:exception
         echohl None
         return {}
     endtry

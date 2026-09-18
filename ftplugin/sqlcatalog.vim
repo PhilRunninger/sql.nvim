@@ -112,7 +112,7 @@ endfunction
 function! s:DeleteMark()   " {{{1
     let mark = nr2char(getchar())
     if !has_key(sql#state#getMarks(), mark)
-        echo 'No such mark.'
+        echo 'SQL.nvim: No such mark.'
         return
     endif
 
@@ -128,12 +128,12 @@ endfunction
 function! s:SetMark()    " {{{1
     let mark = nr2char(getchar())
     if mark !~? '^[a-z]$'
-        echo 'Mark name must be a single letter (a-z).'
+        echo 'SQL.nvim: Mark name must be a single letter (a-z).'
         return
     endif
 
     if getline('.') !~ '^  [' . g:sql#explored . g:sql#unexplored . ' ] '
-        echo 'Your cursor must be within a database to set a mark.'
+        echo 'SQL.nvim: Your cursor must be within a database to set a mark.'
         return
     endif
 
@@ -172,7 +172,7 @@ endfunction
 
 function! s:SetConnection() " {{{1
     if getline('.') !~ '^  '
-        echo 'Your cursor must be within a database to choose a connection.'
+        echo 'SQL.nvim: Your cursor must be within a database to choose a connection.'
         return
     endif
 

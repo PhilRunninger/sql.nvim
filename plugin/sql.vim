@@ -27,7 +27,7 @@ function! s:Sql(cmd) abort
         call s:subCommands[a:cmd]()
     else
         echohl ErrorMsg
-        echo 'Unknown command: ' . a:cmd
+        echo 'SQL.nvim: Unknown command: ' . a:cmd
         echohl None
     endif
 endfunction

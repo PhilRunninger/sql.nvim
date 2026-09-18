@@ -29,7 +29,7 @@ function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
     let connection = sql#state#getConnection(bufnr())
     if empty(connection)
         call sql#catalog#show()
-        echo 'Choose a connection from the catalog.'
+        echo 'SQL.nvim: Choose a connection from the catalog.'
         return
     endif
     if !s:WriteTempFile(a:queryType)
@@ -59,7 +59,7 @@ function! RunQuery(delimiter) " {{{1
         call s:MapCancelKey(id)
     catch
         call timer_stop(timer)
-        echoerr 'There was a problem running your query. Exception: ' . v:exception
+        echoerr 'SQL.nvim: There was a problem running your query. Exception: ' . v:exception
     endtry
 endfunction
 
@@ -87,7 +87,7 @@ function! s:WriteTempFile(queryType) " {{{1
     elseif a:queryType == 'block'
         let block = s:FindBeginEndBlock()
         if empty(block)
-            echo 'Cursor is not inside a BEGIN...END block.'
+            echo 'SQL.nvim: Cursor is not inside a BEGIN...END block.'
             return 0
         endif
         call writefile(getline(block[0], block[1]), sql#settings#tempFile())
