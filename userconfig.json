@@ -8,6 +8,7 @@
         "servers": {
             "HOSTNAME": {
                 "order":1,
+                "highlight": {"bg": "#800000", "fg": "#ffffff"},
                 "args": {
                     "-U": "user",
                     "-P": "password"

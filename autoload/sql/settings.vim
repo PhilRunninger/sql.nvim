@@ -40,9 +40,16 @@ function! s:ValidateUserConfig() " {{{1
 
         for s in keys(userSettings[p].servers)
             call s:isType(userSettings[p].servers, s, v:false, [v:t_dict], p . '.servers.%s must be an object')
-            call s:validKeys(userSettings[p].servers[s], ['order', 'args'], 'Consider moving '.p.'.servers.'.s.'.%s to '.p.'.servers.'.s.'.args')
+            call s:validKeys(userSettings[p].servers[s], ['order', 'highlight', 'args'], 'Consider moving '.p.'.servers.'.s.'.%s to '.p.'.servers.'.s.'.args')
             call s:isType(userSettings[p].servers[s], 'order', v:false, [v:t_number], p . '.servers.'.s.'.%s must be an integer')
             call s:isType(userSettings[p].servers[s], 'args', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
+            call s:isType(userSettings[p].servers[s], 'highlight', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
+            if has_key(userSettings[p].servers[s], 'highlight')
+                let valid_keys = [ 'altfont', 'bg', 'bg_indexed', 'blend', 'blink', 'bold', 'conceal', 'cterm', 'ctermbg', 'ctermfg', 'default',
+                            \ 'dim', 'fg', 'fg_indexed', 'force', 'italic', 'link', 'link_global', 'nocombine', 'overline', 'reverse', 'sp',
+                            \ 'standout', 'strikethrough', 'undercurl', 'underdashed', 'underdotted', 'underdouble', 'underline', 'update']
+                call s:validKeys(userSettings[p].servers[s].highlight, valid_keys, p . '.servers.' . s . '.highlight.%s is an invalid key. See :h nvim_set_hl()')
+            endif
         endfor
     endfor
 

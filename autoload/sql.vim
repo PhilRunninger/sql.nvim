@@ -47,10 +47,16 @@ endfunction
 
 
 function! sql#statusline() abort " {{{1
-    if empty(sql#state#getConnection(bufnr()))
-        return '%l/%L %c%=%f%=%#ErrorMsg# Not connected '
-    else
-        return '%l/%L %c%=%f%=%{join(sql#state#getConnection(bufnr())[1:2],".")} '
-    endif
+    let connection = sql#state#getConnection(bufnr())
+    let text = empty(connection) ? '%#ErrorMsg# Not connected ' : (join(connection[1:2],'.') . ' ')
+
+    try
+        let info = empty(connection) ? {} : sql#settings#serverInfo(connection[0],connection[1])
+        call nvim_set_hl(0, 'SQLStatusline', info.highlight)
+    catch
+        call nvim_set_hl(0, 'SQLStatusline', {'link':'StatusLine'})
+    endtry
+
+    return '%#SQLStatusline#%l/%L | %c |%=%f%=| '.text
 endfunction
 
