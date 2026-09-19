@@ -1,11 +1,17 @@
 SET NOCOUNT ON
 
+SELECT 'USE ' + QUOTENAME(DB_NAME())
+UNION ALL
+SELECT 'GO'
+UNION ALL
 SELECT
-    'UPDATE ' + CASE
+    'UPDATE ' + QUOTENAME(DB_NAME()) + '.' +
+    CASE
         WHEN s.name LIKE '%.%' THEN QUOTENAME(s.name)
         WHEN s.name LIKE '% %' THEN QUOTENAME(s.name)
         ELSE s.name
-    END + '.' + CASE
+    END + '.' +
+    CASE
         WHEN o.name LIKE '%.%' THEN QUOTENAME(o.name)
         WHEN o.name LIKE '% %' THEN QUOTENAME(o.name)
         ELSE o.name
@@ -20,19 +26,19 @@ SELECT
     'SET'
 UNION ALL
 SELECT
-    '    ' + CASE
+    '    ' +
+    CASE /* comma between columns */
+        WHEN c.column_id > 1 THEN ','
+        ELSE ''
+    END +
+    CASE  /* column name */
         WHEN c.name LIKE '%.%' THEN QUOTENAME(c.name)
         WHEN c.name LIKE '% %' THEN QUOTENAME(c.name)
         ELSE c.name
-    END + ' = ' + CASE
-        WHEN tp.name LIKE '%char%' THEN ''''''
-        WHEN tp.name LIKE '%text%' THEN ''''''
-        WHEN tp.name LIKE '%date%' THEN ''''''
-        WHEN tp.name LIKE '%time%' THEN ''''''
-        ELSE ''
-    END + CASE
-        WHEN c.column_id = MAX(c.column_id) OVER () THEN ''
-        ELSE ','
+    END + ' = ' +
+    CASE  /* empty quotes for string values */
+        WHEN tp.name IN ('tinyint', 'smallint', 'int', 'bigint', 'real', 'float', 'numeric', 'bit', 'decimal', 'smallmoney', 'money') THEN ''
+        ELSE ''''''
     END
 FROM
     sys.schemas s
@@ -42,5 +48,4 @@ FROM
 WHERE
     o.object_id = OBJECT_ID('$(object)')
 UNION ALL
-SELECT
-    'WHERE '
+SELECT 'WHERE '

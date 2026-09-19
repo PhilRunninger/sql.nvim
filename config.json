@@ -8,37 +8,40 @@
             "-i": "<file>",
             "-s": "\"<delimiter>\"",
             "-W": null,
-            "-I": null,
-            "-f": 65001
+            "-I": null
         },
         "actions":{
-            "args": {"-h":-1, "-v": "object=\"<object>\""},
+            "args": {
+                "-m":1,
+                "-h":-1,
+                "-v": "object=\"<object>\""
+            },
             "Catalog": {
                 "masterDB": "master",
-                "GetDatabases": "GetDatabases.sql",
-                "GetDatabaseObjects": "GetDBObjects.sql"
+                "GetDatabases": {"file":"GetDatabases.sql"},
+                "GetDatabaseObjects": {"file":"GetDBObjects.sql"}
             },
             "Tables": {
-                "Select TOP 100":   "Select.sql",
-                "Select TOP 100 *": "SelectStar.sql",
-                "Update":           "Update.sql",
-                "Insert":           "Insert.sql",
-                "Script":           "CreateTable.sql"
+                "Preview": {"order": 1, "file": "SelectStar.sql"},
+                "Select":  {"order": 2, "file": "Select.sql"},
+                "Insert":  {"order": 3, "file": "Insert.sql"},
+                "Update":  {"order": 4, "file": "Update.sql"},
+                "Create":  {"order": 5, "file": "CreateTable.sql"}
             },
             "Views": {
-                "Select TOP 100":   "Select.sql",
-                "Select TOP 100 *": "SelectStar.sql",
-                "Script":           "TSqlText.sql"
+                "Preview": {"order": 1, "file": "SelectStar.sql"},
+                "Select":  {"order": 2, "file": "Select.sql"},
+                "Create":  {"order": 3, "file": "TSqlText.sql"}
             },
             "Stored Procedures": {
-                "Script": "TSqlText.sql",
-                "Execute": "ExecuteProc.sql"
+                "Create":  {"order": 1, "file": "TSqlText.sql"},
+                "Execute": {"order": 2, "file": "ExecuteProc.sql"}
             },
             "Scalar Functions": {
-                "Script": "TSqlText.sql"
+                "Create":  {"order": 1, "file": "TSqlText.sql"}
             },
             "Table-valued Functions": {
-                "Script": "TSqlText.sql"
+                "Create":  {"order": 1, "file": "TSqlText.sql"}
             }
         }
     },
@@ -56,18 +59,18 @@
             "args": {"-t": null, "-v": "object=\"<object>\""},
             "Catalog": {
                 "masterDB": "postgres",
-                "GetDatabases": "GetDatabases.sql",
-                "GetDatabaseObjects": "GetDBObjects.sql"
+                "GetDatabases": {"file":"GetDatabases.sql"},
+                "GetDatabaseObjects": {"file":"GetDBObjects.sql"}
             },
             "Tables": {
-                "Select TOP 100":   "Select.sql",
-                "Select TOP 100 *": "SelectStar.sql",
-                "Insert":           "Insert.sql",
-                "Update":           "Update.sql"
+                "Preview": {"order": 1, "file": "SelectStar.sql"},
+                "Select":  {"order": 2, "file": "Select.sql"},
+                "Insert":  {"order": 3, "file": "Insert.sql"},
+                "Update":  {"order": 4, "file": "Update.sql"}
             },
             "Views": {
-                "Select TOP 100":   "Select.sql",
-                "Select TOP 100 *": "SelectStar.sql"
+                "Preview": {"order": 1, "file": "SelectStar.sql"},
+                "Select":  {"order": 2, "file": "Select.sql"}
             }
         }
     }
