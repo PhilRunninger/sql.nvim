@@ -6,6 +6,8 @@ This package is a Neovim implementation of a very small portion of what SSMS doe
 
 1. Connect to multiple database types, currently SQL Server and PostgreSQL.
 1. Display a catalog window showing objects defined in the database(s).
+1. Open the Actions popup for a database object and generate object-aware SQL like `SELECT`, `INSERT`, `UPDATE`, `CREATE TABLE`, and more.
+1. Open the Search popup to find object names and patterns, then jump directly to matching catalog entries and open buffers.
 1. Run an entire SQL script, or a paragraph or visual selection in it.
 1. Craft SQL statements related to the object under the cursor, such as SELECT, INSERT, UPDATE, etc. Statements are placed in the unnamed register, ready for pasting.
 
@@ -13,12 +15,12 @@ This package is a Neovim implementation of a very small portion of what SSMS doe
 
 ## Installation
 
-Use your favorite plugin manager. If you don't have one, try one of these: [vim-pathogen](https://github.com/tpope/vim-pathogen), [vim-plug](https://github.com/junegunn/vim-plug), [Packer.nvim](https://github.com/wbthomason/packer.nvim) or [lazy.nvim](https://github.com/folke/lazy.nvim). Or, use packages and submodules, as Greg Hurrell ([@wincent](https://github.com/wincent)) describes in his excellent Youtube video: [Vim screencast #75: Plugin managers](https://www.youtube.com/watch?v=X2_R3uxDN6g)
+Use your favorite plugin manager. If you don't have one, try one of these: [vim-pathogen](https://github.com/tpope/vim-pathogen), [vim-plug](https://github.com/junegunn/vim-plug), [Packer.nvim](https://github.com/wbthomason/packer.nvim), or [lazy.nvim](https://github.com/folke/lazy.nvim).
 
 ## Filetypes
 
 ### `sql`
-Buffers of this type are where queries are written. The `:SQL` command will either set the filetype of the current empty buffer, or create a new buffer of this filetype. Alternatively, you could open an existing SQL file, and you can have more than one buffer of this type open at once.
+Buffers of this type are where queries are written. The `:SQL` command will either set the filetype of the current empty buffer, or create a new buffer of this filetype. Alternatively, you could open an existing file and set its filetype to `sql`.
 
 * <kbd>F5</kbd> - Submits the whole file or the visual selection to the database.
 * <kbd>Shift+F5</kbd> - Submits the current paragraph to the database.
@@ -26,12 +28,15 @@ Buffers of this type are where queries are written. The `:SQL` command will eith
 * <kbd>F8</kbd> - Opens a window showing the servers' catalogs. Actions done in the catalog will target the SQL buffer active when <kbd>F8</kbd> was pressed.
 
 ### `sqlcatalog` - Buffer Name: ⟪SQLCatalog⟫
-This buffer shows the platforms and servers listed in the user config, and the databases and objects that are defined in them.
+This buffer shows the platforms and servers listed in the user config, and the databases and objects that are defined in them. It is the control center for catalog browsing, search, and object-aware SQL generation.
 
-* <kbd>l</kbd> - Expands the outline, if collaped.
-* <kbd>l</kbd> - Opens a popup menu of actions that can be done on the database object.
+* <kbd>l</kbd> - Expands the outline, if collapsed.
+* <kbd>l</kbd> - Opens the Actions popup for the database object under the cursor. The popup contains object-specific actions such as `SELECT`, `INSERT`, `UPDATE`, and more.
 * <kbd>h</kbd> - Collapses the outline.
 * <kbd>Enter</kbd> - Makes the SQL buffer target this database when running its queries.
+* <kbd>F3</kbd> - Opens the Search popup to find object names and patterns, then jump to matching catalog entries or open buffers.
+* <kbd>m</kbd> - Marks a database for quick return.
+* <kbd>dm</kbd> - Deletes a mark.
 * <kbd>q</kbd> or <kbd>Esc</kbd> - Closes the SQL Catalog window.
 * <kbd>F5</kbd> - Refreshes the catalog. This is helpful after a CREATE or DROP, or after `:SQLUserConfig`.
 * <kbd>F8</kbd> - Returns to the SQL buffer that opened the Catalog.
@@ -44,7 +49,7 @@ This buffer shows the output from running the SQL script.
 * <kbd>F8</kbd> - Returns to the SQL buffer where the query is defined.
 
 ## User Configuration
-All the information about the servers and the platforms they're running is stored in a JSON file that you can edit with the `:SQLUserConfig` command. If the file is not found, the plugin will create it with the following sample contents. It is intended to show you the proper structure, but you must fill it out to match your environment.
+All the information about the servers and the platforms they're running is stored in a JSON file that you can edit with the `:SQLUserConfig` command. If the file is not found, the plugin will create one in the Neovim data directory.
 
 ```json
 // Complete the user configuration below, and then remove these comments. For details,
@@ -70,16 +75,16 @@ All the information about the servers and the platforms they're running is store
     }
 }
 ```
-* The root object contains an object for each supported platform, currently just `"sqlserver": {...}` and `"postgres": {...}`. If one is not required, it can be removed. The default command lines are shown here (`<server>`, `<database>`, `<file>`, and `<delimiter>` are placeholders):
-    * **sqlserver**: `sqlcmd -S <server> -d <database> -i <file> -s \"<delimiter>\" -W -I -f 65001`
-    * **postgres**: `psql -h <server> -d <database> -f <file> -F\"<delimiter>\" -A`
+* The root object contains an object for each supported platform, currently just `"sqlserver": {...}` and `"postgres": {...}`. If one is not required, it can be removed. The default command lines are:
+    * **sqlserver**: `sqlcmd -S <server> -d <database> -i <file> -s "<delimiter>" -W -I -f 65001`
+    * **postgres**: `psql -h <server> -d <database> -f <file> -F"<delimiter>" -A`
 * Each `<platform>` object contains:
     * a `"servers": {...}` object, and
     * an optional `"alignLimit"` numeric value. If the time estimate for doing the alignment exceeds this threshold, it is skipped. The default is `5` seconds. A value of `0` turns alignment off.
     * an optional `"delimiter"` string value. This is used as the delimiter between columns in the query results. The default is `"|"`.
 * The `"servers"` object contains an object for each server of interest.
-* The `<server>` objects hold additional command-line arguments as needed: user ID, password, port, etc. To specify a switch that has no value, enter it like so: `{"-j": null}`. The additional arguments are appended to the platform's default command line.
-* The `<server>` objects also can have a special integer value named `"order"`. Use this to move favorites to the top. Servers are sorted primarily by `"order"` (ones without `"order"` are placed below the rest), and secondarily by name.
+* The `<server>` objects hold additional command-line arguments as needed: user ID, password, port, etc. To specify a switch that has no value, enter it like so: `{"-j": null}`. The additional arguments are appended to the command line.
+* The `<server>` objects also can have a special integer value named `"order"`. Use this to move favorites to the top. Servers are sorted primarily by `"order"` (ones without `"order"` are placed below).
 
 ## Dependencies
 - For running **sqlserver** queries, [sqlcmd.exe](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16&tabs=go%2Cwindows&pivots=cs1-cmd) must be installed and in the path.
