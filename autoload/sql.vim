@@ -57,6 +57,6 @@ function! sql#statusline() abort " {{{1
         call nvim_set_hl(0, 'SQLStatusline', {'link':'StatusLine'})
     endtry
 
-    return '%#SQLStatusline#%l/%L | %c |%=%f%=| '.text
+    return '%#SQLStatusline# %l,%c %p%% ┃ %M ┃ %=%f%=┃ '.text
 endfunction
 
