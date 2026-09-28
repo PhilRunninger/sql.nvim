@@ -218,8 +218,16 @@ function! s:ObjectUnderCursor() " {{{1
     endtry
 endfunction
 
-function SqlCatalogStatusLine() " {{{1
+function s:sqlCatalogStatusLine() " {{{1
     let current = s:ObjectUnderCursor()
+
+    try
+        let info = sql#settings#serverInfo(current.platform.text, current.server.text)
+        call nvim_set_hl(0, 'SQLCatalogStatusline', info.highlight)
+    catch
+        call nvim_set_hl(0, 'SQLCatalogStatusline', {'link':'StatusLine'})
+    endtry
+
     let text = current.server.text
     if current.database.text != ''
         let text .= '.' . current.database.text
@@ -228,7 +236,7 @@ function SqlCatalogStatusLine() " {{{1
         let text .= ' ' . tolower(current.type.text)
     endif
 
-    return text
+    return '%#SQLCatalogStatusline#foo'.text
 endfunction
 
-setlocal statusline=%{SqlCatalogStatusLine()}
+execute 'setlocal statusline=%{%' . expand('<SID>') . 'sqlCatalogStatusLine()%}'
