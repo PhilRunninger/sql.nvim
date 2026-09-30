@@ -72,9 +72,10 @@ function! sql#search#openWindow()   " {{{1
 
     let buffers = sort(map(filter(range(1,bufnr('$')),{_,v -> s:bufMatches(v)}), {_,v -> '    '.bufname(v)}))
 
+
     let s:lines = flatten([
         \ 'Patterns',
-        \ map(sort(keys(s:patterns)), {_,v -> '    ' . v}),
+        \ map(sort(keys(s:patterns), {i1,i2 -> i1 !~ '.' ? -1 : 1}), {_,v -> '    ' . v}),
         \ '    ',
         \ 'Buffers',
         \ buffers
@@ -88,7 +89,8 @@ function! sql#search#openWindow()   " {{{1
         \ 'height': len(s:lines),
         \ 'width': max( [40] + map(copy(s:lines), {_,v -> len(v)}) ),
         \ 'noautocmd': 1,
-        \ 'style': 'minimal'
+        \ 'style': 'minimal',
+        \ 'title': 'Catalog Search'
     \ }
     let s:searchWindow = nvim_open_win(nvim_create_buf(0,1),1,config)
     augroup SqlAuGroupSearch

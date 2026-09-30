@@ -15,7 +15,7 @@ function! sql#actions#openWindow(platform, server, database, type, object)   " {
         \ 'row': 0,
         \ 'col': 2+len(s:object),
         \ 'height': len(actions),
-        \ 'width': max(map(copy(actions), {_,v -> len(v)})),
+        \ 'width': 1 + max([len('Actions')] + map(copy(actions), {_,v -> len(v)})),
         \ 'noautocmd': 1,
         \ 'style': 'minimal',
         \ 'title': 'Actions'

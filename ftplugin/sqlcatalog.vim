@@ -236,7 +236,7 @@ function s:sqlCatalogStatusLine() " {{{1
         let text .= ' ' . tolower(current.type.text)
     endif
 
-    return '%#SQLCatalogStatusline#foo'.text
+    return '%#SQLCatalogStatusline#'.text
 endfunction
 
 execute 'setlocal statusline=%{%' . expand('<SID>') . 'sqlCatalogStatusLine()%}'
