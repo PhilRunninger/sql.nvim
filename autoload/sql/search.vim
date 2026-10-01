@@ -75,7 +75,7 @@ function! sql#search#openWindow()   " {{{1
 
     let s:lines = flatten([
         \ 'Patterns',
-        \ map(sort(keys(s:patterns), {i1,i2 -> i1 !~ '.' ? -1 : 1}), {_,v -> '    ' . v}),
+        \ map(sort(sort(keys(s:patterns)), {i1,i2 -> len(split(i2,'\.')) - len(split(i1,'\.'))}), {_,v -> '    ' . v}),
         \ '    ',
         \ 'Buffers',
         \ buffers
