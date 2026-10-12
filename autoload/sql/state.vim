@@ -48,9 +48,13 @@ function! sql#state#read() abort   "{{{1
     return s:state
 endfunction
 
-function! sql#state#getConnection(bufnr) abort   " {{{1
-    let filename = fnamemodify(bufname(str2nr(a:bufnr)), ':p')
+function! s:bufnr2filename(bufnr) abort   " {{{1
+    let bufname = bufname(str2nr(a:bufnr))
+    return empty(bufname) ? printf('(((No Name-%d)))', a:bufnr) : fnamemodify(bufname, ':p')
+endfunction
 
+function! sql#state#getConnection(bufnr) abort   " {{{1
+    let filename = s:bufnr2filename(a:bufnr)
     if has_key(s:state.connections, filename)
         return s:state.connections[filename].db
     endif
@@ -72,7 +76,7 @@ function! sql#state#saveAs(abuf, afile) abort   " {{{1
 endfunction
 
 function! sql#state#setConnection(bufnr, db) abort   " {{{1
-    let filename = fnamemodify(bufname(str2nr(a:bufnr)), ':p')
+    let filename = s:bufnr2filename(a:bufnr)
     let s:state.connections[filename] = {'db': a:db, 'date':strftime('%Y-%m-%dT%H:%M:%S')}
 endfunction
 
@@ -96,9 +100,9 @@ function! sql#state#write() abort   " {{{1
             continue
         endif
 
-        let filename = fnamemodify(bufname(bufnr), ':p')
+        let filename = s:bufnr2filename(bufnr)
 
-        " Don't save connections for nofile buffers.
+        " Don't save connections for 'nofile' buffers.
         if getbufvar(bufnr, '&buftype') == 'nofile'
             call remove(s:state.connections, filename)
         endif
@@ -106,6 +110,13 @@ function! sql#state#write() abort   " {{{1
         " Update the access date for all connections to open buffers.
         if has_key(s:state.connections, filename)
             let s:state.connections[filename].date = strftime('%Y-%m-%dT%H:%M:%S')
+        endif
+    endfor
+
+    " Don't save connections for never-saved buffers.
+    for filename in keys(s:state.connections)
+        if filename =~? '(((No Name-\d\+)))'
+            call remove(s:state.connections, filename)
         endif
     endfor
 
