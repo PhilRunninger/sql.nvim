@@ -130,18 +130,24 @@ function! sql#settings#user() abort " {{{1
     endtry
 endfunction
 
-function! sql#settings#servers() abort " {{{1
+function! sql#settings#servers(formatted = 1) abort " {{{1
     let serverList = []
+    let formattedList = []
     let config = sql#settings#user()
     for p in keys(config)
         for s in keys(config[p].servers)
             let order = get(config[p].servers[s], 'order', v:numbermax)
-            call add(serverList, [order, s.' ('.p.')'])
+            call add(serverList, [p, s])
+            call add(formattedList, [order, s.' ('.p.')'])
         endfor
     endfor
-    call sort(serverList, {a,b -> a[1]==b[1] ? 0 : a[1]>b[1] ? 1 : -1})
-    call sort(serverList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
-    return map(serverList, {_,v -> printf('%s %s', g:sql#unexplored, v[1])})
+    if a:formatted
+        call sort(formattedList, {a,b -> a[1]==b[1] ? 0 : a[1]>b[1] ? 1 : -1})
+        call sort(formattedList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
+        return map(formattedList, {_,v -> printf('%s %s', g:sql#unexplored, v[1])})
+    else
+        return serverList
+    endif
 endfunction
 
 function! sql#settings#serverInfo(platform, server) abort " {{{1
@@ -165,4 +171,20 @@ function! sql#settings#actions(platform, type) abort " {{{1
     let actionList = values(map(sql#settings#app()['sqlserver'].actions[a:type], {k,v -> [v.order, k]}))
     call sort(actionList, {a,b -> a[0]==b[0] ? 0 : a[0]>b[0] ? 1 : -1})
     return map(actionList, {_,v -> v[1]})
+endfunction
+
+function! sql#settings#createHighlightGroups()   " {{{1
+    for [p,s] in sql#settings#servers(0)
+        let [name,spec] = sql#settings#getHighlightGroup(p,s)
+        call nvim_set_hl(0, name, spec)
+    endfor
+endfunction
+
+function! sql#settings#getHighlightGroup(platform, server) abort   "{{{1
+    let name = substitute(a:server, '\w', '', 'g')
+    let info = sql#settings#serverInfo(a:platform, a:server)
+    return [
+        \   'SQLStatus_'.name,
+        \   has_key(info, 'highlight') ? info.highlight : {'link':'Normal'}
+        \  ]
 endfunction

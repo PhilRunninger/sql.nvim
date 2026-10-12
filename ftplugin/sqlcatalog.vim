@@ -160,7 +160,7 @@ function! s:InitializeMarks()   " {{{1
     endfor
 endfunction
 
-function! s:createMark(mark, line)
+function! s:createMark(mark, line)   " {{{1
     call nvim_buf_del_mark(0, a:mark)
     call nvim_buf_set_mark(0, a:mark, a:line, 1, {})
 
@@ -178,7 +178,8 @@ function! s:SetConnection() " {{{1
 
     let current = s:ObjectUnderCursor()
     call sql#state#setConnection(sql#bufnr(), [current.platform.text, current.server.text, current.database.text])
-    redrawstatus!
+    call sql#showSQL()
+    call sql#catalog#show()
 endfunction
 
 function! s:ObjectUnderCursor() " {{{1
@@ -218,7 +219,7 @@ function! s:ObjectUnderCursor() " {{{1
     endtry
 endfunction
 
-function s:sqlCatalogStatusLine() " {{{1
+function! s:sqlCatalogStatusLine() " {{{1
     let current = s:ObjectUnderCursor()
 
     try
