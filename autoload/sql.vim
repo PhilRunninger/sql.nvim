@@ -14,7 +14,7 @@ function! sql#new() "{{{1
     let freeWindows = filter(range(1,winnr('$')), {_,w -> !getwinvar(w,'&winfixbuf')})
     if empty(freeWindows)
         1wincmd w
-        aboveleft new
+        new
     elseif &winfixbuf == 1
         execute freeWindows[0] . 'wincmd w'
     endif
