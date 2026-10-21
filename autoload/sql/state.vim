@@ -12,15 +12,23 @@ function! sql#state#read() abort   "{{{1
         return s:state
     endif
 
-    " Migrate the user state file to the lastest version. Store in script variable.
+    " Load the user state file and migrate to the lastest version.
 
-    " Version 1: [{"file": path, "plt": platform, "srv": server, "db": database, "accessed": 1234567890},...]
     let s:state = json_decode(readfile(s:stateFilePath))
-
+    " Version 1
+    "
+    "   [
+    "     {'file':path, 'plt':platform, 'srv':server, 'db':database, 'accessed':1234567890},...
+    "   ]
+    "
     if type(s:state) == v:t_list
 
-        " Version 2: [{"file": path, "plt": platform, "srv": server, "db": database, "date": "2026-05-08T23:26:53"},...]
-        " Convert v1 Unix timestamp to v2 ISO date string, and rename `accessed` to `date`.
+        " Convert to Version 2
+        "
+        "   [
+        "     {'file':path, 'plt':platform, 'srv':server, 'db':database, 'date':'2026-05-08T23:26:53'},...
+        "   ]
+        "
         for conn in s:state
             if has_key(conn, 'accessed')
                 let conn['date'] = conn.accessed
@@ -32,18 +40,26 @@ function! sql#state#read() abort   "{{{1
             endif
         endfor
 
-        " Version 3:
+        " Convert to Version 3
+        "
         "   {
-        "       "version":3,
-        "       "connections":{file1:{"db":[platform, server, database], "date":date},...},
-        "       "marks":{mark1:[platform, server, database],...}
+        "     'version':3,
+        "     'connections':{path1:{'db':[platform, server, database], 'date':date},...},
+        "     'marks':{mark1:[platform, server, database],...}
         "   }
+        "
         let temp = {}
         for conn in s:state
             let temp[conn.file] = {'db': [conn.plt, conn.srv, conn.db], 'date': conn.date}
         endfor
         let s:state = { 'version': 3, 'connections': temp, 'marks': {} }
+
     endif
+
+    " Add a property for buffer number. This is used internally, not persisted.
+    for [_,connection] in items(s:state.connections)
+        let connection.bufnr = 0
+    endfor
 
     return s:state
 endfunction
@@ -59,6 +75,11 @@ function! sql#state#getConnection(bufnr) abort   " {{{1
         return s:state.connections[filename].db
     endif
 
+    let info = filter(copy(s:state.connections), {k,v -> v.bufnr == a:bufnr})
+    if !empty(info)
+        return values(info)[0].db
+    endif
+
     return []
 endfunction
 
@@ -71,13 +92,13 @@ function! sql#state#saveAs(abuf, afile) abort   " {{{1
     let filename = fnamemodify(a:afile, ':p')
     let conn = sql#state#getConnection(a:abuf)
     if !empty(conn)
-        let s:state.connections[filename] = {'db': conn, 'date':strftime('%Y-%m-%dT%H:%M:%S')}
+        let s:state.connections[filename] = {'bufnr': a:abuf, 'db': conn, 'date': strftime('%Y-%m-%dT%H:%M:%S')}
     endif
 endfunction
 
 function! sql#state#setConnection(bufnr, db) abort   " {{{1
     let filename = s:bufnr2filename(a:bufnr)
-    let s:state.connections[filename] = {'db': a:db, 'date':strftime('%Y-%m-%dT%H:%M:%S')}
+    let s:state.connections[filename] = {'bufnr': a:bufnr, 'db': a:db, 'date': strftime('%Y-%m-%dT%H:%M:%S')}
 endfunction
 
 function! sql#state#getMarks() abort   " {{{1
@@ -120,7 +141,7 @@ function! sql#state#write() abort   " {{{1
         endif
     endfor
 
-    " Limit the number of saved connections to 500. Remove the oldest if we exceed that.
+    " Save only the 500 most recent connections.
     let sortedConnections = sort(items(s:state.connections), {a,b -> a[1].date < b[1].date ? 1 : -1})
     if len(sortedConnections) > 500
         for oldConnection in remove(sortedConnections, 500, -1)
@@ -128,6 +149,13 @@ function! sql#state#write() abort   " {{{1
         endfor
     endif
 
-    call writefile([json_encode(s:state)], s:stateFilePath)
+    " Write a copy of the state without the bufnr attribute. It's not needed
+    " in the file, and it may still be needed in the session.
+    let state = deepcopy(s:state)
+    for [_,connection] in items(state.connections)
+        call remove(connection, 'bufnr')
+    endfor
+
+    call writefile([json_encode(state)], s:stateFilePath)
 endfunction
 
