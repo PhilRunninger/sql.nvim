@@ -181,7 +181,7 @@ function! sql#settings#createHighlightGroups()   " {{{1
 endfunction
 
 function! sql#settings#getHighlightGroup(platform, server) abort   "{{{1
-    let name = substitute(a:server, '\w', '', 'g')
+    let name = substitute(a:server, '\W', '', 'g')
     let info = sql#settings#serverInfo(a:platform, a:server)
     return [
         \   'SQLStatus_'.name,
