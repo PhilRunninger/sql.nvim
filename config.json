@@ -26,22 +26,31 @@
                 "Select":  {"order": 2, "file": "Select.sql"},
                 "Insert":  {"order": 3, "file": "Insert.sql"},
                 "Update":  {"order": 4, "file": "Update.sql"},
-                "Create":  {"order": 5, "file": "CreateTable.sql"}
+                "Create":  {"order": 5, "file": "CreateTable.sql"},
+                "sp_help": {"order": 6, "file": "sp_help.sql"}
             },
             "Views": {
                 "Preview": {"order": 1, "file": "SelectStar.sql"},
                 "Select":  {"order": 2, "file": "Select.sql"},
-                "Create":  {"order": 3, "file": "TSqlText.sql"}
+                "Create":  {"order": 3, "file": "TSqlText.sql"},
+                "sp_help": {"order": 4, "file": "sp_help.sql"}
+
             },
             "Stored Procedures": {
                 "Create":  {"order": 1, "file": "TSqlText.sql"},
-                "Execute": {"order": 2, "file": "ExecuteProc.sql"}
+                "Execute": {"order": 2, "file": "ExecuteProc.sql"},
+                "sp_help": {"order": 3, "file": "sp_help.sql"}
+
             },
             "Scalar Functions": {
-                "Create":  {"order": 1, "file": "TSqlText.sql"}
+                "Create":  {"order": 1, "file": "TSqlText.sql"},
+                "sp_help": {"order": 2, "file": "sp_help.sql"}
+
             },
             "Table-valued Functions": {
-                "Create":  {"order": 1, "file": "TSqlText.sql"}
+                "Create":  {"order": 1, "file": "TSqlText.sql"},
+                "sp_help": {"order": 2, "file": "sp_help.sql"}
+
             }
         }
     },
