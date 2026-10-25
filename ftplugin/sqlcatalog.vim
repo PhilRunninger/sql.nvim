@@ -230,7 +230,7 @@ function! s:sqlCatalogStatusLine() " {{{1
         let text .= '.' . current.database.text
     endif
     if current.type.text != ''
-        let text .= ' ' . tolower(current.type.text)
+        let text .= ' %=' . tolower(split(current.type.text, ' ')[-1])
     endif
 
     return '%#SQLCatalogStatusline#'.text
