@@ -45,7 +45,7 @@ function! s:ValidateUserConfig() " {{{1
             call s:isType(userSettings[p].servers[s], 'args', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
             call s:isType(userSettings[p].servers[s], 'highlight', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
             if has_key(userSettings[p].servers[s], 'highlight')
-                call s:validKeys(userSettings[p].servers[s].highlight, ['bg', 'fg'], p . '.servers.' . s . '.highlight.%s is an invalid key. Valid keys are: bg, fg.')
+                call s:validKeys(userSettings[p].servers[s].highlight, ['bg','fg','bold','italic'], p . '.servers.' . s . '.highlight.%s is an invalid key. Valid keys are: bg, fg, bold, italic.')
             endif
         endfor
     endfor
@@ -182,7 +182,7 @@ function! sql#settings#getHighlightGroup(platform, server) abort   "{{{1
     let name = substitute(a:server, '\W', '', 'g')
     let info = sql#settings#serverInfo(a:platform, a:server)
     let spec = has_key(info, 'highlight') ? info.highlight : {'bg':'fg', 'fg':'bg'}
-    call extend(spec, {'bg':'bg', 'fg':'fg', 'bold':v:true, 'italic':v:true}, 'keep')
+    call extend(spec, {'bg':'bg', 'fg':'fg'}, 'keep')
 
     return ['SQLStatus_'.name, spec]
 endfunction
