@@ -45,10 +45,7 @@ function! s:ValidateUserConfig() " {{{1
             call s:isType(userSettings[p].servers[s], 'args', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
             call s:isType(userSettings[p].servers[s], 'highlight', v:false, [v:t_dict], p . '.servers.'.s.'.%s must be an object')
             if has_key(userSettings[p].servers[s], 'highlight')
-                let valid_keys = [ 'altfont', 'bg', 'bg_indexed', 'blend', 'blink', 'bold', 'conceal', 'cterm', 'ctermbg', 'ctermfg', 'default',
-                            \ 'dim', 'fg', 'fg_indexed', 'force', 'italic', 'link', 'link_global', 'nocombine', 'overline', 'reverse', 'sp',
-                            \ 'standout', 'strikethrough', 'undercurl', 'underdashed', 'underdotted', 'underdouble', 'underline', 'update']
-                call s:validKeys(userSettings[p].servers[s].highlight, valid_keys, p . '.servers.' . s . '.highlight.%s is an invalid key. See :h nvim_set_hl()')
+                call s:validKeys(userSettings[p].servers[s].highlight, ['bg', 'fg'], p . '.servers.' . s . '.highlight.%s is an invalid key. Valid keys are: bg, fg.')
             endif
         endfor
     endfor
@@ -177,14 +174,15 @@ function! sql#settings#createHighlightGroups()   " {{{1
     for [p,s] in sql#settings#servers(0)
         let [name,spec] = sql#settings#getHighlightGroup(p,s)
         call nvim_set_hl(0, name, spec)
+        call nvim_set_hl(0, name.'_NoText', extend(spec, {'fg':'bg'}, 'force'))
     endfor
 endfunction
 
 function! sql#settings#getHighlightGroup(platform, server) abort   "{{{1
     let name = substitute(a:server, '\W', '', 'g')
     let info = sql#settings#serverInfo(a:platform, a:server)
-    return [
-        \   'SQLStatus_'.name,
-        \   has_key(info, 'highlight') ? info.highlight : {'link':'Normal'}
-        \  ]
+    let spec = has_key(info, 'highlight') ? info.highlight : {'bg':'fg', 'fg':'bg'}
+    call extend(spec, {'bg':'bg', 'fg':'fg', 'bold':v:true, 'italic':v:true}, 'keep')
+
+    return ['SQLStatus_'.name, spec]
 endfunction

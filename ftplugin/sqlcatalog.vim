@@ -222,12 +222,8 @@ endfunction
 function! s:sqlCatalogStatusLine() " {{{1
     let current = s:ObjectUnderCursor()
 
-    try
-        let info = sql#settings#serverInfo(current.platform.text, current.server.text)
-        call nvim_set_hl(0, 'SQLCatalogStatusline', info.highlight)
-    catch
-        call nvim_set_hl(0, 'SQLCatalogStatusline', {'link':'StatusLine'})
-    endtry
+    let [_,spec] = sql#settings#getHighlightGroup(current.platform.text, current.server.text)
+    call nvim_set_hl(0, 'SQLCatalogStatusline', spec)
 
     let text = current.server.text
     if current.database.text != ''

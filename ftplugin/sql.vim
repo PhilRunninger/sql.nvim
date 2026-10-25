@@ -35,35 +35,37 @@ function! s:UpdateServerMark() abort
 
     let conn = sql#state#getConnection(bufnr())
     if empty(conn)
+        call nvim_buf_del_extmark(0, s:ns, 2)
         call nvim_buf_set_extmark(0, s:ns, line('w$') - 1, 0, {
             \   'id': 1,
-            \   'virt_text': [[' ','Special'], ['Not Connected','WarningMsg']],
+            \   'virt_text': [['  ⃠ Not Connected ','Error']],
             \   'virt_text_pos': 'eol_right_align'
             \ })
-        call nvim_buf_del_extmark(0, s:ns, 2)
         return
     endif
 
-    let [server,database,highlightGroup] = [conn[1], conn[2], sql#settings#getHighlightGroup(conn[0],conn[1])[0]]
+    let [platform,server,database] = conn
+    let [hlText,_] = sql#settings#getHighlightGroup(platform,server)
+
     if line('$') == 1
+        call nvim_buf_del_extmark(0, s:ns, 2)
         call nvim_buf_set_extmark(0, s:ns, line('w$') - 1, 0, {
             \   'id': 1,
-            \   'virt_text': [[' ','Special'], [printf('%s.%s',server,database),highlightGroup]],
+            \   'virt_text': [[' ',hlText.'_NoText'], [printf('%s.%s ',server,database),hlText]],
             \   'virt_text_pos': 'eol_right_align'
             \ })
-        call nvim_buf_del_extmark(0, s:ns, 2)
         return
     endif
 
     let length = max([len(server),len(database)])
     call nvim_buf_set_extmark(0, s:ns, line('w$') - 2, 0, {
         \   'id': 1,
-        \   'virt_text': [[' ','Special'], [': ', 'Normal'], [printf('%*s',-length,server),highlightGroup]],
+        \   'virt_text': [[' ',hlText.'_NoText'], [printf('%*s ',-length,server),hlText]],
         \   'virt_text_pos': 'eol_right_align'
         \ })
     call nvim_buf_set_extmark(0, s:ns, line('w$') - 1, 0, {
         \   'id': 2,
-        \   'virt_text': [[' ','Special'], [': ', 'Normal'], [printf('%*s',-length,database),highlightGroup]],
+        \   'virt_text': [[' ',hlText.'_NoText'], [printf('%*s ',-length,database),hlText]],
         \   'virt_text_pos': 'eol_right_align'
         \ })
 endfunction
