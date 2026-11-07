@@ -20,8 +20,6 @@
     * [Searching](#searching)
 * [Dependencies](#dependencies)
 
-![image](Screenshot.png)
-
 ## Overview
 
 This package is a Neovim implementation of a very small portion of what SSMS does. It will:
