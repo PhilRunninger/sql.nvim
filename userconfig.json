@@ -8,7 +8,7 @@
         "servers": {
             "HOSTNAME": {
                 "order":1,
-                "highlight": {"bg": "#800000", "fg": "#ffffff"},
+                "highlight": {"bg": "#800000", "fg": "white"},
                 "args": {
                     "-U": "user",
                     "-P": "password"
@@ -16,5 +16,13 @@
             }
         }
     },
-    "postgres": { "servers": { "IPADDRESS": { } } }
+    "postgres": {
+        "servers": {
+            "HOSTNAME": {
+                "args": {
+                    "-p": 5432
+                }
+            }
+        }
+    }
 }
