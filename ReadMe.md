@@ -165,6 +165,8 @@ Here some different ways to use the plugin.
 1. `:SQL config`
 1. Enter the server(s) you need to work on and any other connection info needed to log in to them. This needs to be done only when adding or removing servers, or updating servers.
 
+![Configuring sql.nvim](media/config.gif)
+
 ### Basic Query
 
 1. `:SQL new` - Creates a new SQL file.
@@ -180,6 +182,8 @@ Here some different ways to use the plugin.
 1. Modify the query.
 1. <kbd>F5</kbd> - Runs the query.
 
+![Basic Query](media/basic.gif)
+
 ### Exploring the Catalog
 
 1. From a **SQL** file, <kbd>F8</kbd> - Opens the catalog.
@@ -190,6 +194,8 @@ Here some different ways to use the plugin.
 1. Move cursor to the desired action.
 1. <kbd>l</kbd> - Creates a new SQL script to do that action.
 
+![Exploring the Datalog](media/catalog.gif)
+
 ### Searching
 
 1. From a **SQL** file, <kbd>F8</kbd> - Opens the catalog.
@@ -198,6 +204,8 @@ Here some different ways to use the plugin.
 1. Put the cursor on the table name.
 1. <kbd>F3</kbd> - Shows the Search popup. It will show the word under the cursor, and the schema.table derived from the WORD.
 1. <kbd>l</kbd> - Jumps to the catalog where that table exists.
+
+![Searching](media/search.gif)
 
 ## Dependencies
 - For running **sqlserver** queries, [sqlcmd.exe](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16&tabs=go%2Cwindows&pivots=cs1-cmd) must be installed and in the path. NOTE: This is not the newer Go version.
