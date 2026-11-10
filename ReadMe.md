@@ -1,4 +1,5 @@
 # sql.nvim
+*A SQL client for SQL Server or PostgreSQL in Neovim*
 
 ## Contents
 
@@ -22,20 +23,22 @@
 
 ## Overview
 
-This package is a Neovim implementation of a very small portion of what SSMS does. It will:
+This plugin is a Neovim implementation of a very small portion of what SSMS does. Development started when [VsVim](https://github.com/VsVim/VsVim) did not work in SSMS; however, recent versions of SSMS and VsVim are compatible, so this plugin may be starting to fall into obsolescence. It is quite capable when using Windows or SQL Server authentication, but Microsoft Entra authentication will ask for credentials on every query execution.
 
-1. Connect to either SQL Server or PostgreSQL databases, using the classic (non-Go) `sqlcmd.exe` or `psql.exe`. Recent development has targeted only SQL Server, so there may be issues with PostgreSQL connections.
+Following is a list of the plugin's features. It will:
+
+1. Connect to either SQL Server (using the classic version of `sqlcmd.exe`) or PostgreSQL databases (using `psql.exe`). Recent development has targeted only SQL Server, so there may be issues with PostgreSQL connections. (If so, submit an issue.)
 1. Display a catalog window showing databases and their objects that exist in the configured servers.
 1. Open an Actions popup on database objects to generate object-aware SQL scripts: `SELECT`, `INSERT`, `UPDATE`, `CREATE TABLE`, and more.
 1. Open a Search popup to find under-the-cursor object names or entered patterns, jumping directly to matching catalog entries or an open buffer whose name matches.
 1. Run an entire SQL script, or a paragraph or visual selection in it.
-1. From the Output window, rerun the exact query that generated the output. This useful for watching for data changes in real time.
+1. From the Output window, rerun the exact query that generated the output. This useful for watching how data change in real time.
 1. Format output results as Markdown tables, or as fixed-width tables with ASCII or Unicode borders.
 1. The `:SQL` command provides additional functionality through its subcommands described below: `config`, `new`, `fmt:markdown`, `fmt:ascii`, `fmt:unicode`.
 
 ## Installation
 
-Use your favorite plugin manager. No additional setup is required in your `.vimrc` or `init.lua`; however, there is a [separate JSON file](#user-configuration) that contains the list of servers and other connection parameters. Keeping that information in a different file keeps private data out of the Neovim config.
+Use your favorite plugin manager or manual method. No additional setup is required in your `.vimrc` or `init.lua`; however, there is a [separate JSON file](#user-configuration) that contains the list of servers and other connection parameters. Keeping that information in a different file keeps private data out of the Neovim config.
 
 ## The `:SQL` Command
 
@@ -47,7 +50,7 @@ The `:SQL` command takes exactly one of these required parameters.
 * `fmt:unicode` - formats the queries' output with Unicode box drawing characters as borders
 
 ## User Configuration
-All the information about the servers and the platforms they're running is stored in a JSON file that you can edit with the `:SQL config` command. If the file is not found, the plugin will create one in the Neovim data directory (`:echo stdpath('data').'\sql.nvim\userconfig.json`).
+All the information about the servers and the platforms they're running is stored in a JSON file that you can edit with the `:SQL config` command. If the file doesn't exist, the plugin will create it in the Neovim data directory (`:echo stdpath('data').'\sql.nvim\userconfig.json`). It will look like this:
 
 ```json
 {
@@ -80,17 +83,20 @@ All the information about the servers and the platforms they're running is store
 }
 ```
 
+> [!IMPORTANT]
+> The new file is created with a string property named `"REMOVE_ME"`, which acts as a signal to the plugin that the user configuration hasn't been completed yet. Be sure to remove the property before saving.
+
 * The root object contains an object for each supported platform, currently just `"sqlserver": {...}` and `"postgres": {...}`. If one is not required, it can be removed. The default command lines are:
     * **sqlserver**: `sqlcmd -S <server> -d <database> -i <file> -s "<delimiter>" -W -I`
     * **postgres**: `psql -h <server> -d <database> -f <file> -F"<delimiter>" -A`
 * Each `<platform>` object contains:
-    * an optional `"delimiter"` string value. This is used as the delimiter between columns in the query results. The default is `"\t"`, the tab character.
-    * an optional `"alignLimit"` numeric value. Query results come back with un-aligned columns, and the plugin aligns them again. If the alignment time estimate exceeds this threshold, it is skipped. The default is `5` seconds. A value of `0` turns alignment off.
-    * a `"servers": {...}` object
+    * an optional `"delimiter"` string value. This is used as the delimiter between columns in the query results. The default is `"|"`, the pipe character.
+    * an optional `"alignLimit"` numeric value. Query results come back with unaligned columns, and the plugin aligns them again. If the [EasyAlign](https://github.com/junegunn/vim-easy-align) plugin is used to do the alignment and the time estimate to do so exceeds this threshold, it is skipped. The default is `5` seconds. A value of `0` turns alignment off.
+    * a **required** `"servers": {...}` object
 * The `"servers"` object contains an object for each configured server.
 * The `<server>` object contains:
     * an optional `"order"` integer value used to move favorite servers to the top, in ascending order.
-    * an optional `"highlight"` object to define a highlight group with the server. You could use this to alert when you're on a production server. The following attributes are allowed: `"fg":string`, `"bg":string`, `"bold":boolean`, and `"italic":boolean`.
+    * an optional `"highlight"` object to define a highlight group for the server. You could use this to alert when you're on a production server. The following attributes are allowed: `"fg":string`, `"bg":string`, `"bold":boolean`, and `"italic":boolean`.
     * an optional `"args"` object of additional command-line arguments. Examples are: user ID, password, port, etc. To specify a switch that has no value, enter it like so: `{"-j": null}`. These additional arguments are appended to the command line.
 
 ## User State File
@@ -107,7 +113,7 @@ The plugin maintains a state file in the Neovim data directory (`:echo stdpath('
 * <kbd>F5</kbd> - Submits the whole file or the visual selection to the database.
 * <kbd>Shift+F5</kbd> - Submits the current paragraph to the database.
 * <kbd>Ctrl+F5</kbd> - Submits the BEGIN...END block surrounding the cursor to the database.
-* Holding <kbd>Alt</kbd> down while pressing any of the above <kbd>F5</kbd> mappings will prompt for a custom column delimiter.
+* Holding <kbd>Alt</kbd> down in combination with any of the above <kbd>F5</kbd> mappings will prompt for a custom, this-time-only column delimiter.
 * <kbd>F8</kbd> - Opens a window showing the servers' [catalogs](#sqlcatalog-buffer). [Actions](#actions-pop-up-window) done in the catalog will target the SQL buffer active when <kbd>F8</kbd> was pressed.
 * <kbd>F3</kbd> - Opens the [Search popup](#search-pop-up-window).
 
@@ -116,16 +122,16 @@ The `⟪SQLCatalog⟫` buffer shows the platforms and servers listed in the [use
 
 #### Buffer-local Mappings
 
-* <kbd>l</kbd> - Expands the tree, if the node is collapsed.
-* <kbd>l</kbd> - Opens the [Actions popup](#actions-pop-up-window) for the database object under the cursor.
-* <kbd>h</kbd> - Collapses the tree.
+* <kbd>l</kbd> - Expands the tree one level, if the node is collapsed.
+* <kbd>l</kbd> - Opens the [Actions popup](#actions-pop-up-window) for the database object under the cursor if the tree is fully expanded.
+* <kbd>h</kbd> - Collapses the tree one level.
 * <kbd>Enter</kbd> - Makes the SQL buffer target this database when running its queries.
 * <kbd>F3</kbd> - Opens the [Search popup](#search-pop-up-window).
 * <kbd>m</kbd> - Marks a database for quicker navigation, similar to Neovim marks.
 * <kbd>dm</kbd> - Deletes a mark.
 * <kbd>J</kbd> / <kbd>K</kbd> - Moves to bottom or top of current fold level.
 * <kbd>q</kbd> - Closes the SQL Catalog window.
-* <kbd>F5</kbd> - Refreshes the catalog. This is helpful after a CREATE, ALTER, or DROP, or after `:SQLUserConfig`.
+* <kbd>F5</kbd> - Refreshes the catalog. This is helpful after a CREATE, ALTER, or DROP, or after `:SQL config`.
 * <kbd>F8</kbd> - Returns to the SQL buffer that opened the Catalog.
 
 ### `⟪SQLOut⟫` Buffer
@@ -138,7 +144,7 @@ The `⟪SQLOut⟫` buffer shows the output from running the SQL script. The wind
 * <kbd>F8</kbd> - Returns to the SQL buffer where the query is defined.
 
 ### Actions Pop-up Window
-The **Actions** popup lists actions that are applicable to the type of object under the cursor, including `Preview`, `Select`, `Insert`, `Update`, `Create`, etc. Selecting one of these actions creates a new script that will perform that action. The following mappings are defined for this popup:
+The **Actions** popup lists actions that are applicable to the type of object under the cursor, including `Preview`, `Select`, `Insert`, `Update`, `Create`, etc. Selecting one of these popup menu items creates a new script that will perform that action.
 
 #### Buffer-local Mappings
 
@@ -147,7 +153,7 @@ The **Actions** popup lists actions that are applicable to the type of object un
 * <kbd>y</kbd> - Generate the script for the selected action, but put it in the unnamed paste buffer.
 
 ### Search Pop-up Window
-Pressing <kbd>F3</kbd> first looks at the WORD (`:h WORD`) under the cursor, and tries to parse a *schema.object* pattern from it. **Search** then looks for that pattern, and for the word (`:h word`) under the cursor, in the Catalog. If anything is found for either pattern, they are listed in the **Search** popup. Any open buffers that match the pattern(s) are listed as well. Finally, there is a way to manually enter a different pattern.
+Pressing <kbd>F3</kbd> first looks at the WORD (`:h WORD`) under the cursor, and tries to parse a *schema.object* pattern from it. **Search** then looks in the Catalog for that pattern, and for the word (`:h word`) under the cursor. If anything is found for either pattern, they are listed in the popup. Any open buffers that match the pattern(s) are listed as well. Finally, there is a way to manually enter a different pattern.
 
 #### Buffer-local Mappings
 
@@ -187,7 +193,7 @@ Here some different ways to use the plugin.
 ### Exploring the Catalog
 
 1. From a **SQL** file, <kbd>F8</kbd> - Opens the catalog.
-1. Move cursor to and expand, with <kbd>l</kbd>, the desired server, database, and object type. This is three separate tree expansions.
+1. Move cursor to and expand, with <kbd>l</kbd>, the desired server, database, and object type. This requires three separate tree expansions.
 1. Scroll to the database object name.
 1. <kbd>l</kbd> - Expands the tree, showing columns (tables and views) or parameters (functions and stored procedures).
 1. <kbd>l</kbd> - Shows Actions popup for the selected object type.
@@ -199,7 +205,7 @@ Here some different ways to use the plugin.
 ### Searching
 
 1. From a **SQL** file, <kbd>F8</kbd> - Opens the catalog.
-1. <kbd>l</kbd> - Expands the tree of applicable server and database. This populates the tree under the database, which is necessary for search to work.
+1. <kbd>l</kbd> - Expands the tree of applicable server and database. This populates the tree under the database, which is necessary for the search to work.
 1. <kbd>F8</kbd> - Returns focus to the SQL file.
 1. Put the cursor on the table name.
 1. <kbd>F3</kbd> - Shows the Search popup. It will show the word under the cursor, and the schema.table derived from the WORD.
