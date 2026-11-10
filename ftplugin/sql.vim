@@ -29,7 +29,7 @@ augroup SqlAugroupServerMark
 augroup END
 
 function! s:UpdateServerMark() abort
-    if &filetype !~? 'sql'
+    if &filetype !=? 'sql'
         return
     endif
 
