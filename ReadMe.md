@@ -32,7 +32,7 @@ Following is a list of the plugin's features. It will:
 1. Open an Actions popup on database objects to generate object-aware SQL scripts: `SELECT`, `INSERT`, `UPDATE`, `CREATE TABLE`, and more.
 1. Open a Search popup to find under-the-cursor object names or entered patterns, jumping directly to matching catalog entries or an open buffer whose name matches.
 1. Run an entire SQL script, or a paragraph or visual selection in it.
-1. From the Output window, rerun the exact query that generated the output. This useful for watching how data change in real time.
+1. From the Output window, rerun the exact query that generated the output. This is useful for watching how data change in real time.
 1. Format output results as Markdown tables, or as fixed-width tables with ASCII or Unicode borders.
 1. The `:SQL` command provides additional functionality through its subcommands described below: `config`, `new`, `fmt:markdown`, `fmt:ascii`, `fmt:unicode`.
 
@@ -111,9 +111,9 @@ The plugin maintains a state file in the Neovim data directory (`:echo stdpath('
 #### Buffer-local Mappings
 
 * <kbd>F5</kbd> - Submits the whole file or the visual selection to the database.
-* <kbd>Shift+F5</kbd> - Submits the current paragraph to the database.
-* <kbd>Ctrl+F5</kbd> - Submits the BEGIN...END block surrounding the cursor to the database.
-* Holding <kbd>Alt</kbd> down in combination with any of the above <kbd>F5</kbd> mappings will prompt for a custom, this-time-only column delimiter.
+* <kbd>Shift</kbd>+<kbd>F5</kbd> - Submits the current paragraph to the database.
+* <kbd>Ctrl</kbd>+<kbd>F5</kbd> - Submits the BEGIN...END block surrounding the cursor to the database.
+* Holding <kbd>Alt</kbd> down in combination with any of the above <kbd>F5</kbd> mappings will prompt for an alternative, this-time-only column delimiter.
 * <kbd>F8</kbd> - Opens a window showing the servers' [catalogs](#sqlcatalog-buffer). [Actions](#actions-pop-up-window) done in the catalog will target the SQL buffer active when <kbd>F8</kbd> was pressed.
 * <kbd>F3</kbd> - Opens the [Search popup](#search-pop-up-window).
 
@@ -159,7 +159,7 @@ Pressing <kbd>F3</kbd> first looks at the WORD (`:h WORD`) under the cursor, and
 
 * <kbd>h</kbd> - Close the **Search** window.
 * <kbd>l</kbd> - If the cursor is on a buffer name, show that buffer; otherwise, go to the first matching line in the Catalog.
-* <kbd>o</kbd> - Enter a custom search string.
+* <kbd>o</kbd> - Enter an alternative search string.
 * <kbd>Enter</kbd> - An INSERT mode mapping, this initiates the search for the custom string entered with the <kbd>o</kbd> mapping.
 
 ## Examples
