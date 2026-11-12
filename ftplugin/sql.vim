@@ -18,59 +18,21 @@ call nvim_buf_set_keymap(0, 'n', '<F8>',     ':call sql#bufnr(bufnr())<CR>:call 
 
 call sql#state#getConnection(bufnr())
 
-" Virtual text that shows the connected server and database.   {{{1
 call sql#settings#createHighlightGroups()
 
-let s:ns = nvim_create_namespace('server_mark')
+execute 'setlocal winbar=%{%' . expand('<SID>') . 'sqlWinbar()%}'
 
-augroup SqlAugroupServerMark
-    autocmd!
-    autocmd CursorMoved,CursorMovedI,WinScrolled,VimResized,WinEnter,BufEnter,BufNew <buffer> call <SID>UpdateServerMark()
-augroup END
-
-function! s:UpdateServerMark() abort
-    if &filetype !=? 'sql'
-        return
+function! s:sqlWinbar() abort " {{{1
+    let connection = sql#state#getConnection(bufnr())
+    if empty(connection)
+        return '%#ErrorMsg# Not connected '
     endif
 
-    let conn = sql#state#getConnection(bufnr())
-    if empty(conn)
-        call nvim_buf_del_extmark(0, s:ns, 2)
-        call nvim_buf_set_extmark(0, s:ns, line('w$') - 1, 0, {
-            \   'id': 1,
-            \   'virt_text': [['  ⃠ Not Connected ','Error']],
-            \   'virt_text_pos': 'eol_right_align'
-            \ })
-        return
-    endif
+    let text = join(connection[1:2],'.')
+    let [name,_] = sql#settings#getHighlightGroup(connection[0], connection[1])
 
-    let [platform,server,database] = conn
-    let [hlText,_] = sql#settings#getHighlightGroup(platform,server)
-
-    if line('$') == 1
-        call nvim_buf_del_extmark(0, s:ns, 2)
-        call nvim_buf_set_extmark(0, s:ns, line('w$') - 1, 0, {
-            \   'id': 1,
-            \   'virt_text': [[' ',hlText.'_NoText'], [printf('%s.%s ',server,database),hlText]],
-            \   'virt_text_pos': 'eol_right_align'
-            \ })
-        return
-    endif
-
-    let length = max([len(server),len(database)])
-    call nvim_buf_set_extmark(0, s:ns, line('w$') - 2, 0, {
-        \   'id': 1,
-        \   'virt_text': [[' ',hlText.'_NoText'], [printf('%*s ',-length,server),hlText]],
-        \   'virt_text_pos': 'eol_right_align'
-        \ })
-    call nvim_buf_set_extmark(0, s:ns, line('w$') - 1, 0, {
-        \   'id': 2,
-        \   'virt_text': [[' ',hlText.'_NoText'], [printf('%*s ',-length,database),hlText]],
-        \   'virt_text_pos': 'eol_right_align'
-        \ })
+    return '%#'.name.'#%=Connected: '.text . '%='
 endfunction
-
-call s:UpdateServerMark()
 
 function! s:PrepAndRunQuery(queryType, delimiterOverride) " {{{1
     if sql#query#isRunning()

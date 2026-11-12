@@ -21,10 +21,12 @@ setlocal nowrap nonumber norelativenumber nolist winfixwidth winfixbuf
 setlocal signcolumn=no
 setlocal foldopen-=search
 setlocal conceallevel=3 concealcursor=nvic
-setlocal fillchars=fold:\ ,eob:\  foldcolumn=0 foldmethod=expr foldexpr=SQLCatalogFoldLevel(v:lnum)
 setlocal foldtext=""
+setlocal fillchars=fold:\ ,eob:\  foldcolumn=0 foldmethod=expr
+execute 'setlocal foldexpr='  . expand('<SID>') . 'sqlCatalogFoldLevel(v:lnum)'
+execute 'setlocal winbar=%{%' . expand('<SID>') . 'sqlCatalogWinbar()%}'
 
-function! SQLCatalogFoldLevel(lnum) " {{{1
+function! s:sqlCatalogFoldLevel(lnum) " {{{1
     let l:current_indent = 1 + len(matchstr(getline(a:lnum),'^ *')) / 2
     let l:next_indent = 1 + len(matchstr(getline(a:lnum + 1),'^ *')) / 2
 
@@ -37,6 +39,20 @@ function! SQLCatalogFoldLevel(lnum) " {{{1
     endif
 endfunction
 
+function! s:sqlCatalogWinbar() " {{{1
+    let current = s:ObjectUnderCursor()
+
+    let text = current.server.text
+    if current.database.text != ''
+        let text .= '.' . current.database.text
+    endif
+    if current.type.text != ''
+        let text .= ' %=' . tolower(split(current.type.text, ' ')[-1])
+    endif
+
+    let [name,_] = sql#settings#getHighlightGroup(current.platform.text, current.server.text)
+    return '%#' . name . '#' . text
+endfunction
 function! s:Collapse() " {{{1
     if foldlevel('.') > 0
         normal zc0
@@ -219,21 +235,3 @@ function! s:ObjectUnderCursor() " {{{1
     endtry
 endfunction
 
-function! s:sqlCatalogStatusLine() " {{{1
-    let current = s:ObjectUnderCursor()
-
-    let [_,spec] = sql#settings#getHighlightGroup(current.platform.text, current.server.text)
-    call nvim_set_hl(0, 'SQLCatalogStatusline', spec)
-
-    let text = current.server.text
-    if current.database.text != ''
-        let text .= '.' . current.database.text
-    endif
-    if current.type.text != ''
-        let text .= ' %=' . tolower(split(current.type.text, ' ')[-1])
-    endif
-
-    return '%#SQLCatalogStatusline#'.text
-endfunction
-
-execute 'setlocal statusline=%{%' . expand('<SID>') . 'sqlCatalogStatusLine()%}'

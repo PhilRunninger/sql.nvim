@@ -174,15 +174,13 @@ function! sql#settings#createHighlightGroups()   " {{{1
     for [p,s] in sql#settings#servers(0)
         let [name,spec] = sql#settings#getHighlightGroup(p,s)
         call nvim_set_hl(0, name, spec)
-        call nvim_set_hl(0, name.'_NoText', extend(spec, {'fg':'bg'}, 'force'))
     endfor
 endfunction
 
 function! sql#settings#getHighlightGroup(platform, server) abort   "{{{1
     let name = substitute(a:server, '\W', '', 'g')
     let info = sql#settings#serverInfo(a:platform, a:server)
-    let spec = has_key(info, 'highlight') ? info.highlight : {'bg':'fg', 'fg':'bg'}
-    call extend(spec, {'bg':'bg', 'fg':'fg'}, 'keep')
+    let spec = extend(get(info, 'highlight', {}), {'bg':'bg', 'fg':'fg'}, 'keep')
 
-    return ['SQLStatus_'.name, spec]
+    return ['SQLWinbar_'.name, spec]
 endfunction
