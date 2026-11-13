@@ -25,7 +25,7 @@ execute 'setlocal winbar=%{%' . expand('<SID>') . 'sqlWinbar()%}'
 function! s:sqlWinbar() abort " {{{1
     let connection = sql#state#getConnection(bufnr())
     if empty(connection)
-        return '%#ErrorMsg# Not connected '
+        return '%#ErrorMsg#%= Not connected%='
     endif
 
     let text = join(connection[1:2],'.')
