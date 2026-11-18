@@ -162,6 +162,42 @@ Pressing <kbd>F3</kbd> first looks at the WORD (`:h WORD`) under the cursor, and
 * <kbd>o</kbd> - Enter an alternative search string.
 * <kbd>Enter</kbd> - An INSERT mode mapping, this initiates the search for the custom string entered with the <kbd>o</kbd> mapping.
 
+### Key Mapping Flow
+
+```mermaid
+---
+config:
+  theme: Dracula
+  look: neo
+  layout: dagre
+---
+flowchart TD
+    SQL["SQL Buffers"]
+    Catalog["Catalog"]
+    Out["Output"]
+    Actions["Actions"]
+    Search["Search"]
+
+    SQL -->|F5: run file<br/>Shift+F5: run paragraph<br/>Ctrl+F5: run block| Out
+
+    Out -->|F5: re-run query| Out
+    Out --->|F8| SQL
+    SQL <-->|F8| Catalog
+    
+    subgraph catalog
+        Catalog -->|l: actions| Actions
+        Actions -->|h: close| Catalog
+    end
+
+    Out -->|F3| Search
+    SQL -->|F3| Search
+    Catalog -->|F3| Search
+    Search -->|l: buffer| SQL
+    Search -->|l: catalog hit| Catalog
+
+    Actions -->|l: new script| SQL
+```
+
 ## Examples
 
 Here some different ways to use the plugin.
